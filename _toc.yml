@@ -1,0 +1,53 @@
+format: jb-book
+root: intro
+chapters:
+  - file: ML Coding/mlc0
+    title: ML Coding Interview
+    sections:
+      - file: ML Coding/mlc1_numpy_implementations
+      - file: ML Coding/mlc2_classic_algorithms
+      - file: ML Coding/mlc3_neural_nets_from_scratch
+      - file: ML Coding/mlc4_attention_transformer
+      - file: ML Coding/mlc5_metrics_and_losses
+      - file: ML Coding/mlc6_data_processing
+
+  - file: ML System Design/mlsd0
+    title: ML System Design Interview
+    sections:
+      - file: ML System Design/mlsd1_problem_framing
+      - file: ML System Design/mlsd2_data_and_features
+      - file: ML System Design/mlsd3_model_selection_training
+      - file: ML System Design/mlsd4_serving_and_inference
+      - file: ML System Design/mlsd5_evaluation_and_monitoring
+      - file: ML System Design/mlsd6_case_recommendation
+      - file: ML System Design/mlsd7_case_search_ads
+      - file: ML System Design/mlsd8_case_trust_safety
+      - file: ML System Design/mlsd9_case_llm_application
+
+  - file: MLOps/mlops0
+    title: MLOps
+    sections:
+      - file: MLOps/mlops1_ml_pipelines
+      - file: MLOps/mlops2_training_infra
+      - file: MLOps/mlops3_model_serving
+      - file: MLOps/mlops4_deployment_patterns
+      - file: MLOps/mlops5_monitoring_observability
+      - file: MLOps/mlops6_testing_ml_systems
+      - file: MLOps/mlops7_ml_infra_tools
+
+  - file: LLM Engineering/llm0
+    title: LLM Engineering
+    sections:
+      - file: LLM Engineering/llm1_transformer_internals
+      - file: LLM Engineering/llm2_pretraining_finetuning
+      - file: LLM Engineering/llm3_inference_optimization
+      - file: LLM Engineering/llm4_rag_systems
+      - file: LLM Engineering/llm5_prompting_agents
+      - file: LLM Engineering/llm6_llm_evaluation
+
+  - file: MLE Interview/mle0
+    title: MLE Interview Prep
+    sections:
+      - file: MLE Interview/mle1_project_deep_dive
+      - file: MLE Interview/mle2_tradeoff_questions
+      - file: MLE Interview/mle3_debugging_scenarios
