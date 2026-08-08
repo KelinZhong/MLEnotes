@@ -1,53 +1,93 @@
 format: jb-book
 root: intro
-chapters:
-  - file: ML Coding/mlc0
-    title: ML Coding Interview
-    sections:
-      - file: ML Coding/mlc1_numpy_implementations
-      - file: ML Coding/mlc2_classic_algorithms
-      - file: ML Coding/mlc3_neural_nets_from_scratch
-      - file: ML Coding/mlc4_attention_transformer
-      - file: ML Coding/mlc5_metrics_and_losses
-      - file: ML Coding/mlc6_data_processing
+parts:
+  - caption: Deep Learning Foundations
+    chapters:
+      - file: Deep Learning/DL0
+        title: Deep Learning Notes
+        sections:
+          - file: Deep Learning/DL1_how_neural_networks_learn
+          - file: Deep Learning/DL2_training_networks_effectively
+          - file: Deep Learning/DL3_preventing_overfitting
+          - file: Deep Learning/DL4_cnns_understanding_images
+          - file: Deep Learning/DL5_handling_sequences
+          - file: Deep Learning/DL6_how_attention_works
+          - file: Deep Learning/DL7_using_pretrained_models
 
-  - file: ML System Design/mlsd0
-    title: ML System Design Interview
-    sections:
-      - file: ML System Design/mlsd1_problem_framing
-      - file: ML System Design/mlsd2_data_and_features
-      - file: ML System Design/mlsd3_model_selection_training
-      - file: ML System Design/mlsd4_serving_and_inference
-      - file: ML System Design/mlsd5_evaluation_and_monitoring
-      - file: ML System Design/mlsd6_case_recommendation
-      - file: ML System Design/mlsd7_case_search_ads
-      - file: ML System Design/mlsd8_case_trust_safety
-      - file: ML System Design/mlsd9_case_llm_application
+  - caption: Frameworks
+    chapters:
+      - file: PyTorch Guide/P0_pytorch
+        title: PyTorch Notes
+        sections:
+          - file: PyTorch Guide/P1_pytorch_tensors
+          - file: PyTorch Guide/P2_pytorch_autograd
+          - file: PyTorch Guide/P3_pytorch_defining_models
+          - file: PyTorch Guide/P4_pytorch_training_loop
+          - file: PyTorch Guide/P5_pytorch_cnn
+          - file: PyTorch Guide/P6_pytorch_rnn_lstm
+          - file: PyTorch Guide/P7_pytorch_debugging
+          - file: PyTorch Guide/P8_pytorch_pretrained_models
+          - file: PyTorch Guide/P9_pytorch_finetuning
+      - file: TensorFlow Guide/tf0
+        title: TensorFlow Notes
+        sections:
+          - file: TensorFlow Guide/tf1_building_models
+          - file: TensorFlow Guide/tf2_training
+          - file: TensorFlow Guide/tf3_callbacks
+          - file: TensorFlow Guide/tf4_data_pipelines
+          - file: TensorFlow Guide/tf5_cnn
+          - file: TensorFlow Guide/tf6_regularization
+          - file: TensorFlow Guide/tf7_saving_deployment
+          - file: TensorFlow Guide/tf8_pretrained_finetuning
 
-  - file: MLOps/mlops0
-    title: MLOps
-    sections:
-      - file: MLOps/mlops1_ml_pipelines
-      - file: MLOps/mlops2_training_infra
-      - file: MLOps/mlops3_model_serving
-      - file: MLOps/mlops4_deployment_patterns
-      - file: MLOps/mlops5_monitoring_observability
-      - file: MLOps/mlops6_testing_ml_systems
-      - file: MLOps/mlops7_ml_infra_tools
+  - caption: Interview Rounds
+    chapters:
+      - file: ML Coding/mlc0
+        title: ML Coding Interview
+        sections:
+          - file: ML Coding/mlc1_numpy_implementations
+          - file: ML Coding/mlc2_classic_algorithms
+          - file: ML Coding/mlc3_neural_nets_from_scratch
+          - file: ML Coding/mlc4_attention_transformer
+          - file: ML Coding/mlc5_metrics_and_losses
+          - file: ML Coding/mlc6_data_processing
+      - file: ML System Design/mlsd0
+        title: ML System Design Interview
+        sections:
+          - file: ML System Design/mlsd1_problem_framing
+          - file: ML System Design/mlsd2_data_and_features
+          - file: ML System Design/mlsd3_model_selection_training
+          - file: ML System Design/mlsd4_serving_and_inference
+          - file: ML System Design/mlsd5_evaluation_and_monitoring
+          - file: ML System Design/mlsd6_case_recommendation
+          - file: ML System Design/mlsd7_case_search_ads
+          - file: ML System Design/mlsd8_case_trust_safety
+          - file: ML System Design/mlsd9_case_llm_application
+      - file: MLE Interview/mle0
+        title: MLE Interview Prep
+        sections:
+          - file: MLE Interview/mle1_project_deep_dive
+          - file: MLE Interview/mle2_tradeoff_questions
+          - file: MLE Interview/mle3_debugging_scenarios
 
-  - file: LLM Engineering/llm0
-    title: LLM Engineering
-    sections:
-      - file: LLM Engineering/llm1_transformer_internals
-      - file: LLM Engineering/llm2_pretraining_finetuning
-      - file: LLM Engineering/llm3_inference_optimization
-      - file: LLM Engineering/llm4_rag_systems
-      - file: LLM Engineering/llm5_prompting_agents
-      - file: LLM Engineering/llm6_llm_evaluation
-
-  - file: MLE Interview/mle0
-    title: MLE Interview Prep
-    sections:
-      - file: MLE Interview/mle1_project_deep_dive
-      - file: MLE Interview/mle2_tradeoff_questions
-      - file: MLE Interview/mle3_debugging_scenarios
+  - caption: Production & LLMs
+    chapters:
+      - file: MLOps/mlops0
+        title: MLOps
+        sections:
+          - file: MLOps/mlops1_ml_pipelines
+          - file: MLOps/mlops2_training_infra
+          - file: MLOps/mlops3_model_serving
+          - file: MLOps/mlops4_deployment_patterns
+          - file: MLOps/mlops5_monitoring_observability
+          - file: MLOps/mlops6_testing_ml_systems
+          - file: MLOps/mlops7_ml_infra_tools
+      - file: LLM Engineering/llm0
+        title: LLM Engineering
+        sections:
+          - file: LLM Engineering/llm1_transformer_internals
+          - file: LLM Engineering/llm2_pretraining_finetuning
+          - file: LLM Engineering/llm3_inference_optimization
+          - file: LLM Engineering/llm4_rag_systems
+          - file: LLM Engineering/llm5_prompting_agents
+          - file: LLM Engineering/llm6_llm_evaluation

@@ -7,7 +7,13 @@ matplotlib
 scipy
 scikit-learn
 torch
+torchvision      # DL7 / P8 / P9 load torchvision.models (was MISSING before the merge)
+tensorflow-cpu   # TensorFlow Guide (tf1-tf8); -cpu variant keeps the CI install small
+
+# NOTE: `transformers` is intentionally absent — DL7/P9 only mention it in
+# comments and print statements; nothing imports it at execution time.
 
 # Book build
 jupyter-book<2
 ipykernel
+pydata-sphinx-theme

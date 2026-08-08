@@ -10,10 +10,11 @@ permissions:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    # Notebook execution across 36 notebooks (incl. PyTorch cells) takes a while;
-    # raise the job timeout well above the default 360 min is unnecessary, but
-    # 60 min gives comfortable headroom over the ~10-20 min expected build.
-    timeout-minutes: 60
+    # 63 notebooks now execute, including PyTorch/TF training loops and
+    # pretrained-weight downloads (resnet18, EfficientNetB0/MobileNetV2/
+    # ResNet50/VGG16 imagenet weights in tf8). Raised from 60 to give the
+    # merged book comfortable headroom.
+    timeout-minutes: 120
     steps:
       - uses: actions/checkout@v4
 
@@ -21,7 +22,7 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-          cache: 'pip'          # cache wheels between runs — big speedup for torch
+          cache: 'pip'          # cache wheels between runs — big speedup for torch/tf
 
       - name: Install Jupyter Book
         run: pip install "jupyter-book<2" ghp-import pydata-sphinx-theme

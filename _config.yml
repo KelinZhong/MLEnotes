@@ -5,9 +5,15 @@ repository:
 
 execute:
   execute_notebooks: "force"
-  # Some notebooks run PyTorch training loops and benchmarks;
-  # the default 30s per-cell timeout is too aggressive.
+  # PyTorch/TensorFlow training loops and the pretrained-model notebooks
+  # (which download weights on first run) need far more than the 30s
+  # per-cell default.
   timeout: 600
+  # If build time ever becomes a problem, the biggest lever is skipping the
+  # framework guides (their outputs are already saved in the notebooks):
+  # exclude_patterns:
+  #   - "PyTorch Guide/*"
+  #   - "TensorFlow Guide/*"
 
 html:
   use_repository_button: true
@@ -23,7 +29,7 @@ sphinx:
       # 2. Force all top-level chapters into the "Topics" dropdown
       header_links_before_dropdown: 0
 
-      # 3. Keep the Sidebar working as you requested previously
+      # 3. Keep the sidebar behavior from the original book
       primary_sidebar_end: ["page-toc"]
       secondary_sidebar_items: []
 
@@ -32,6 +38,6 @@ sphinx:
       show_nav_level: 2
       navigation_depth: 4
 
-      # 5. Navbar Layout
+      # 5. Navbar layout
       navbar_center: ["navbar-nav"] # This ensures the "Topics" button appears
       navbar_end: ["theme-switcher", "navbar-icon-links"]
