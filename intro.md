@@ -2,6 +2,8 @@
 
 Study notes for Machine Learning Engineer roles, organized as runnable Jupyter notebooks — from deep learning theory, through PyTorch and TensorFlow, to the MLE interview loop and production ML.
 
+To read other notes, visite [Study Notes](https://kelinzhong.github.io/StudyNotes/).
+
 ## How this book is organized
 
 **Part I — Deep Learning Foundations.** How neural networks learn, training effectively, preventing overfitting, CNNs, sequence models, attention, and using pretrained models. Framework-agnostic theory with NumPy illustrations.
@@ -18,7 +20,3 @@ Study notes for Machine Learning Engineer roles, organized as runnable Jupyter n
 - Each interview-round section opens with **What Interviewers Test** and ends with **Common Interview Questions** and **Key Takeaways**.
 - Code cells are runnable and use only numpy, pandas, matplotlib, scikit-learn, scipy, PyTorch, and TensorFlow.
 
-## Related books
-
-- [LeetCode Prep Notes](https://github.com/KelinZhong/leetcode-prep) - Python DSA study guides and SQL query-pattern references for coding interviews
-- [Data Science Interview Prep](https://github.com/KelinZhong/ds-interview-prep) - Python data libraries, business metrics, statistics, machine learning, A/B testing, causal ML, DS workflow, and business decisions
