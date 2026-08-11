@@ -2,7 +2,7 @@
 
 Study notes for Machine Learning Engineer roles, organized as runnable Jupyter notebooks — from deep learning theory, through PyTorch and TensorFlow, to the MLE interview loop and production ML.
 
-To read other notes, visite [Study Notes](https://kelinzhong.github.io/StudyNotes/).
+To read other notes, visit [Study Notes](https://kelinzhong.github.io/StudyNotes/).
 
 ## How this book is organized
 
