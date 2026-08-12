@@ -1,0 +1,674 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Trade-Off Questions: “Why X Over Y?” &#8212; Machine Learning Engineer Notes</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=55c26ed414f5f8a31ebb" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=55c26ed414f5f8a31ebb" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../_static/togglebutton.css?v=9c3e77be" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-thebe.css?v=4fa983c6" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../_static/scripts/fontawesome.js?digest=55c26ed414f5f8a31ebb"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb" />
+
+    <script src="../_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=f281be69"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js"></script>
+    <script>let toggleHintShow = 'Click to show';</script>
+    <script>let toggleHintHide = 'Click to hide';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="../_static/togglebutton.js?v=b8b12719"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script async="async" src="../_static/sphinx-thebe.js?v=c100c467"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'MLE Interview/mle2_tradeoff_questions';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Debugging ML Systems: 6 Worked Scenarios" href="mle3_debugging_scenarios.html" />
+    <link rel="prev" title="Project Deep Dive / Behavioral Round" href="mle1_project_deep_dive.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  
+    
+    <script src="../_static/searchtools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../intro.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">Machine Learning Engineer Notes</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    Topics
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../ML%20Foundations/ML0.html">
+    ML Foundations
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../Deep%20Learning/DL0.html">
+    Deep Learning
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../PyTorch%20Guide/P0_pytorch.html">
+    PyTorch Guide
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../MLOps/mlops0.html">
+    MLOps
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../LLM%20Engineering/llm0.html">
+    LLM Engineering
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../ML%20System%20Design/mlsd0.html">
+    ML System Design
+  </a>
+</li>
+
+
+<li class=" current active">
+  <a class="nav-link dropdown-item nav-internal" href="mle0.html">
+    The MLE Interview Loop
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../ML%20Coding/mlc0.html">
+    ML Coding Round
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../TensorFlow%20Guide/tf0.html">
+    TensorFlow Guide (reference)
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../ML%20Foundations/ML0.html">
+    ML Foundations
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../Deep%20Learning/DL0.html">
+    Deep Learning
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../PyTorch%20Guide/P0_pytorch.html">
+    PyTorch Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../MLOps/mlops0.html">
+    MLOps
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../LLM%20Engineering/llm0.html">
+    LLM Engineering
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../ML%20System%20Design/mlsd0.html">
+    ML System Design
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="mle0.html">
+    The MLE Interview Loop
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../ML%20Coding/mlc0.html">
+    ML Coding Round
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../TensorFlow%20Guide/tf0.html">
+    TensorFlow Guide (reference)
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item pst-sidebar-collapse"><button id="pst-collapse-sidebar-button" aria-expanded="true" aria-controls="pst-primary-sidebar"><svg class="pst-icon svg-inline--fa" role="img" aria-hidden="true" focusable="false" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+    <path fill="currentColor" d="M3 15.5C2.36232 15.5 1.74874 15.2564 1.28478 14.8189C0.820828 14.3815 0.541576 13.7832 0.504167 13.1467L0.5 13L0.5 3C0.499965 2.36232 0.743605 1.74874 1.18107 1.28478C1.61854 0.820828 2.21676 0.541576 2.85333 0.504167L3 0.5L13 0.5C13.6377 0.499965 14.2513 0.743605 14.7152 1.18107C15.1792 1.61854 15.4584 2.21676 15.4958 2.85333L15.5 3L15.5 13C15.5 13.6377 15.2564 14.2513 14.8189 14.7152C14.3815 15.1792 13.7832 15.4584 13.1467 15.4958L13 15.5L3 15.5ZM3 13.8333L10.5 13.8333L10.5 2.16667L3 2.16667C2.79589 2.16669 2.59889 2.24163 2.44636 2.37726C2.29383 2.5129 2.19638 2.69979 2.1725 2.9025L2.16667 3L2.16667 13C2.16669 13.2041 2.24163 13.4011 2.37726 13.5536C2.5129 13.7062 2.69979 13.8036 2.9025 13.8275L3 13.8333ZM6.65583 10.325L6.5775 10.2558L4.91083 8.58917C4.76735 8.44567 4.68116 8.25476 4.66843 8.05223C4.65569 7.84971 4.71729 7.6495 4.84167 7.48917L4.91083 7.41083L6.5775 5.74417C6.72747 5.59471 6.9287 5.50794 7.14032 5.50148C7.35194 5.49502 7.55809 5.56935 7.7169 5.70937C7.8757 5.8494 7.97525 6.04463 7.99533 6.25539C8.01541 6.46616 7.95451 6.67667 7.825 6.84417L7.75583 6.9225L6.67917 8L7.75583 9.0775C7.89931 9.22099 7.98551 9.41191 7.99824 9.61443C8.01097 9.81695 7.94938 10.0172 7.825 10.1775L7.75583 10.2558C7.61234 10.3993 7.42142 10.4855 7.2189 10.4982C7.01638 10.511 6.81617 10.4494 6.65583 10.325Z"/>
+  </svg>
+  <span class="pst-collapse-sidebar-label">Collapse Sidebar</span>
+  <span class="pst-expand-sidebar-label">Expand Sidebar</span>
+</button></div>
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="mle1_project_deep_dive.html">Project Deep Dive / Behavioral Round</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Trade-Off Questions: “Why X Over Y?”</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mle3_debugging_scenarios.html">Debugging ML Systems: 6 Worked Scenarios</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item"><div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> 
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#what-interviewers-test">What Interviewers Test</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#theme-1-model-selection">Theme 1: Model Selection</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#theme-2-data-features">Theme 2: Data &amp; Features</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#theme-3-training-optimization">Theme 3: Training &amp; Optimization</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#theme-4-evaluation">Theme 4: Evaluation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#theme-5-production-serving">Theme 5: Production &amp; Serving</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#theme-6-llm-engineering">Theme 6: LLM Engineering</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#common-interview-questions">Common Interview Questions</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#key-takeaways">Key Takeaways</a></li>
+</ul>
+  </nav></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../intro.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="mle0.html" class="nav-link">The MLE Interview Loop</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Trade-Off Questions: “Why X Over Y?”</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="trade-off-questions-why-x-over-y">
+<h1>Trade-Off Questions: “Why X Over Y?”<a class="headerlink" href="#trade-off-questions-why-x-over-y" title="Link to this heading">#</a></h1>
+<p>A large class of MLE interview questions is: “Why would you use X instead of Y?” or “What’s the tradeoff between X and Y?” This note organizes 25 such questions into themes with structured answers you can adapt in real interviews.</p>
+<section id="what-interviewers-test">
+<h2>What Interviewers Test<a class="headerlink" href="#what-interviewers-test" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>Depth of understanding: do you know <em>why</em>, not just <em>what</em>?</p></li>
+<li><p>Nuanced thinking: most tradeoffs are contextual, not absolute</p></li>
+<li><p>Communication: can you explain a tradeoff in 2–3 sentences?</p></li>
+<li><p>Production awareness: do you consider serving cost, not just model accuracy?</p></li>
+</ul>
+</section>
+<section id="theme-1-model-selection">
+<h2>Theme 1: Model Selection<a class="headerlink" href="#theme-1-model-selection" title="Link to this heading">#</a></h2>
+<p><strong>Q1: Why use gradient boosting (GBDT) over a neural network for tabular data?</strong>
+GBDT (XGBoost, LightGBM) typically outperforms neural networks on tabular data with hundreds to thousands of features. It handles mixed feature types (categorical, numerical) natively, is robust to outliers, requires no feature normalization, and trains in minutes rather than hours. Neural networks for tabular data need careful regularization and architecture tuning to match GBDT quality. Choose neural nets when: (a) you have very large datasets (&gt;10M rows), (b) you need to share representations with other modalities, or (c) you need end-to-end fine-tuning with embeddings.</p>
+<p><strong>Q2: Why use logistic regression as a baseline before anything else?</strong>
+Logistic regression is linear in features, interpretable, extremely fast to train and serve, and trivial to debug (you can inspect coefficients directly). If it works well, you’ve saved weeks of ML engineering. If it underperforms, its failure mode tells you whether more data, better features, or a more expressive model is the next step. The baseline doctrine: start simple, fail fast, learn quickly.</p>
+<p><strong>Q3: Why would you use a two-tower model over matrix factorization for retrieval?</strong>
+Two-tower models accept arbitrary input features (user context, session features, item content) in addition to IDs, making them far more capable for cold-start and context-aware retrieval. Matrix factorization only uses historical interaction data and produces static embeddings. Two-tower allows online inference of user embeddings based on real-time context, while MF embeddings must be computed offline. The cost: two-tower requires more training data, more compute, and more complex inference infrastructure.</p>
+<p><strong>Q4: Why use random forests over a single decision tree?</strong>
+A single decision tree overfits easily (high variance) because it can memorize training data with enough depth. Random forests average many decorrelated trees (each trained on a bootstrap sample with feature subsampling), reducing variance substantially while keeping bias similar. The tradeoff: random forests are 100× more compute at training and inference, but typically 10–30% better on real datasets. Use a single tree only when interpretability of the exact decision path matters.</p>
+</section>
+<section id="theme-2-data-features">
+<h2>Theme 2: Data &amp; Features<a class="headerlink" href="#theme-2-data-features" title="Link to this heading">#</a></h2>
+<p><strong>Q5: Why normalize features for gradient descent but not for tree models?</strong>
+Gradient descent with unscaled features causes different features to have gradients of very different magnitudes, making the loss landscape elongated and optimization slow. Trees split on individual feature thresholds — the relative scale doesn’t affect when a split is good, so normalization doesn’t help. Over-normalizing for trees can actually hurt by obscuring natural structure.</p>
+<p><strong>Q6: Why use target encoding over one-hot encoding for high-cardinality categoricals?</strong>
+One-hot encoding creates one column per category — for a column with 10K unique values, this is a 10K-dimensional sparse feature that blooms memory and slows training. Target encoding replaces each category with its mean target value (smoothed to prevent leakage), producing a single dense feature. The risk: target encoding can leak label information if not computed on training data only (use leave-one-out or cross-fold target encoding).</p>
+<p><strong>Q7: Why is point-in-time correctness critical for feature engineering?</strong>
+If you use features computed with information from after the target label’s timestamp during training, the model will learn from the future — leakage. In production, those future features aren’t available, so the model performs much worse than offline eval suggested. Example: using a customer’s total 30-day spend to predict a purchase that happened on day 15 — the 30-day figure includes the future. Always snapshot features at the moment the prediction would be made.</p>
+<p><strong>Q8: Why use feature hashing instead of a learned embedding for sparse categoricals?</strong>
+Feature hashing maps categories to a fixed-size vector without a learned lookup table, using a hash function. This is useful when the vocabulary is dynamic (new users, new products) or extremely large (billions of unique values). A learned embedding table requires a fixed vocabulary and can’t handle out-of-vocabulary items. The tradeoff: hashing causes collisions (different items map to the same index) and lacks semantic structure that learned embeddings provide.</p>
+</section>
+<section id="theme-3-training-optimization">
+<h2>Theme 3: Training &amp; Optimization<a class="headerlink" href="#theme-3-training-optimization" title="Link to this heading">#</a></h2>
+<p><strong>Q9: Why use Adam over SGD for transformer training?</strong>
+Transformers have parameters with very different gradient magnitudes — attention weights vs. layer norms vs. feed-forward weights. Adam uses per-parameter adaptive learning rates (via exponential moving averages of gradient magnitudes), naturally handling this heterogeneity. SGD with a single learning rate requires careful tuning to work well. The tradeoff: Adam uses 2× memory (for first and second moment estimates) and can generalize slightly worse on some tasks — some recent research shows SGD can match Adam with enough tuning.</p>
+<p><strong>Q10: Why use batch normalization over layer normalization for transformers?</strong>
+You wouldn’t — layer norm is standard for transformers, batch norm is standard for CNNs. Batch norm normalizes across the batch dimension, making it depend on batch size and fail at batch size 1 (common at inference). Layer norm normalizes across the feature dimension per sample, making it batch-size independent. Transformers use variable-length sequences and are often used at batch size 1 at inference, so layer norm is the right choice.</p>
+<p><strong>Q11: Why use early stopping instead of a fixed number of epochs?</strong>
+Training loss decreases monotonically with more epochs; validation loss eventually starts increasing (overfitting). Early stopping halts training when validation loss hasn’t improved for N epochs (patience), keeping the model at its best generalization point. This is both a regularization technique (prevents overfitting) and a compute saver (avoids training longer than necessary).</p>
+<p><strong>Q12: Why is learning rate warmup important for training large models?</strong>
+At the start of training, model weights are random and gradients are large and noisy. A large learning rate at initialization causes large, destabilizing updates. Warmup linearly increases the learning rate from ~0 to the target over the first few thousand steps, allowing the optimizer to stabilize before taking large gradient steps. For transformers specifically, warmup is nearly always used (the original “Attention Is All You Need” used 4K warmup steps).</p>
+</section>
+<section id="theme-4-evaluation">
+<h2>Theme 4: Evaluation<a class="headerlink" href="#theme-4-evaluation" title="Link to this heading">#</a></h2>
+<p><strong>Q13: Why use AUC instead of accuracy for imbalanced classification?</strong>
+Accuracy is misleading for imbalanced data: a model that always predicts the majority class achieves 99% accuracy on a 99:1 class distribution. AUC measures ranking quality — how well the model separates positives from negatives regardless of the decision threshold. It’s threshold-invariant and meaningful even when positive rate is 0.1%. Use precision-recall AUC when the cost of false positives and false negatives are very different (fraud, medical diagnosis).</p>
+<p><strong>Q14: Why use NDCG over precision&#64;k for ranking?</strong>
+Precision&#64;k only cares whether items in the top-k are relevant, treating all positions equally. NDCG discounts relevance by position (item at rank 1 is worth more than at rank 10) and supports graded relevance (highly relevant &gt; somewhat relevant &gt; not relevant). For recommendation systems and search, users care more about position — a highly relevant item at rank 10 is worth less than at rank 1.</p>
+<p><strong>Q15: Why use cross-validation instead of a single train/test split?</strong>
+A single split is sensitive to which particular samples land in training vs. test — with limited data, the split can be lucky or unlucky. Cross-validation averages performance over multiple folds, giving a lower-variance estimate of generalization performance. The tradeoff: k-fold CV trains k models (k× compute). For large datasets, a single split is usually fine. For small datasets (&lt;10K), k-fold is essential.</p>
+<p><strong>Q16: Why does offline evaluation sometimes fail to predict online performance?</strong>
+Offline eval uses a static held-out set and assumes the model is deployed in a world identical to the training world. Online, the model’s outputs affect user behavior (feedback loops), the user population may differ from the historical sample (selection bias), and latency/errors may cause some requests to fall back to heuristics. The gap is largest for personalization systems where the model changes what users interact with.</p>
+</section>
+<section id="theme-5-production-serving">
+<h2>Theme 5: Production &amp; Serving<a class="headerlink" href="#theme-5-production-serving" title="Link to this heading">#</a></h2>
+<p><strong>Q17: Why use approximate nearest neighbor (ANN) over exact search at scale?</strong>
+Exact nearest neighbor search is O(N × d) per query — for 100M item embeddings at d=128, this is 12.8B multiplications per query, which at 1K QPS is impractical. ANN (HNSW, FAISS) finds the approximate k-nearest in O(log N) with a recall&#64;10 &gt; 95% for most datasets, at the cost of occasionally missing the exact nearest neighbor. In recommendation systems, the difference between the 1st and 10th nearest neighbor is almost never perceptible to users.</p>
+<p><strong>Q18: Why use a feature store instead of computing features on-the-fly?</strong>
+Computing features on-the-fly at serving time: (a) may not be possible for features requiring large historical windows (30-day purchase history); (b) couples serving latency to feature computation latency; (c) is likely to introduce training-serving skew if the computation differs from the training pipeline. A feature store precomputes features, ensures consistency between training and serving, and enables low-latency lookups.</p>
+<p><strong>Q19: Why is canary deployment preferred over a hard cutover?</strong>
+A hard cutover exposes all users to a potentially degraded model simultaneously — if the model has a bug or unexpected behavior, you’ve impacted 100% of traffic before you can detect the issue. Canary exposes 1–5% of traffic first, letting you detect problems at small scale with minimal user impact before scaling up. The cost: canary requires traffic-splitting infrastructure and takes longer to fully roll out.</p>
+<p><strong>Q20: Why use gRPC instead of REST for internal ML serving?</strong>
+gRPC uses Protocol Buffers (binary serialization) over HTTP/2, which has lower latency and smaller payload size than JSON over HTTP/1.1. For high-throughput internal services (thousands of model inference calls per second), the overhead difference is significant. REST is preferred for external APIs where tooling compatibility (curl, browser, third-party clients) matters more than raw performance.</p>
+</section>
+<section id="theme-6-llm-engineering">
+<h2>Theme 6: LLM Engineering<a class="headerlink" href="#theme-6-llm-engineering" title="Link to this heading">#</a></h2>
+<p><strong>Q21: Why use RAG instead of fine-tuning when domain knowledge changes frequently?</strong>
+Fine-tuning bakes knowledge into model weights — updating it requires retraining, which takes hours and significant cost. RAG retrieves knowledge at query time from an updatable document store, so new information is available immediately after updating the index. Fine-tune for behavioral changes (output format, tone, style); RAG for knowledge updates. RAG also provides source attribution, which fine-tuning cannot.</p>
+<p><strong>Q22: Why use LoRA instead of full fine-tuning for a 7B model?</strong>
+Full fine-tuning requires storing gradients and optimizer states for all 7B parameters — at fp16 + Adam, that’s ~84GB just for optimizer states, which requires multiple A100s. LoRA trains only small rank-r adapter matrices (~16–64M parameters), fitting comfortably on a single A100. The quality delta is typically &lt;1% on most tasks, and the trained adapters can be merged into the base model for zero-overhead inference.</p>
+<p><strong>Q23: Why use top-p sampling instead of top-k for text generation?</strong>
+Top-k always samples from exactly k tokens regardless of the model’s confidence. When the model is confident (peaked distribution), k=50 still includes many low-probability tokens. Top-p adapts: it samples from the smallest set of tokens whose cumulative probability exceeds p. When confident, nucleus is small (2–3 tokens); when uncertain, nucleus is larger. This makes top-p more robust across different confidence levels.</p>
+<p><strong>Q24: Why does quantization to int8 speed up inference?</strong>
+Modern hardware has specialized int8 matrix multiplication units (e.g., NVIDIA Tensor Cores in A100) that are 2–4× faster than fp16. INT8 also halves memory footprint vs fp16, allowing larger batches and reducing memory bandwidth pressure. The quality cost is typically &lt;0.5% AUC degradation because neural networks are over-parameterized and robust to small precision reductions. INT4 doubles the benefit again but with larger quality cost.</p>
+<p><strong>Q25: Why use streaming inference (token-by-token output) instead of waiting for the full response?</strong>
+Users perceive time-to-first-token and streaming response as much faster than waiting for the complete response. The actual generation time is the same, but perceived latency — which drives user satisfaction — improves dramatically. For a 300-token response at 30 tokens/second, streaming gives the first token in ~33ms; waiting for the full response means 10 seconds before anything appears. Streaming also allows the application to start rendering content before generation completes.</p>
+</section>
+<section id="common-interview-questions">
+<h2>Common Interview Questions<a class="headerlink" href="#common-interview-questions" title="Link to this heading">#</a></h2>
+<p><strong>Q: When does memorizing these tradeoffs help vs. hurt?</strong>
+It helps when the interviewers’ question maps cleanly to one of these pairs and your answer demonstrates real understanding. It hurts if you pattern-match to the wrong tradeoff or give a rote answer that doesn’t respond to their actual context. Always listen to what they’re setting up before answering — “why X over Y in your specific system” is different from “why X over Y in general.”</p>
+<p><strong>Q: How should I structure a tradeoff answer?</strong>
+One good structure: (1) name the key dimension the tradeoff lives on (speed vs. quality, simplicity vs. expressiveness, training vs. serving cost); (2) explain when X wins on that dimension and why; (3) explain when Y wins and why; (4) if you have a specific context, state which you’d use and why. Aim for 3–4 sentences, not a paragraph.</p>
+</section>
+<section id="key-takeaways">
+<h2>Key Takeaways<a class="headerlink" href="#key-takeaways" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>GBDT for tabular data (interpretable, fast); neural net when you need representation sharing or scale</p></li>
+<li><p>AUC &gt; accuracy for imbalanced; NDCG &gt; precision&#64;k for ranked outputs; PR-AUC for severe imbalance</p></li>
+<li><p>Feature store = consistency between training and serving + low-latency precomputed features</p></li>
+<li><p>ANN vs. exact search: 0.1% recall loss, 1000× speed gain at scale — almost always worth it</p></li>
+<li><p>RAG for facts that change; LoRA fine-tune for behavioral change; prompting as the default start</p></li>
+<li><p>Canary &gt; hard cutover; gRPC &gt; REST for internal; int8 quantization for 2× speed with &lt;0.5% loss</p></li>
+</ul>
+</section>
+</section>
+
+    <script type="text/x-thebe-config">
+    {
+        requestKernel: true,
+        binderOptions: {
+            repo: "binder-examples/jupyter-stacks-datascience",
+            ref: "master",
+        },
+        codeMirrorConfig: {
+            theme: "abcdef",
+            mode: "python"
+        },
+        kernelOptions: {
+            name: "python3",
+            path: "./MLE Interview"
+        },
+        predefinedOutput: true
+    }
+    </script>
+    <script>kernelName = 'python3'</script>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="mle1_project_deep_dive.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Project Deep Dive / Behavioral Round</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="mle3_debugging_scenarios.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Debugging ML Systems: 6 Worked Scenarios</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2023.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.4.7.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.17.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

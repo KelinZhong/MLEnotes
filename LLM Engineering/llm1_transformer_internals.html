@@ -1,0 +1,1052 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Transformer Internals for Inference &#8212; Machine Learning Engineer Notes</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=55c26ed414f5f8a31ebb" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=55c26ed414f5f8a31ebb" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../_static/togglebutton.css?v=9c3e77be" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-thebe.css?v=4fa983c6" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../_static/scripts/fontawesome.js?digest=55c26ed414f5f8a31ebb"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb" />
+
+    <script src="../_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=f281be69"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js"></script>
+    <script>let toggleHintShow = 'Click to show';</script>
+    <script>let toggleHintHide = 'Click to hide';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="../_static/togglebutton.js?v=b8b12719"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script async="async" src="../_static/sphinx-thebe.js?v=c100c467"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'LLM Engineering/llm1_transformer_internals';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Post-Training: SFT, Preference Optimization &amp; RLVR" href="llm2_pretraining_finetuning.html" />
+    <link rel="prev" title="LLM Landscape &amp; Interview Map" href="llm0.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  
+    
+    <script src="../_static/searchtools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../intro.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">Machine Learning Engineer Notes</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    Topics
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../ML%20Foundations/ML0.html">
+    ML Foundations
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../Deep%20Learning/DL0.html">
+    Deep Learning
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../PyTorch%20Guide/P0_pytorch.html">
+    PyTorch Guide
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../MLOps/mlops0.html">
+    MLOps
+  </a>
+</li>
+
+
+<li class=" current active">
+  <a class="nav-link dropdown-item nav-internal" href="llm0.html">
+    LLM Engineering
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../ML%20System%20Design/mlsd0.html">
+    ML System Design
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../MLE%20Interview/mle0.html">
+    The MLE Interview Loop
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../ML%20Coding/mlc0.html">
+    ML Coding Round
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../TensorFlow%20Guide/tf0.html">
+    TensorFlow Guide (reference)
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../ML%20Foundations/ML0.html">
+    ML Foundations
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../Deep%20Learning/DL0.html">
+    Deep Learning
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../PyTorch%20Guide/P0_pytorch.html">
+    PyTorch Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../MLOps/mlops0.html">
+    MLOps
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="llm0.html">
+    LLM Engineering
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../ML%20System%20Design/mlsd0.html">
+    ML System Design
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../MLE%20Interview/mle0.html">
+    The MLE Interview Loop
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../ML%20Coding/mlc0.html">
+    ML Coding Round
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../TensorFlow%20Guide/tf0.html">
+    TensorFlow Guide (reference)
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item pst-sidebar-collapse"><button id="pst-collapse-sidebar-button" aria-expanded="true" aria-controls="pst-primary-sidebar"><svg class="pst-icon svg-inline--fa" role="img" aria-hidden="true" focusable="false" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+    <path fill="currentColor" d="M3 15.5C2.36232 15.5 1.74874 15.2564 1.28478 14.8189C0.820828 14.3815 0.541576 13.7832 0.504167 13.1467L0.5 13L0.5 3C0.499965 2.36232 0.743605 1.74874 1.18107 1.28478C1.61854 0.820828 2.21676 0.541576 2.85333 0.504167L3 0.5L13 0.5C13.6377 0.499965 14.2513 0.743605 14.7152 1.18107C15.1792 1.61854 15.4584 2.21676 15.4958 2.85333L15.5 3L15.5 13C15.5 13.6377 15.2564 14.2513 14.8189 14.7152C14.3815 15.1792 13.7832 15.4584 13.1467 15.4958L13 15.5L3 15.5ZM3 13.8333L10.5 13.8333L10.5 2.16667L3 2.16667C2.79589 2.16669 2.59889 2.24163 2.44636 2.37726C2.29383 2.5129 2.19638 2.69979 2.1725 2.9025L2.16667 3L2.16667 13C2.16669 13.2041 2.24163 13.4011 2.37726 13.5536C2.5129 13.7062 2.69979 13.8036 2.9025 13.8275L3 13.8333ZM6.65583 10.325L6.5775 10.2558L4.91083 8.58917C4.76735 8.44567 4.68116 8.25476 4.66843 8.05223C4.65569 7.84971 4.71729 7.6495 4.84167 7.48917L4.91083 7.41083L6.5775 5.74417C6.72747 5.59471 6.9287 5.50794 7.14032 5.50148C7.35194 5.49502 7.55809 5.56935 7.7169 5.70937C7.8757 5.8494 7.97525 6.04463 7.99533 6.25539C8.01541 6.46616 7.95451 6.67667 7.825 6.84417L7.75583 6.9225L6.67917 8L7.75583 9.0775C7.89931 9.22099 7.98551 9.41191 7.99824 9.61443C8.01097 9.81695 7.94938 10.0172 7.825 10.1775L7.75583 10.2558C7.61234 10.3993 7.42142 10.4855 7.2189 10.4982C7.01638 10.511 6.81617 10.4494 6.65583 10.325Z"/>
+  </svg>
+  <span class="pst-collapse-sidebar-label">Collapse Sidebar</span>
+  <span class="pst-expand-sidebar-label">Expand Sidebar</span>
+</button></div>
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Transformer Internals for Inference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="llm2_pretraining_finetuning.html">Post-Training: SFT, Preference Optimization &amp; RLVR</a></li>
+<li class="toctree-l1"><a class="reference internal" href="llm3_inference_optimization.html">LLM Inference Optimization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="llm4_rag_systems.html">RAG Systems: Retrieval-Augmented Generation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="llm5_prompting_agents.html">Prompting, Tools &amp; Agents</a></li>
+<li class="toctree-l1"><a class="reference internal" href="llm6_llm_evaluation.html">LLM Evaluation: BLEU, ROUGE, LLM-as-Judge</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item"><div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> 
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#why-this-matters">Why This Matters</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-kv-cache">1. The KV Cache</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#the-memory-formula">The memory formula</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#gqa-and-mla-shrinking-the-cache">2. GQA and MLA: Shrinking the Cache</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#flashattention">3. FlashAttention</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#mixture-of-experts-at-inference">4. Mixture of Experts at Inference</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#sampling">5. Sampling</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#tokenization-is-a-cost-model">6. Tokenization Is a Cost Model</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#common-interview-questions">Common Interview Questions</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#key-takeaways">Key Takeaways</a></li>
+</ul>
+  </nav></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../intro.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="llm0.html" class="nav-link">LLM Landscape &amp; Interview Map</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Transformer Internals for Inference</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="transformer-internals-for-inference">
+<h1>Transformer Internals for Inference<a class="headerlink" href="#transformer-internals-for-inference" title="Link to this heading">#</a></h1>
+<p>DL6 covers what attention <em>is</em>. This note covers what the transformer became once people
+had to serve it: KV caching, the attention variants that shrink that cache, FlashAttention,
+MoE routing, and sampling. These are the topics an LLM-track interview reaches after you’ve
+shown you know basic attention.</p>
+<p><strong>Prerequisite:</strong> DL6 (attention, multi-head, positional encoding) and mlc4 (attention
+implemented from scratch in NumPy).</p>
+<section id="why-this-matters">
+<h2>Why This Matters<a class="headerlink" href="#why-this-matters" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>KV cache: what it stores, why decode needs it, and the memory formula</p></li>
+<li><p>The KV-cache reduction ladder: MHA → GQA → MLA, and what each trades away</p></li>
+<li><p>FlashAttention: why it’s faster without changing the math</p></li>
+<li><p>MoE routing at inference and why it complicates serving</p></li>
+<li><p>Sampling: greedy, temperature, top-k, top-p, min-p — and what each is for</p></li>
+<li><p>Tokenizer effects on cost, because tokens are the billing unit</p></li>
+</ul>
+</section>
+<section id="the-kv-cache">
+<h2>1. The KV Cache<a class="headerlink" href="#the-kv-cache" title="Link to this heading">#</a></h2>
+<p>During decode, each new token attends to every previous token. Without caching you’d
+recompute K and V for the entire prefix at every step — O(T²) work over a generation.
+The KV cache stores K and V for past tokens so each step computes Q, K, V for <em>one</em> new
+token and attends against the cache.</p>
+<p><strong>This is why decode is memory-bandwidth-bound.</strong> You read a large cache and a large weight
+matrix to produce a single token. The arithmetic is trivial; the reads are not.</p>
+<section id="the-memory-formula">
+<h3>The memory formula<a class="headerlink" href="#the-memory-formula" title="Link to this heading">#</a></h3>
+<p>For <span class="math notranslate nohighlight">\(L\)</span> layers, <span class="math notranslate nohighlight">\(H_{kv}\)</span> key/value heads, head dim <span class="math notranslate nohighlight">\(d_k\)</span>, sequence length <span class="math notranslate nohighlight">\(T\)</span>, batch <span class="math notranslate nohighlight">\(B\)</span>:</p>
+<div class="math notranslate nohighlight">
+\[\text{KV bytes} = 2 \times L \times B \times H_{kv} \times T \times d_k \times \text{bytes per element}\]</div>
+<p>The leading 2 is for K <em>and</em> V. Note it’s <span class="math notranslate nohighlight">\(H_{kv}\)</span>, not <span class="math notranslate nohighlight">\(H\)</span> — that distinction is the whole
+point of GQA.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">kv_cache_gb</span><span class="p">(</span><span class="n">n_layers</span><span class="p">,</span> <span class="n">n_kv_heads</span><span class="p">,</span> <span class="n">d_head</span><span class="p">,</span> <span class="n">seq_len</span><span class="p">,</span> <span class="n">batch</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">bytes_per</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;bytes_per: 2 = bf16/fp16, 1 = FP8, 0.5 = int4 cache.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">n_layers</span> <span class="o">*</span> <span class="n">batch</span> <span class="o">*</span> <span class="n">n_kv_heads</span> <span class="o">*</span> <span class="n">seq_len</span> <span class="o">*</span> <span class="n">d_head</span> <span class="o">*</span> <span class="n">bytes_per</span> <span class="o">/</span> <span class="mf">1e9</span>
+
+<span class="c1"># The KV-cache reduction ladder on a hypothetical 32-layer, 32-Q-head model.</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;KV cache at 32k context, batch 16, 32 layers, d_head=128</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;variant&#39;</span><span class="si">:</span><span class="s2">&lt;28</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="s1">&#39;kv heads&#39;</span><span class="si">:</span><span class="s2">&gt;9</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="s1">&#39;bf16 GB&#39;</span><span class="si">:</span><span class="s2">&gt;10</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="s1">&#39;FP8 GB&#39;</span><span class="si">:</span><span class="s2">&gt;9</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="s1">&#39;vs MHA&#39;</span><span class="si">:</span><span class="s2">&gt;8</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;-&quot;</span> <span class="o">*</span> <span class="mi">68</span><span class="p">)</span>
+<span class="n">base</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">kvh</span> <span class="ow">in</span> <span class="p">[(</span><span class="s2">&quot;MHA (no sharing)&quot;</span><span class="p">,</span> <span class="mi">32</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;GQA 8 groups&quot;</span><span class="p">,</span> <span class="mi">8</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;GQA 4 groups&quot;</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;MQA (1 kv head)&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)]:</span>
+    <span class="n">g16</span> <span class="o">=</span> <span class="n">kv_cache_gb</span><span class="p">(</span><span class="mi">32</span><span class="p">,</span> <span class="n">kvh</span><span class="p">,</span> <span class="mi">128</span><span class="p">,</span> <span class="mi">32_768</span><span class="p">,</span> <span class="n">batch</span><span class="o">=</span><span class="mi">16</span><span class="p">,</span> <span class="n">bytes_per</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">g8</span>  <span class="o">=</span> <span class="n">kv_cache_gb</span><span class="p">(</span><span class="mi">32</span><span class="p">,</span> <span class="n">kvh</span><span class="p">,</span> <span class="mi">128</span><span class="p">,</span> <span class="mi">32_768</span><span class="p">,</span> <span class="n">batch</span><span class="o">=</span><span class="mi">16</span><span class="p">,</span> <span class="n">bytes_per</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">base</span> <span class="o">=</span> <span class="n">base</span> <span class="ow">or</span> <span class="n">g16</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">:</span><span class="s2">&lt;28</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">kvh</span><span class="si">:</span><span class="s2">&gt;9</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">g16</span><span class="si">:</span><span class="s2">&gt;10.1f</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">g8</span><span class="si">:</span><span class="s2">&gt;9.1f</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">base</span><span class="o">/</span><span class="n">g16</span><span class="si">:</span><span class="s2">&gt;7.0f</span><span class="si">}</span><span class="s2">x&quot;</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Two independent levers, and they multiply:&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;  - fewer KV heads (GQA/MQA) shrinks the cache&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;  - FP8 cache halves it again&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Together, 32x GQA-8 + FP8 turns 137 GB into 8.6 GB — the difference&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;between &#39;needs a multi-GPU node&#39; and &#39;fits alongside the weights&#39;.&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>KV cache at 32k context, batch 16, 32 layers, d_head=128
+
+variant                       kv heads    bf16 GB    FP8 GB   vs MHA
+--------------------------------------------------------------------
+MHA (no sharing)                    32      274.9     137.4       1x
+GQA 8 groups                         8       68.7      34.4       4x
+GQA 4 groups                         4       34.4      17.2       8x
+MQA (1 kv head)                      1        8.6       4.3      32x
+
+Two independent levers, and they multiply:
+  - fewer KV heads (GQA/MQA) shrinks the cache
+  - FP8 cache halves it again
+Together, 32x GQA-8 + FP8 turns 137 GB into 8.6 GB — the difference
+between &#39;needs a multi-GPU node&#39; and &#39;fits alongside the weights&#39;.
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="gqa-and-mla-shrinking-the-cache">
+<h2>2. GQA and MLA: Shrinking the Cache<a class="headerlink" href="#gqa-and-mla-shrinking-the-cache" title="Link to this heading">#</a></h2>
+<p><strong>Multi-Head Attention (MHA)</strong> gives every query head its own K and V. Maximum expressiveness,
+maximum cache.</p>
+<p><strong>Multi-Query Attention (MQA)</strong> shares a <em>single</em> K/V pair across all query heads. Tiny cache,
+but a measurable quality drop and known training instability.</p>
+<p><strong>Grouped-Query Attention (GQA)</strong> is the compromise that won: partition H query heads into
+<span class="math notranslate nohighlight">\(H_{kv}\)</span> groups, one K/V pair per group. At <span class="math notranslate nohighlight">\(H_{kv} = H/4\)</span> you get a 4× cache reduction for
+close to no quality loss. This is why nearly every modern open-weight model ships with GQA.</p>
+<p><strong>Multi-head Latent Attention (MLA)</strong> goes further: project K and V down into a shared
+low-rank latent vector, cache <em>that</em>, and reconstruct per-head K/V on the fly. Trades a little
+compute for a much smaller cache — attractive precisely because decode is bandwidth-bound, so
+spending FLOPs to save reads is a good deal.</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Variant</p></th>
+<th class="head"><p>Cache size</p></th>
+<th class="head"><p>Quality</p></th>
+<th class="head"><p>Notes</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>MHA</p></td>
+<td><p><span class="math notranslate nohighlight">\(H\)</span> KV heads</p></td>
+<td><p>Best</p></td>
+<td><p>Original; too expensive at long context</p></td>
+</tr>
+<tr class="row-odd"><td><p>GQA</p></td>
+<td><p><span class="math notranslate nohighlight">\(H_{kv}\)</span> KV heads</p></td>
+<td><p>≈ MHA at <span class="math notranslate nohighlight">\(H/4\)</span>–<span class="math notranslate nohighlight">\(H/8\)</span></p></td>
+<td><p>The default choice today</p></td>
+</tr>
+<tr class="row-even"><td><p>MQA</p></td>
+<td><p>1 KV head</p></td>
+<td><p>Noticeable drop</p></td>
+<td><p>Aggressive; niche</p></td>
+</tr>
+<tr class="row-odd"><td><p>MLA</p></td>
+<td><p>Low-rank latent</p></td>
+<td><p>≈ MHA reported</p></td>
+<td><p>More compute, much less cache</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># GQA in NumPy: the mechanic is that KV heads are REPEATED across query-head groups.</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">gqa_attention</span><span class="p">(</span><span class="n">Q</span><span class="p">,</span> <span class="n">K</span><span class="p">,</span> <span class="n">V</span><span class="p">,</span> <span class="n">n_q_heads</span><span class="p">,</span> <span class="n">n_kv_heads</span><span class="p">,</span> <span class="n">causal</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Q: (T, n_q_heads, d)   K, V: (T, n_kv_heads, d)</span>
+<span class="sd">    Each group of (n_q_heads // n_kv_heads) query heads shares one KV head.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">assert</span> <span class="n">n_q_heads</span> <span class="o">%</span> <span class="n">n_kv_heads</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;q heads must divide evenly into kv heads&quot;</span>
+    <span class="n">group</span> <span class="o">=</span> <span class="n">n_q_heads</span> <span class="o">//</span> <span class="n">n_kv_heads</span>
+    <span class="n">T</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">d</span> <span class="o">=</span> <span class="n">Q</span><span class="o">.</span><span class="n">shape</span>
+
+    <span class="c1"># np.repeat expands (T, n_kv, d) -&gt; (T, n_q, d) WITHOUT allocating new cache entries.</span>
+    <span class="c1"># The cache still only ever stores n_kv heads; this expansion is compute-time only.</span>
+    <span class="n">K_exp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">K</span><span class="p">,</span> <span class="n">group</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">V_exp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">V</span><span class="p">,</span> <span class="n">group</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="n">scores</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s1">&#39;qhd,khd-&gt;hqk&#39;</span><span class="p">,</span> <span class="n">Q</span><span class="p">,</span> <span class="n">K_exp</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">causal</span><span class="p">:</span>
+        <span class="n">mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">triu</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">T</span><span class="p">,</span> <span class="n">T</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">),</span> <span class="n">k</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">scores</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">mask</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:],</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="n">scores</span><span class="p">)</span>
+    <span class="n">w</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">scores</span> <span class="o">-</span> <span class="n">scores</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">keepdims</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+    <span class="n">w</span> <span class="o">/=</span> <span class="n">w</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">keepdims</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s1">&#39;hqk,khd-&gt;qhd&#39;</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">V_exp</span><span class="p">)</span>
+
+<span class="n">T</span><span class="p">,</span> <span class="n">H</span><span class="p">,</span> <span class="n">H_KV</span><span class="p">,</span> <span class="n">D</span> <span class="o">=</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">16</span>
+<span class="n">Q</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="n">H</span><span class="p">,</span> <span class="n">D</span><span class="p">)</span>
+<span class="n">K</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="n">H_KV</span><span class="p">,</span> <span class="n">D</span><span class="p">)</span>
+<span class="n">V</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="n">H_KV</span><span class="p">,</span> <span class="n">D</span><span class="p">)</span>
+
+<span class="n">out</span> <span class="o">=</span> <span class="n">gqa_attention</span><span class="p">(</span><span class="n">Q</span><span class="p">,</span> <span class="n">K</span><span class="p">,</span> <span class="n">V</span><span class="p">,</span> <span class="n">n_q_heads</span><span class="o">=</span><span class="n">H</span><span class="p">,</span> <span class="n">n_kv_heads</span><span class="o">=</span><span class="n">H_KV</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Q heads: </span><span class="si">{</span><span class="n">H</span><span class="si">}</span><span class="s2">, KV heads: </span><span class="si">{</span><span class="n">H_KV</span><span class="si">}</span><span class="s2">, group size: </span><span class="si">{</span><span class="n">H</span><span class="w"> </span><span class="o">//</span><span class="w"> </span><span class="n">H_KV</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Output shape: </span><span class="si">{</span><span class="n">out</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">  (same as MHA — GQA is invisible downstream)&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Cache entries stored per layer: </span><span class="si">{</span><span class="n">H_KV</span><span class="si">}</span><span class="s2"> vs </span><span class="si">{</span><span class="n">H</span><span class="si">}</span><span class="s2"> for MHA  -&gt;  </span><span class="si">{</span><span class="n">H</span><span class="w"> </span><span class="o">//</span><span class="w"> </span><span class="n">H_KV</span><span class="si">}</span><span class="s2">x reduction&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Q heads: 8, KV heads: 2, group size: 4
+Output shape: (6, 8, 16)  (same as MHA — GQA is invisible downstream)
+Cache entries stored per layer: 2 vs 8 for MHA  -&gt;  4x reduction
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="flashattention">
+<h2>3. FlashAttention<a class="headerlink" href="#flashattention" title="Link to this heading">#</a></h2>
+<p>Standard attention materializes the full <span class="math notranslate nohighlight">\(T \times T\)</span> score matrix in GPU high-bandwidth
+memory. At long context that matrix is enormous, and writing then re-reading it is the actual
+bottleneck — not the matrix multiplies.</p>
+<p><strong>FlashAttention never materializes it.</strong> It tiles the computation, keeps tiles in fast
+on-chip SRAM, and uses the online-softmax trick to accumulate the correct result
+block-by-block without ever holding all scores at once.</p>
+<p>Two things to be clear about in an interview:</p>
+<ol class="arabic simple">
+<li><p><strong>The math is identical.</strong> FlashAttention is not an approximation. Output is exact (up to
+floating-point reassociation). Contrast with sparse or linear attention, which <em>do</em> change
+the math.</p></li>
+<li><p><strong>The win is memory traffic, not FLOPs.</strong> It performs slightly <em>more</em> arithmetic
+(recomputation in the backward pass) and is still much faster, because attention was
+IO-bound all along.</p></li>
+</ol>
+<p>Memory drops from O(T²) to O(T), which is what made long context practical at all.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Online softmax: the numerical trick that lets FlashAttention process scores in blocks.</span>
+<span class="c1"># Standard softmax needs the global max and the global sum, so it needs all scores at once.</span>
+<span class="c1"># Online softmax carries a running (max, sum) and RESCALES as new blocks arrive.</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">softmax_standard</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="n">e</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="n">x</span><span class="o">.</span><span class="n">max</span><span class="p">())</span>
+    <span class="k">return</span> <span class="n">e</span> <span class="o">/</span> <span class="n">e</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">softmax_online</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">block_size</span><span class="o">=</span><span class="mi">4</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Streams x in blocks, never holding a normalized vector over the full length.&quot;&quot;&quot;</span>
+    <span class="n">m</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span>      <span class="c1"># running max</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="mf">0.0</span>          <span class="c1"># running sum of exp(x - m)</span>
+    <span class="n">acc</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">block_size</span><span class="p">):</span>
+        <span class="n">blk</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">:</span><span class="n">i</span> <span class="o">+</span> <span class="n">block_size</span><span class="p">]</span>
+        <span class="n">m_new</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">blk</span><span class="o">.</span><span class="n">max</span><span class="p">())</span>
+        <span class="c1"># Rescale the running sum to the new max, then add this block&#39;s contribution.</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">s</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">m</span> <span class="o">-</span> <span class="n">m_new</span><span class="p">)</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">blk</span> <span class="o">-</span> <span class="n">m_new</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+        <span class="n">acc</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">blk</span><span class="p">,</span> <span class="n">m_new</span><span class="p">))</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="n">m_new</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">blk</span> <span class="o">-</span> <span class="n">m</span><span class="p">)</span> <span class="k">for</span> <span class="n">blk</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">acc</span><span class="p">])</span> <span class="o">/</span> <span class="n">s</span>
+
+<span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">16</span><span class="p">)</span> <span class="o">*</span> <span class="mi">5</span>
+<span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="o">=</span> <span class="n">softmax_standard</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">softmax_online</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">block_size</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;max abs difference: </span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">a</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">b</span><span class="p">)</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="si">:</span><span class="s2">.2e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;both sum to 1: </span><span class="si">{</span><span class="n">a</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="si">:</span><span class="s2">.6f</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">b</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="si">:</span><span class="s2">.6f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Identical results, but the online version never held all 16 scores normalized&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;at once. Scale that to T=128k and the O(T^2) score matrix never exists.&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>max abs difference: 0.00e+00
+both sum to 1: 1.000000, 1.000000
+
+Identical results, but the online version never held all 16 scores normalized
+at once. Scale that to T=128k and the O(T^2) score matrix never exists.
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="mixture-of-experts-at-inference">
+<h2>4. Mixture of Experts at Inference<a class="headerlink" href="#mixture-of-experts-at-inference" title="Link to this heading">#</a></h2>
+<p>An MoE layer replaces the dense FFN with <span class="math notranslate nohighlight">\(N\)</span> expert FFNs plus a router. Each token is routed
+to the top-<span class="math notranslate nohighlight">\(k\)</span> experts (commonly <span class="math notranslate nohighlight">\(k=1\)</span> or <span class="math notranslate nohighlight">\(2\)</span>), and only those run.</p>
+<p><strong>What this buys:</strong> total parameters — and therefore capacity — grow while FLOPs per token
+stay roughly flat.</p>
+<p><strong>What this costs, and what interviews probe:</strong></p>
+<ul class="simple">
+<li><p><strong>Memory is not saved.</strong> Every expert must be resident. See llm0 for the arithmetic.</p></li>
+<li><p><strong>Load imbalance.</strong> Routing is data-dependent; a hot expert becomes the straggler for the
+whole batch. Training uses auxiliary load-balancing losses; serving uses capacity factors
+that <em>drop</em> overflow tokens.</p></li>
+<li><p><strong>Expert parallelism.</strong> Experts get sharded across GPUs, so every layer now involves an
+all-to-all communication step. On slow interconnect this dominates.</p></li>
+<li><p><strong>Latency variance.</strong> Two identical-length requests can take different times depending on
+which experts they hit — awkward for a p99 SLA.</p></li>
+</ul>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Top-k routing and the load-imbalance problem.</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">route</span><span class="p">(</span><span class="n">tokens_hidden</span><span class="p">,</span> <span class="n">router_W</span><span class="p">,</span> <span class="n">top_k</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">capacity_factor</span><span class="o">=</span><span class="mf">1.25</span><span class="p">):</span>
+    <span class="n">T</span><span class="p">,</span> <span class="n">N</span> <span class="o">=</span> <span class="n">tokens_hidden</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">router_W</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">logits</span> <span class="o">=</span> <span class="n">tokens_hidden</span> <span class="o">@</span> <span class="n">router_W</span>
+    <span class="n">e</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">logits</span> <span class="o">-</span> <span class="n">logits</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">keepdims</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+    <span class="n">probs</span> <span class="o">=</span> <span class="n">e</span> <span class="o">/</span> <span class="n">e</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">keepdims</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">topk</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="o">-</span><span class="n">probs</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)[:,</span> <span class="p">:</span><span class="n">top_k</span><span class="p">]</span>
+    <span class="n">capacity</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">capacity_factor</span> <span class="o">*</span> <span class="n">T</span> <span class="o">*</span> <span class="n">top_k</span> <span class="o">/</span> <span class="n">N</span><span class="p">)</span>   <span class="c1"># per-expert token budget</span>
+
+    <span class="n">load</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+    <span class="n">dropped</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">T</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">ex</span> <span class="ow">in</span> <span class="n">topk</span><span class="p">[</span><span class="n">t</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="n">load</span><span class="p">[</span><span class="n">ex</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">capacity</span><span class="p">:</span>
+                <span class="n">load</span><span class="p">[</span><span class="n">ex</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">dropped</span> <span class="o">+=</span> <span class="mi">1</span>               <span class="c1"># overflow tokens skip this expert entirely</span>
+    <span class="k">return</span> <span class="n">load</span><span class="p">,</span> <span class="n">capacity</span><span class="p">,</span> <span class="n">dropped</span>
+
+<span class="n">T</span><span class="p">,</span> <span class="n">D</span><span class="p">,</span> <span class="n">N</span> <span class="o">=</span> <span class="mi">512</span><span class="p">,</span> <span class="mi">64</span><span class="p">,</span> <span class="mi">8</span>
+<span class="n">h</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="n">D</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;routing&#39;</span><span class="si">:</span><span class="s2">&lt;22</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="s1">&#39;expert loads&#39;</span><span class="si">:</span><span class="s2">&lt;34</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="s1">&#39;cap&#39;</span><span class="si">:</span><span class="s2">&gt;5</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="s1">&#39;dropped&#39;</span><span class="si">:</span><span class="s2">&gt;8</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;-&quot;</span> <span class="o">*</span> <span class="mi">74</span><span class="p">)</span>
+<span class="c1"># Balanced router</span>
+<span class="n">W_bal</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="n">D</span><span class="p">,</span> <span class="n">N</span><span class="p">)</span> <span class="o">*</span> <span class="mf">0.3</span>
+<span class="n">load</span><span class="p">,</span> <span class="n">cap</span><span class="p">,</span> <span class="n">drop</span> <span class="o">=</span> <span class="n">route</span><span class="p">(</span><span class="n">h</span><span class="p">,</span> <span class="n">W_bal</span><span class="p">,</span> <span class="n">top_k</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;balanced&#39;</span><span class="si">:</span><span class="s2">&lt;22</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">load</span><span class="p">)</span><span class="si">:</span><span class="s2">&lt;34</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">cap</span><span class="si">:</span><span class="s2">&gt;5</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">drop</span><span class="si">:</span><span class="s2">&gt;8</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="c1"># Skewed router: one expert is far more attractive</span>
+<span class="n">W_skew</span> <span class="o">=</span> <span class="n">W_bal</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+<span class="n">W_skew</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">+=</span> <span class="mf">2.0</span>
+<span class="n">load</span><span class="p">,</span> <span class="n">cap</span><span class="p">,</span> <span class="n">drop</span> <span class="o">=</span> <span class="n">route</span><span class="p">(</span><span class="n">h</span><span class="p">,</span> <span class="n">W_skew</span><span class="p">,</span> <span class="n">top_k</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;skewed (expert 0 hot)&#39;</span><span class="si">:</span><span class="s2">&lt;22</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">load</span><span class="p">)</span><span class="si">:</span><span class="s2">&lt;34</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">cap</span><span class="si">:</span><span class="s2">&gt;5</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">drop</span><span class="si">:</span><span class="s2">&gt;8</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Dropped tokens silently skip that expert&#39;s contribution — a quality hit that&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;does not show up as an error anywhere. Load-balance loss during training and&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;capacity-factor tuning at serving both exist to keep this number near zero.&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>routing                expert loads                         cap  dropped
+--------------------------------------------------------------------------
+balanced               [160 103 121 133 132 126  98 151]    160        0
+skewed (expert 0 hot)  [160  99 112 112 127 114  90 147]    160       63
+
+Dropped tokens silently skip that expert&#39;s contribution — a quality hit that
+does not show up as an error anywhere. Load-balance loss during training and
+capacity-factor tuning at serving both exist to keep this number near zero.
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="sampling">
+<h2>5. Sampling<a class="headerlink" href="#sampling" title="Link to this heading">#</a></h2>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Strategy</p></th>
+<th class="head"><p>What it does</p></th>
+<th class="head"><p>Use for</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><strong>Greedy</strong></p></td>
+<td><p>Always take argmax</p></td>
+<td><p>Deterministic extraction, classification</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Temperature</strong></p></td>
+<td><p>Divide logits by <span class="math notranslate nohighlight">\(\tau\)</span> before softmax</p></td>
+<td><p>Global diversity dial</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>Top-k</strong></p></td>
+<td><p>Keep the k highest-probability tokens</p></td>
+<td><p>Blunt tail cut; k is distribution-blind</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Top-p (nucleus)</strong></p></td>
+<td><p>Keep the smallest set with cumulative prob ≥ p</p></td>
+<td><p>Adaptive — nucleus shrinks when the model is confident</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>Min-p</strong></p></td>
+<td><p>Keep tokens with prob ≥ p × max prob</p></td>
+<td><p>Scales the cut to model confidence; robust at high temperature</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>Temperature 0 is greedy.</strong> Note that “deterministic” is still not guaranteed in practice —
+batching, kernel non-determinism, and MoE routing under varying batch composition can all
+shift results between runs. If you need reproducibility, pin it and verify rather than assume.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">softmax</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="n">e</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="n">x</span><span class="o">.</span><span class="n">max</span><span class="p">())</span>
+    <span class="k">return</span> <span class="n">e</span> <span class="o">/</span> <span class="n">e</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">top_p_mask</span><span class="p">(</span><span class="n">probs</span><span class="p">,</span> <span class="n">p</span><span class="p">):</span>
+    <span class="n">order</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="o">-</span><span class="n">probs</span><span class="p">)</span>
+    <span class="n">cum</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">probs</span><span class="p">[</span><span class="n">order</span><span class="p">])</span>
+    <span class="n">cut</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">searchsorted</span><span class="p">(</span><span class="n">cum</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+    <span class="n">keep</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">probs</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+    <span class="n">keep</span><span class="p">[</span><span class="n">order</span><span class="p">[:</span><span class="n">cut</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="k">return</span> <span class="n">keep</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">min_p_mask</span><span class="p">(</span><span class="n">probs</span><span class="p">,</span> <span class="n">p</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">probs</span> <span class="o">&gt;=</span> <span class="n">p</span> <span class="o">*</span> <span class="n">probs</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+
+<span class="c1"># Compare how each strategy behaves on a CONFIDENT vs an UNCERTAIN distribution.</span>
+<span class="n">confident</span> <span class="o">=</span> <span class="n">softmax</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">9.0</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">,</span> <span class="mf">2.5</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">]))</span>
+<span class="n">uncertain</span> <span class="o">=</span> <span class="n">softmax</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">2.2</span><span class="p">,</span> <span class="mf">2.1</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mf">1.9</span><span class="p">,</span> <span class="mf">1.85</span><span class="p">,</span> <span class="mf">1.8</span><span class="p">,</span> <span class="mf">1.75</span><span class="p">,</span> <span class="mf">1.7</span><span class="p">]))</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;distribution&#39;</span><span class="si">:</span><span class="s2">&lt;14</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="s1">&#39;strategy&#39;</span><span class="si">:</span><span class="s2">&lt;16</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="s1">&#39;tokens kept&#39;</span><span class="si">:</span><span class="s2">&gt;12</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;-&quot;</span> <span class="o">*</span> <span class="mi">46</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">label</span><span class="p">,</span> <span class="n">pr</span> <span class="ow">in</span> <span class="p">[(</span><span class="s2">&quot;confident&quot;</span><span class="p">,</span> <span class="n">confident</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;uncertain&quot;</span><span class="p">,</span> <span class="n">uncertain</span><span class="p">)]:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">label</span><span class="si">:</span><span class="s2">&lt;14</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="s1">&#39;top-k (k=4)&#39;</span><span class="si">:</span><span class="s2">&lt;16</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="mi">4</span><span class="si">:</span><span class="s2">&gt;12</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;&#39;</span><span class="si">:</span><span class="s2">&lt;14</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="s1">&#39;top-p (p=0.9)&#39;</span><span class="si">:</span><span class="s2">&lt;16</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">top_p_mask</span><span class="p">(</span><span class="n">pr</span><span class="p">,</span><span class="w"> </span><span class="mf">0.9</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="si">:</span><span class="s2">&gt;12</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;&#39;</span><span class="si">:</span><span class="s2">&lt;14</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="s1">&#39;min-p (p=0.1)&#39;</span><span class="si">:</span><span class="s2">&lt;16</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">min_p_mask</span><span class="p">(</span><span class="n">pr</span><span class="p">,</span><span class="w"> </span><span class="mf">0.1</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="si">:</span><span class="s2">&gt;12</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">()</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;top-k keeps 4 either way — it cannot tell the two apart.&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;top-p and min-p both narrow when the model is confident and widen when it isn&#39;t.&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;That adaptivity is the entire argument for preferring them.&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>distribution   strategy          tokens kept
+----------------------------------------------
+confident      top-k (k=4)                 4
+               top-p (p=0.9)               1
+               min-p (p=0.1)               1
+
+uncertain      top-k (k=4)                 4
+               top-p (p=0.9)               7
+               min-p (p=0.1)               8
+
+top-k keeps 4 either way — it cannot tell the two apart.
+top-p and min-p both narrow when the model is confident and widen when it isn&#39;t.
+That adaptivity is the entire argument for preferring them.
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="tokenization-is-a-cost-model">
+<h2>6. Tokenization Is a Cost Model<a class="headerlink" href="#tokenization-is-a-cost-model" title="Link to this heading">#</a></h2>
+<p>Tokens are the billing unit, the context-window unit, and the latency unit. A few
+consequences worth carrying into a design discussion:</p>
+<ul class="simple">
+<li><p>English prose runs roughly 4 characters per token. <strong>Code, JSON, and non-Latin scripts run
+far worse</strong> — sometimes 1–2 characters per token. A multilingual product can pay several
+times more per “same” message.</p></li>
+<li><p>Whitespace and formatting are billable. Pretty-printed JSON in a prompt costs real money at
+volume.</p></li>
+<li><p>Numbers tokenize badly and inconsistently, which is part of why models are shaky at
+arithmetic.</p></li>
+<li><p><strong>Never estimate cost from character counts.</strong> Tokenize a representative sample.</p></li>
+</ul>
+</section>
+<section id="common-interview-questions">
+<h2>Common Interview Questions<a class="headerlink" href="#common-interview-questions" title="Link to this heading">#</a></h2>
+<p><strong>Q: Walk me through why decode is memory-bandwidth-bound.</strong>
+To emit one token you read the full weight matrices and the whole KV cache from HBM, then do
+roughly <code class="docutils literal notranslate"><span class="pre">2</span> <span class="pre">×</span> <span class="pre">params</span></code> FLOPs. Modern accelerators have far more FLOP/s than bytes/s, so the read
+dominates and the arithmetic units idle. Batching is the fix: reading weights once for 64
+sequences amortizes the expensive part, which is exactly why continuous batching matters so
+much for throughput.</p>
+<p><strong>Q: Why did GQA become the default rather than MQA?</strong>
+MQA collapses to a single KV head — maximum savings, but measurable quality degradation and
+training instability. GQA keeps a handful of KV groups, which recovers essentially all the
+quality while still cutting the cache 4–8×. It’s the knee of the curve, and the knee is where
+production settles.</p>
+<p><strong>Q: Is FlashAttention an approximation?</strong>
+No — output is exact. It reorders the computation to keep tiles in on-chip SRAM and uses
+online softmax to avoid materializing the T×T score matrix. It actually does slightly more
+arithmetic (recomputation in backward) and is still much faster, because attention was
+IO-bound rather than compute-bound. Sparse and linear attention <em>are</em> approximations;
+FlashAttention is not.</p>
+<p><strong>Q: A 400B-parameter MoE only activates 30B per token. Can I serve it on one 80GB GPU?</strong>
+No. Activation sparsity reduces FLOPs, not residency — all 400B parameters must be in memory
+because routing is data-dependent and any expert may be needed for the next token. At FP8
+that’s roughly 400GB of weights before the KV cache, so you need a multi-GPU node with expert
+parallelism. This is the most common MoE misconception.</p>
+<p><strong>Q: When would you use min-p over top-p?</strong>
+At high temperature. Top-p operates on cumulative mass, so when temperature flattens the
+distribution the nucleus can swell to include genuinely bad tokens. Min-p thresholds relative
+to the top token’s probability, so the cut tracks model confidence rather than accumulated
+mass — it stays sane where top-p degrades.</p>
+<p><strong>Q: Your latency SLA is p99 but you’re serving MoE. What’s the concern?</strong>
+Routing is data-dependent, so per-request latency depends on which experts are hit and how
+loaded they are. A hot expert becomes a straggler that delays the whole batch, and expert
+parallelism adds an all-to-all per layer whose cost varies with routing. You get a wider
+latency distribution than a dense model of equivalent active size — which is a p99 problem
+even when p50 looks great.</p>
+</section>
+<section id="key-takeaways">
+<h2>Key Takeaways<a class="headerlink" href="#key-takeaways" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>KV cache turns decode from O(T²) to O(T) recomputation, at the price of O(T) memory</p></li>
+<li><p>Cache formula: <code class="docutils literal notranslate"><span class="pre">2</span> <span class="pre">×</span> <span class="pre">L</span> <span class="pre">×</span> <span class="pre">B</span> <span class="pre">×</span> <span class="pre">H_kv</span> <span class="pre">×</span> <span class="pre">T</span> <span class="pre">×</span> <span class="pre">d_head</span> <span class="pre">×</span> <span class="pre">bytes</span></code> — note H_kv, not H</p></li>
+<li><p>Reduction ladder: MHA → GQA (the default) → MQA (aggressive) → MLA (low-rank latent)</p></li>
+<li><p>Cache precision multiplies with head reduction: GQA-8 plus FP8 is ~8× on top of ~4×</p></li>
+<li><p>FlashAttention is exact, not approximate; it wins on memory traffic and enables long context</p></li>
+<li><p>MoE grows capacity at flat FLOPs but saves no memory, and adds load imbalance and latency variance</p></li>
+<li><p>Sampling: top-p and min-p adapt to model confidence; top-k cannot</p></li>
+<li><p>Tokenize a real sample before quoting any cost estimate — characters lie, especially for code and non-English text</p></li>
+</ul>
+</section>
+</section>
+
+    <script type="text/x-thebe-config">
+    {
+        requestKernel: true,
+        binderOptions: {
+            repo: "binder-examples/jupyter-stacks-datascience",
+            ref: "master",
+        },
+        codeMirrorConfig: {
+            theme: "abcdef",
+            mode: "python"
+        },
+        kernelOptions: {
+            name: "python3",
+            path: "./LLM Engineering"
+        },
+        predefinedOutput: true
+    }
+    </script>
+    <script>kernelName = 'python3'</script>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="llm0.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">LLM Landscape &amp; Interview Map</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="llm2_pretraining_finetuning.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Post-Training: SFT, Preference Optimization &amp; RLVR</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2023.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.4.7.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.17.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

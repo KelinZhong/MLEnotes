@@ -1,0 +1,856 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Case Study: Feed Recommendation System &#8212; Machine Learning Engineer Notes</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=55c26ed414f5f8a31ebb" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=55c26ed414f5f8a31ebb" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../_static/togglebutton.css?v=9c3e77be" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-thebe.css?v=4fa983c6" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../_static/scripts/fontawesome.js?digest=55c26ed414f5f8a31ebb"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb" />
+
+    <script src="../_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=f281be69"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js"></script>
+    <script>let toggleHintShow = 'Click to show';</script>
+    <script>let toggleHintHide = 'Click to hide';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="../_static/togglebutton.js?v=b8b12719"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script async="async" src="../_static/sphinx-thebe.js?v=c100c467"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'ML System Design/mlsd6_case_recommendation';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Case Study: Search Ranking &amp; Ads CTR" href="mlsd7_case_search_ads.html" />
+    <link rel="prev" title="Evaluation, A/B Testing &amp; Monitoring" href="mlsd5_evaluation_and_monitoring.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  
+    
+    <script src="../_static/searchtools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../intro.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">Machine Learning Engineer Notes</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    Topics
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../ML%20Foundations/ML0.html">
+    ML Foundations
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../Deep%20Learning/DL0.html">
+    Deep Learning
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../PyTorch%20Guide/P0_pytorch.html">
+    PyTorch Guide
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../MLOps/mlops0.html">
+    MLOps
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../LLM%20Engineering/llm0.html">
+    LLM Engineering
+  </a>
+</li>
+
+
+<li class=" current active">
+  <a class="nav-link dropdown-item nav-internal" href="mlsd0.html">
+    ML System Design
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../MLE%20Interview/mle0.html">
+    The MLE Interview Loop
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../ML%20Coding/mlc0.html">
+    ML Coding Round
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../TensorFlow%20Guide/tf0.html">
+    TensorFlow Guide (reference)
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../ML%20Foundations/ML0.html">
+    ML Foundations
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../Deep%20Learning/DL0.html">
+    Deep Learning
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../PyTorch%20Guide/P0_pytorch.html">
+    PyTorch Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../MLOps/mlops0.html">
+    MLOps
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../LLM%20Engineering/llm0.html">
+    LLM Engineering
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="mlsd0.html">
+    ML System Design
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../MLE%20Interview/mle0.html">
+    The MLE Interview Loop
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../ML%20Coding/mlc0.html">
+    ML Coding Round
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../TensorFlow%20Guide/tf0.html">
+    TensorFlow Guide (reference)
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item pst-sidebar-collapse"><button id="pst-collapse-sidebar-button" aria-expanded="true" aria-controls="pst-primary-sidebar"><svg class="pst-icon svg-inline--fa" role="img" aria-hidden="true" focusable="false" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+    <path fill="currentColor" d="M3 15.5C2.36232 15.5 1.74874 15.2564 1.28478 14.8189C0.820828 14.3815 0.541576 13.7832 0.504167 13.1467L0.5 13L0.5 3C0.499965 2.36232 0.743605 1.74874 1.18107 1.28478C1.61854 0.820828 2.21676 0.541576 2.85333 0.504167L3 0.5L13 0.5C13.6377 0.499965 14.2513 0.743605 14.7152 1.18107C15.1792 1.61854 15.4584 2.21676 15.4958 2.85333L15.5 3L15.5 13C15.5 13.6377 15.2564 14.2513 14.8189 14.7152C14.3815 15.1792 13.7832 15.4584 13.1467 15.4958L13 15.5L3 15.5ZM3 13.8333L10.5 13.8333L10.5 2.16667L3 2.16667C2.79589 2.16669 2.59889 2.24163 2.44636 2.37726C2.29383 2.5129 2.19638 2.69979 2.1725 2.9025L2.16667 3L2.16667 13C2.16669 13.2041 2.24163 13.4011 2.37726 13.5536C2.5129 13.7062 2.69979 13.8036 2.9025 13.8275L3 13.8333ZM6.65583 10.325L6.5775 10.2558L4.91083 8.58917C4.76735 8.44567 4.68116 8.25476 4.66843 8.05223C4.65569 7.84971 4.71729 7.6495 4.84167 7.48917L4.91083 7.41083L6.5775 5.74417C6.72747 5.59471 6.9287 5.50794 7.14032 5.50148C7.35194 5.49502 7.55809 5.56935 7.7169 5.70937C7.8757 5.8494 7.97525 6.04463 7.99533 6.25539C8.01541 6.46616 7.95451 6.67667 7.825 6.84417L7.75583 6.9225L6.67917 8L7.75583 9.0775C7.89931 9.22099 7.98551 9.41191 7.99824 9.61443C8.01097 9.81695 7.94938 10.0172 7.825 10.1775L7.75583 10.2558C7.61234 10.3993 7.42142 10.4855 7.2189 10.4982C7.01638 10.511 6.81617 10.4494 6.65583 10.325Z"/>
+  </svg>
+  <span class="pst-collapse-sidebar-label">Collapse Sidebar</span>
+  <span class="pst-expand-sidebar-label">Expand Sidebar</span>
+</button></div>
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="mlsd1_problem_framing.html">Problem Framing &amp; Metrics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mlsd2_data_and_features.html">Training Data &amp; Features at Scale</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mlsd3_model_selection_training.html">Model Selection &amp; Training Strategy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mlsd4_serving_and_inference.html">Serving &amp; Inference Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mlsd5_evaluation_and_monitoring.html">Evaluation, A/B Testing &amp; Monitoring</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Case Study: Feed Recommendation System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mlsd7_case_search_ads.html">Case Study: Search Ranking &amp; Ads CTR</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mlsd8_case_trust_safety.html">Case Study: Fraud &amp; Abuse Detection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mlsd9_case_llm_application.html">Case Study: LLM-Powered Product (RAG Assistant)</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item"><div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> 
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#what-interviewers-test">What Interviewers Test</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#transcript-design-a-video-news-feed-recommender">Transcript: Design a Video/News Feed Recommender</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#data-features-model">Data, Features, Model</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#serving-architecture-monitoring">Serving Architecture &amp; Monitoring</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#where-modern-recsys-has-moved">Where Modern Recsys Has Moved</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sequential-recommendation">1. Sequential recommendation</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#generative-retrieval-and-semantic-ids">2. Generative retrieval and semantic IDs</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#llm-augmented-ranking">3. LLM-augmented ranking</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#follow-up-questions-strong-answers">8 Follow-up Questions &amp; Strong Answers</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#key-takeaways">Key Takeaways</a></li>
+</ul>
+  </nav></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../intro.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="mlsd0.html" class="nav-link">ML System Design: The Framework</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Case Study: Feed Recommendation System</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="case-study-feed-recommendation-system">
+<h1>Case Study: Feed Recommendation System<a class="headerlink" href="#case-study-feed-recommendation-system" title="Link to this heading">#</a></h1>
+<p>This is the most common ML system design interview problem. The following worked answer follows the 7-step framework from mlsd0, written in the interview transcript format with interviewer commentary.</p>
+<section id="what-interviewers-test">
+<h2>What Interviewers Test<a class="headerlink" href="#what-interviewers-test" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>Can you scope a recommendation problem with real numbers?</p></li>
+<li><p>Do you define metrics before choosing architecture?</p></li>
+<li><p>Can you explain the two-tower + DNN ranker pattern?</p></li>
+<li><p>Do you address cold-start, diversity, and exploration?</p></li>
+<li><p>Can you reason through serving latency at scale?</p></li>
+</ul>
+</section>
+<section id="transcript-design-a-video-news-feed-recommender">
+<h2>Transcript: Design a Video/News Feed Recommender<a class="headerlink" href="#transcript-design-a-video-news-feed-recommender" title="Link to this heading">#</a></h2>
+<p><strong>Interviewer:</strong> Design the recommendation system for a video-sharing platform. You have 500M daily active users and 100M videos.</p>
+<hr class="docutils" />
+<p><strong>You:</strong> Let me clarify a few things first.</p>
+<ol class="arabic simple">
+<li><p><em>Goal:</em> Are we optimizing for engagement (watch-time) or for something else (subscription conversion, satisfaction)?</p></li>
+<li><p><em>Latency:</em> What’s the p99 SLA for feed loading? I’ll assume 200ms.</p></li>
+<li><p><em>Freshness:</em> Do we need to incorporate the last few minutes of behavior, or daily-level signals?</p></li>
+<li><p><em>Geography:</em> Single region or global? I’ll assume global, multi-datacenter.</p></li>
+</ol>
+<p><strong>Interviewer:</strong> Engagement primarily. 200ms p99. Daily signals are fine to start.</p>
+<hr class="docutils" />
+<p><strong>Step 1 — Scale Numbers:</strong></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>500M DAU × 3 sessions/day × 5 feed loads = 7.5B requests/day ≈ 87K QPS
+100M videos × average 100 features = 10B feature values to index
+</pre></div>
+</div>
+<p><strong>Step 2 — Metrics:</strong></p>
+<ul class="simple">
+<li><p>North-star: watch-time per session (long-term)</p></li>
+<li><p>Proxy offline: NDCG&#64;10 on watch-time signal</p></li>
+<li><p>Guardrails: not reduce CTR; not increase clickbait rate; p99 latency &lt; 200ms</p></li>
+</ul>
+<blockquote>
+<div><p>💡 <strong>Interview Tip:</strong> Giving real numbers (87K QPS, 10B feature values) signals that you’ve built at scale, not just read papers.</p>
+</div></blockquote>
+</section>
+<section id="data-features-model">
+<h2>Data, Features, Model<a class="headerlink" href="#data-features-model" title="Link to this heading">#</a></h2>
+<p><strong>Step 3 — Labels:</strong></p>
+<ul class="simple">
+<li><p>Primary: watch-time ratio (watched/video_duration) as continuous label</p></li>
+<li><p>Secondary: explicit signals (like, share, skip &lt; 5s = negative)</p></li>
+<li><p>Collect from logs; IPW-correct for position bias</p></li>
+</ul>
+<p><strong>Step 4 — Features:</strong></p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Feature family</p></th>
+<th class="head"><p>Examples</p></th>
+<th class="head"><p>Freshness</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>User long-term</p></td>
+<td><p>Watch history embeddings, subscriptions</p></td>
+<td><p>Daily</p></td>
+</tr>
+<tr class="row-odd"><td><p>User session</p></td>
+<td><p>Last 3 videos watched this session</p></td>
+<td><p>Real-time</p></td>
+</tr>
+<tr class="row-even"><td><p>Video</p></td>
+<td><p>Content embedding, category, upload time</p></td>
+<td><p>Daily</p></td>
+</tr>
+<tr class="row-odd"><td><p>Video stats</p></td>
+<td><p>7d watch-rate, trending score</p></td>
+<td><p>Hourly</p></td>
+</tr>
+<tr class="row-even"><td><p>Context</p></td>
+<td><p>Time of day, device type, language</p></td>
+<td><p>Per-request</p></td>
+</tr>
+<tr class="row-odd"><td><p>Cross</p></td>
+<td><p>User × video category affinity</p></td>
+<td><p>Daily</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>Step 5 — Model (baseline → v2):</strong></p>
+<ol class="arabic simple">
+<li><p><strong>Baseline:</strong> Popularity ranker (top trending videos globally). Establishes the floor. Can be precomputed.</p></li>
+<li><p><strong>v1:</strong> Collaborative filtering (matrix factorization). Offline AUC improvement, handles personalization.</p></li>
+<li><p><strong>v2:</strong> Two-tower retrieval + DNN ranker. Two-tower retrieves top-500 candidates via ANN; a separate DNN ranker scores them with full features.</p></li>
+</ol>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Illustrative: two-tower scoring + ranking simulation</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
+
+<span class="n">n_users</span><span class="p">,</span> <span class="n">n_videos</span><span class="p">,</span> <span class="n">embed_dim</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">50000</span><span class="p">,</span> <span class="mi">64</span>
+
+<span class="c1"># Pre-computed item embeddings (in production: stored in FAISS)</span>
+<span class="n">video_embeddings</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="n">n_videos</span><span class="p">,</span> <span class="n">embed_dim</span><span class="p">)</span>
+<span class="n">video_embeddings</span> <span class="o">/=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">video_embeddings</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">keepdims</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">get_user_embedding</span><span class="p">(</span><span class="n">user_id</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;In production: query tower forward pass on user features.&quot;&quot;&quot;</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="n">user_id</span><span class="p">)</span>
+    <span class="n">emb</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="n">embed_dim</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">emb</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">emb</span><span class="p">)</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">retrieve_candidates</span><span class="p">(</span><span class="n">user_emb</span><span class="p">,</span> <span class="n">video_embeddings</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">500</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Brute-force ANN (in production: FAISS HNSW).&quot;&quot;&quot;</span>
+    <span class="n">scores</span> <span class="o">=</span> <span class="n">video_embeddings</span> <span class="o">@</span> <span class="n">user_emb</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">argpartition</span><span class="p">(</span><span class="o">-</span><span class="n">scores</span><span class="p">,</span> <span class="n">k</span><span class="p">)[:</span><span class="n">k</span><span class="p">]</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">rank_candidates</span><span class="p">(</span><span class="n">candidates</span><span class="p">,</span> <span class="n">user_id</span><span class="p">,</span> <span class="n">n_final</span><span class="o">=</span><span class="mi">20</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Simulate DNN ranker with richer features.&quot;&quot;&quot;</span>
+    <span class="c1"># In production: fetch full features and run DNN ranker</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="n">user_id</span> <span class="o">*</span> <span class="mi">100</span><span class="p">)</span>
+    <span class="n">ranker_scores</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">candidates</span><span class="p">))</span>  <span class="c1"># placeholder</span>
+    <span class="n">top_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argpartition</span><span class="p">(</span><span class="o">-</span><span class="n">ranker_scores</span><span class="p">,</span> <span class="n">n_final</span><span class="p">)[:</span><span class="n">n_final</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">candidates</span><span class="p">[</span><span class="n">top_idx</span><span class="p">],</span> <span class="n">ranker_scores</span><span class="p">[</span><span class="n">top_idx</span><span class="p">]</span>
+
+<span class="c1"># Simulate serving for one user</span>
+<span class="n">user_emb</span> <span class="o">=</span> <span class="n">get_user_embedding</span><span class="p">(</span><span class="n">user_id</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
+<span class="n">candidates</span> <span class="o">=</span> <span class="n">retrieve_candidates</span><span class="p">(</span><span class="n">user_emb</span><span class="p">,</span> <span class="n">video_embeddings</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">500</span><span class="p">)</span>
+<span class="n">final_videos</span><span class="p">,</span> <span class="n">final_scores</span> <span class="o">=</span> <span class="n">rank_candidates</span><span class="p">(</span><span class="n">candidates</span><span class="p">,</span> <span class="n">user_id</span><span class="o">=</span><span class="mi">42</span><span class="p">,</span> <span class="n">n_final</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Retrieved </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">candidates</span><span class="p">)</span><span class="si">}</span><span class="s2"> candidates via ANN&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Ranked to </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">final_videos</span><span class="p">)</span><span class="si">}</span><span class="s2"> final results&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Top 5 video IDs: </span><span class="si">{</span><span class="n">final_videos</span><span class="p">[:</span><span class="mi">5</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Retrieved 500 candidates via ANN
+Ranked to 20 final results
+Top 5 video IDs: [40840 30743 31601 13026  3087]
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="serving-architecture-monitoring">
+<h2>Serving Architecture &amp; Monitoring<a class="headerlink" href="#serving-architecture-monitoring" title="Link to this heading">#</a></h2>
+<p><strong>Step 6 — Serving funnel:</strong></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>Request (user_id, context)
+  ↓  [User embedding lookup + real-time features]  &lt;5ms
+  ↓  [ANN retrieval: 100M → 500 candidates]        &lt;10ms
+  ↓  [Feature assembly (feature store)]             &lt;15ms
+  ↓  [DNN ranker: 500 → 20 results]                &lt;30ms
+  ↓  [Diversity filter + dedup]                     &lt;5ms
+Response  (total &lt;65ms — well within 200ms SLA)
+</pre></div>
+</div>
+<p><strong>Step 7 — Monitoring:</strong></p>
+<ul class="simple">
+<li><p>Watch-time per session (north-star) — daily A/B tracking</p></li>
+<li><p>PSI on input features — hourly</p></li>
+<li><p>Score distribution — per-request sampling</p></li>
+<li><p>Diversity metric (pct long-tail videos) — anti-popularity-bias guard</p></li>
+</ul>
+<p><strong>Cold-start handling:</strong></p>
+<ul class="simple">
+<li><p>New users: serve globally trending + regionally popular content; use signup preferences</p></li>
+<li><p>New videos: retrieve based on content embeddings (title/thumbnail); boost freshness score</p></li>
+</ul>
+<p><strong>Exploration:</strong> Reserve 5% of slots for Thompson Sampling to surface new/niche content.</p>
+</section>
+<section id="where-modern-recsys-has-moved">
+<h2>Where Modern Recsys Has Moved<a class="headerlink" href="#where-modern-recsys-has-moved" title="Link to this heading">#</a></h2>
+<p>The two-tower + ranker design above is still the correct default answer, and still what most
+production systems run. But a strong interviewer will push past it, and these three directions
+are where they push.</p>
+<section id="sequential-recommendation">
+<h3>1. Sequential recommendation<a class="headerlink" href="#sequential-recommendation" title="Link to this heading">#</a></h3>
+<p>Two-tower models compress a user into a <em>static</em> embedding built from aggregated history. That
+throws away order — and order carries most of the intent signal. Someone who just watched three
+pasta recipes is in a different state than their long-run average suggests.</p>
+<p>Sequential recommenders (the SASRec/BERT4Rec lineage) instead run a transformer over the user’s
+recent interaction sequence and predict the next item directly. The user representation becomes
+a <em>function of the session</em>, refreshed per request rather than per day.</p>
+<p><strong>Cost:</strong> you can no longer precompute the user embedding, which changes the serving budget.
+Common compromise: a cached long-term embedding concatenated with a short sequence encoder over
+the last N interactions computed at request time.</p>
+</section>
+<section id="generative-retrieval-and-semantic-ids">
+<h3>2. Generative retrieval and semantic IDs<a class="headerlink" href="#generative-retrieval-and-semantic-ids" title="Link to this heading">#</a></h3>
+<p>Standard retrieval is: embed the query, run ANN search over an item index. Generative retrieval
+replaces that with: <strong>generate the item identifier directly.</strong></p>
+<p>Each item is assigned a <em>semantic ID</em> — a short sequence of discrete tokens from hierarchical
+quantization of its content embedding, so similar items share prefixes. The model then
+autoregressively generates the ID of the item to recommend.</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p></p></th>
+<th class="head"><p>ANN retrieval</p></th>
+<th class="head"><p>Generative retrieval</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Item index</p></td>
+<td><p>Explicit vector index (FAISS/HNSW)</p></td>
+<td><p>Implicit in model weights</p></td>
+</tr>
+<tr class="row-odd"><td><p>New items</p></td>
+<td><p>Add to index immediately</p></td>
+<td><p>Needs ID assignment; may need retraining</p></td>
+</tr>
+<tr class="row-even"><td><p>Scaling</p></td>
+<td><p>Index grows with catalog</p></td>
+<td><p>Model size roughly constant</p></td>
+</tr>
+<tr class="row-odd"><td><p>Maturity</p></td>
+<td><p>Battle-tested everywhere</p></td>
+<td><p>Newer; strong published results, deployment still less common</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="llm-augmented-ranking">
+<h3>3. LLM-augmented ranking<a class="headerlink" href="#llm-augmented-ranking" title="Link to this heading">#</a></h3>
+<p>Three practical uses, in increasing order of ambition:</p>
+<ul class="simple">
+<li><p><strong>Feature generation (most common, lowest risk).</strong> Use an LLM offline to produce rich item
+descriptions, topic labels, and quality scores that feed the existing ranker. No latency cost,
+because it’s a batch job.</p></li>
+<li><p><strong>Cold-start via semantics.</strong> A brand-new item with zero engagement still has a title,
+description, and thumbnail. LLM embeddings give it a usable representation on day one.</p></li>
+<li><p><strong>Direct LLM ranking (rare online).</strong> Prompt an LLM to rank candidates. Quality can be strong,
+but latency and cost make it impractical in a 200ms funnel today — it appears mostly offline,
+or as a teacher whose judgements are distilled into the production ranker.</p></li>
+</ul>
+<blockquote>
+<div><p>💡 <strong>Interview Tip:</strong> Do not open with any of this. Open with the funnel above — it shows you
+know what actually ships. Bring these up as the <em>v3 roadmap</em> when asked “what would you do
+next,” and pair each with its cost. Leading with generative retrieval on a 500M-DAU system
+reads as someone who has read papers rather than shipped systems.</p>
+</div></blockquote>
+</section>
+</section>
+<section id="follow-up-questions-strong-answers">
+<h2>8 Follow-up Questions &amp; Strong Answers<a class="headerlink" href="#follow-up-questions-strong-answers" title="Link to this heading">#</a></h2>
+<p><strong>Q: How do you handle a video that goes viral in the last 10 minutes?</strong>
+The daily-refreshed embeddings won’t capture it. Add a “trending score” feature computed in near-real-time from a Flink pipeline watching engagement velocity. This feature is available in the online feature store within minutes. Also add a freshness bonus to the ranker.</p>
+<p><strong>Q: How do you avoid the popularity bias spiral?</strong>
+Reserve an exploration budget (5–10% of slots) for non-popular items. Log counterfactual scores. Train the ranker with IPW to debias observed engagement. Monitor diversity metrics on the served distribution — if the Gini coefficient of video popularity increases, tighten the exploration budget.</p>
+<p><strong>Q: How would you add a “not interested” feedback loop?</strong>
+Collect explicit negative signals (skip, “not interested” button). Add them as negative labels in training. In the ranker, penalize videos from categories with high skip rates for that user. Monitor that adding negatives doesn’t reduce engagement by more than the guardrail threshold.</p>
+<p><strong>Q: What changes if we need sub-50ms instead of 200ms?</strong>
+Use pre-computed user embeddings (refresh every few minutes, not per-request). Reduce model complexity in the ranker (fewer layers, quantize to int8). Cache ranked results per (user_id, time_bucket) for similar users. Use gRPC instead of REST for the model server.</p>
+<p><strong>Q: How do you evaluate if the system is getting better over time?</strong>
+Holdout experiment: keep 1% of users on the old model indefinitely. Measure cumulative watch-time and satisfaction over weeks. Short-term A/B tests are susceptible to novelty effects; the holdout captures long-term behavior change.</p>
+<p><strong>Q: How would you handle multiple countries with different content preferences?</strong>
+Train country-specific models or add country as a feature. Use transfer learning: pretrain globally, fine-tune per region. Ensure training data includes regional signals and that the feature store has local trending data. Be careful about regulatory requirements (content restrictions by country).</p>
+<p><strong>Q: What’s the biggest risk when you retrain daily?</strong>
+Training data distribution shift can cause sudden metric drops. Mitigate: monitor evaluation metrics on a fixed holdout before promoting; use canary rollouts; maintain warm-start from yesterday’s weights; add a human-review gate for large metric swings.</p>
+<p><strong>Q: How do you handle a major event (e.g., breaking news) that shifts all user interests?</strong>
+The daily-retrained model will be stale for the event’s first hours. Mitigate with: real-time trending features (computed from last-hour signals), editorial curation for breaking news, and a manual override mechanism to inject relevant content into the top of the feed.</p>
+</section>
+<section id="key-takeaways">
+<h2>Key Takeaways<a class="headerlink" href="#key-takeaways" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>Recsys = candidate retrieval (millions → 500) + ranking (500 → 20) + re-ranking (diversity)</p></li>
+<li><p>Two-tower for retrieval; DNN ranker for final ranking with full features</p></li>
+<li><p>Cold-start: content embeddings for new items; regional trending for new users</p></li>
+<li><p>Exploration budget (5–10%) prevents popularity bias spiral</p></li>
+<li><p>Freshness features from real-time pipeline catch viral content that daily-retrained models miss</p></li>
+<li><p>Monitor watch-time, feature PSI, score distribution, and diversity</p></li>
+</ul>
+</section>
+</section>
+
+    <script type="text/x-thebe-config">
+    {
+        requestKernel: true,
+        binderOptions: {
+            repo: "binder-examples/jupyter-stacks-datascience",
+            ref: "master",
+        },
+        codeMirrorConfig: {
+            theme: "abcdef",
+            mode: "python"
+        },
+        kernelOptions: {
+            name: "python3",
+            path: "./ML System Design"
+        },
+        predefinedOutput: true
+    }
+    </script>
+    <script>kernelName = 'python3'</script>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="mlsd5_evaluation_and_monitoring.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Evaluation, A/B Testing &amp; Monitoring</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="mlsd7_case_search_ads.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Case Study: Search Ranking &amp; Ads CTR</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2023.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.4.7.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.17.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

@@ -1,0 +1,1151 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>LLM Inference Optimization &#8212; Machine Learning Engineer Notes</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=55c26ed414f5f8a31ebb" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=55c26ed414f5f8a31ebb" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../_static/togglebutton.css?v=9c3e77be" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-thebe.css?v=4fa983c6" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../_static/scripts/fontawesome.js?digest=55c26ed414f5f8a31ebb"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb" />
+
+    <script src="../_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=f281be69"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js"></script>
+    <script>let toggleHintShow = 'Click to show';</script>
+    <script>let toggleHintHide = 'Click to hide';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="../_static/togglebutton.js?v=b8b12719"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script async="async" src="../_static/sphinx-thebe.js?v=c100c467"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'LLM Engineering/llm3_inference_optimization';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="RAG Systems: Retrieval-Augmented Generation" href="llm4_rag_systems.html" />
+    <link rel="prev" title="Post-Training: SFT, Preference Optimization &amp; RLVR" href="llm2_pretraining_finetuning.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  
+    
+    <script src="../_static/searchtools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../intro.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">Machine Learning Engineer Notes</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    Topics
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../ML%20Foundations/ML0.html">
+    ML Foundations
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../Deep%20Learning/DL0.html">
+    Deep Learning
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../PyTorch%20Guide/P0_pytorch.html">
+    PyTorch Guide
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../MLOps/mlops0.html">
+    MLOps
+  </a>
+</li>
+
+
+<li class=" current active">
+  <a class="nav-link dropdown-item nav-internal" href="llm0.html">
+    LLM Engineering
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../ML%20System%20Design/mlsd0.html">
+    ML System Design
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../MLE%20Interview/mle0.html">
+    The MLE Interview Loop
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../ML%20Coding/mlc0.html">
+    ML Coding Round
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../TensorFlow%20Guide/tf0.html">
+    TensorFlow Guide (reference)
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../ML%20Foundations/ML0.html">
+    ML Foundations
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../Deep%20Learning/DL0.html">
+    Deep Learning
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../PyTorch%20Guide/P0_pytorch.html">
+    PyTorch Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../MLOps/mlops0.html">
+    MLOps
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="llm0.html">
+    LLM Engineering
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../ML%20System%20Design/mlsd0.html">
+    ML System Design
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../MLE%20Interview/mle0.html">
+    The MLE Interview Loop
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../ML%20Coding/mlc0.html">
+    ML Coding Round
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../TensorFlow%20Guide/tf0.html">
+    TensorFlow Guide (reference)
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item pst-sidebar-collapse"><button id="pst-collapse-sidebar-button" aria-expanded="true" aria-controls="pst-primary-sidebar"><svg class="pst-icon svg-inline--fa" role="img" aria-hidden="true" focusable="false" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+    <path fill="currentColor" d="M3 15.5C2.36232 15.5 1.74874 15.2564 1.28478 14.8189C0.820828 14.3815 0.541576 13.7832 0.504167 13.1467L0.5 13L0.5 3C0.499965 2.36232 0.743605 1.74874 1.18107 1.28478C1.61854 0.820828 2.21676 0.541576 2.85333 0.504167L3 0.5L13 0.5C13.6377 0.499965 14.2513 0.743605 14.7152 1.18107C15.1792 1.61854 15.4584 2.21676 15.4958 2.85333L15.5 3L15.5 13C15.5 13.6377 15.2564 14.2513 14.8189 14.7152C14.3815 15.1792 13.7832 15.4584 13.1467 15.4958L13 15.5L3 15.5ZM3 13.8333L10.5 13.8333L10.5 2.16667L3 2.16667C2.79589 2.16669 2.59889 2.24163 2.44636 2.37726C2.29383 2.5129 2.19638 2.69979 2.1725 2.9025L2.16667 3L2.16667 13C2.16669 13.2041 2.24163 13.4011 2.37726 13.5536C2.5129 13.7062 2.69979 13.8036 2.9025 13.8275L3 13.8333ZM6.65583 10.325L6.5775 10.2558L4.91083 8.58917C4.76735 8.44567 4.68116 8.25476 4.66843 8.05223C4.65569 7.84971 4.71729 7.6495 4.84167 7.48917L4.91083 7.41083L6.5775 5.74417C6.72747 5.59471 6.9287 5.50794 7.14032 5.50148C7.35194 5.49502 7.55809 5.56935 7.7169 5.70937C7.8757 5.8494 7.97525 6.04463 7.99533 6.25539C8.01541 6.46616 7.95451 6.67667 7.825 6.84417L7.75583 6.9225L6.67917 8L7.75583 9.0775C7.89931 9.22099 7.98551 9.41191 7.99824 9.61443C8.01097 9.81695 7.94938 10.0172 7.825 10.1775L7.75583 10.2558C7.61234 10.3993 7.42142 10.4855 7.2189 10.4982C7.01638 10.511 6.81617 10.4494 6.65583 10.325Z"/>
+  </svg>
+  <span class="pst-collapse-sidebar-label">Collapse Sidebar</span>
+  <span class="pst-expand-sidebar-label">Expand Sidebar</span>
+</button></div>
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="llm1_transformer_internals.html">Transformer Internals for Inference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="llm2_pretraining_finetuning.html">Post-Training: SFT, Preference Optimization &amp; RLVR</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">LLM Inference Optimization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="llm4_rag_systems.html">RAG Systems: Retrieval-Augmented Generation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="llm5_prompting_agents.html">Prompting, Tools &amp; Agents</a></li>
+<li class="toctree-l1"><a class="reference internal" href="llm6_llm_evaluation.html">LLM Evaluation: BLEU, ROUGE, LLM-as-Judge</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item"><div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> 
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#why-this-matters">Why This Matters</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#two-phases-opposite-problems">1. Two Phases, Opposite Problems</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#the-two-latency-metrics">The two latency metrics</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#continuous-batching">2. Continuous Batching</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kv-cache-management">3. KV Cache Management</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pagedattention">PagedAttention</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#prefix-caching-radixattention">Prefix caching / RadixAttention</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#quantization">4. Quantization</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#speculative-decoding">5. Speculative Decoding</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-serving-stack">6. The Serving Stack</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#beyond-a-single-replica">Beyond a single replica</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#common-interview-questions">Common Interview Questions</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#key-takeaways">Key Takeaways</a></li>
+</ul>
+  </nav></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../intro.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="llm0.html" class="nav-link">LLM Landscape &amp; Interview Map</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">LLM Inference Optimization</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="llm-inference-optimization">
+<h1>LLM Inference Optimization<a class="headerlink" href="#llm-inference-optimization" title="Link to this heading">#</a></h1>
+<p>Serving an LLM is not like serving a classifier. The two phases of a request have opposite
+performance characteristics, memory is the binding constraint rather than compute, and cost
+scales with tokens rather than requests. This is the chapter that comes up when an interview
+turns to “and how would you actually run this.”</p>
+<blockquote>
+<div><p>⏱️ Engine names and hardware numbers below were current in <strong>August 2026</strong> and will drift.
+The mechanics — prefill/decode asymmetry, batching, cache reuse — are durable.</p>
+</div></blockquote>
+<section id="why-this-matters">
+<h2>Why This Matters<a class="headerlink" href="#why-this-matters" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>Prefill vs decode: why one is compute-bound and the other bandwidth-bound</p></li>
+<li><p>Continuous batching, and why it’s the baseline rather than an optimization</p></li>
+<li><p>Paged and prefix-shared KV cache — the reason serving engines exist</p></li>
+<li><p>Quantization down to FP8/INT4, and what each level actually costs you</p></li>
+<li><p>Speculative decoding: the mechanism and its honest limits</p></li>
+<li><p>Reading a latency SLA in LLM terms: TTFT, TPOT, and end-to-end</p></li>
+</ul>
+</section>
+<section id="two-phases-opposite-problems">
+<h2>1. Two Phases, Opposite Problems<a class="headerlink" href="#two-phases-opposite-problems" title="Link to this heading">#</a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">PREFILL</span>                                <span class="n">DECODE</span>
+<span class="n">Process</span> <span class="n">the</span> <span class="n">whole</span> <span class="n">prompt</span> <span class="n">at</span> <span class="n">once</span>       <span class="n">Emit</span> <span class="n">one</span> <span class="n">token</span> <span class="n">at</span> <span class="n">a</span> <span class="n">time</span>
+<span class="n">All</span> <span class="n">positions</span> <span class="ow">in</span> <span class="n">parallel</span>              <span class="n">Strictly</span> <span class="n">sequential</span>
+<span class="n">Large</span> <span class="n">matmuls</span> <span class="o">-&gt;</span> <span class="n">COMPUTE</span><span class="o">-</span><span class="n">bound</span>         <span class="n">One</span> <span class="n">token</span><span class="s1">&#39;s worth of math -&gt; BANDWIDTH-bound</span>
+<span class="n">Scales</span> <span class="k">with</span> <span class="n">prompt</span> <span class="n">length</span>              <span class="n">Scales</span> <span class="k">with</span> <span class="n">output</span> <span class="n">length</span>
+<span class="n">Determines</span> <span class="n">TTFT</span>                        <span class="n">Determines</span> <span class="n">TPOT</span>
+</pre></div>
+</div>
+<p><strong>Why decode is bandwidth-bound.</strong> To produce a single token you must read every weight in the
+model plus the entire KV cache out of HBM, then perform roughly <code class="docutils literal notranslate"><span class="pre">2</span> <span class="pre">×</span> <span class="pre">params</span></code> FLOPs. Modern
+accelerators have far more arithmetic throughput than memory bandwidth, so the read dominates
+and the compute units sit idle.</p>
+<p><strong>Which is why batching is the whole game.</strong> Reading the weights once and using them for 64
+sequences amortizes the expensive part across 64 tokens. Batch size is the single biggest lever
+on throughput — and it costs latency, which is the fundamental tension in LLM serving.</p>
+<section id="the-two-latency-metrics">
+<h3>The two latency metrics<a class="headerlink" href="#the-two-latency-metrics" title="Link to this heading">#</a></h3>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Metric</p></th>
+<th class="head"><p>Meaning</p></th>
+<th class="head"><p>Driven by</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><strong>TTFT</strong> (time to first token)</p></td>
+<td><p>Prompt in → first token out</p></td>
+<td><p>Prefill; prompt length; queueing</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>TPOT</strong> (time per output token)</p></td>
+<td><p>Steady-state inter-token gap</p></td>
+<td><p>Decode; batch size; memory bandwidth</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>End-to-end</strong></p></td>
+<td><p>TTFT + TPOT × output tokens</p></td>
+<td><p>Both</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>A chat UI cares about TTFT (it feels responsive once streaming starts). A batch summarization
+job cares only about end-to-end throughput. <strong>These pull in opposite directions</strong>, and “what’s
+your latency requirement” is really “which of these two.”</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">roofline</span><span class="p">(</span><span class="n">params_B</span><span class="p">,</span> <span class="n">batch</span><span class="p">,</span> <span class="n">ctx_len</span><span class="p">,</span> <span class="n">bytes_per_param</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+             <span class="n">hbm_tb_s</span><span class="o">=</span><span class="mf">3.35</span><span class="p">,</span> <span class="n">tflops</span><span class="o">=</span><span class="mi">1979</span><span class="p">,</span> <span class="n">mfu</span><span class="o">=</span><span class="mf">0.35</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Rough prefill/decode characterization.</span>
+<span class="sd">    Defaults are order-of-magnitude for a current-generation datacenter GPU</span>
+<span class="sd">    (~3.3 TB/s HBM, ~2 PFLOPS dense FP8). Substitute your own hardware.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="n">params_B</span> <span class="o">*</span> <span class="mf">1e9</span>
+    <span class="n">weight_bytes</span> <span class="o">=</span> <span class="n">p</span> <span class="o">*</span> <span class="n">bytes_per_param</span>
+
+    <span class="c1"># DECODE: one token per sequence. Bandwidth-bound: read all weights once per step.</span>
+    <span class="n">decode_read_s</span> <span class="o">=</span> <span class="n">weight_bytes</span> <span class="o">/</span> <span class="p">(</span><span class="n">hbm_tb_s</span> <span class="o">*</span> <span class="mf">1e12</span><span class="p">)</span>
+    <span class="n">decode_flops</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">p</span> <span class="o">*</span> <span class="n">batch</span>
+    <span class="n">decode_compute_s</span> <span class="o">=</span> <span class="n">decode_flops</span> <span class="o">/</span> <span class="p">(</span><span class="n">tflops</span> <span class="o">*</span> <span class="mf">1e12</span> <span class="o">*</span> <span class="n">mfu</span><span class="p">)</span>
+
+    <span class="c1"># PREFILL: ctx_len tokens per sequence, all in parallel. Compute-bound.</span>
+    <span class="n">prefill_flops</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">p</span> <span class="o">*</span> <span class="n">batch</span> <span class="o">*</span> <span class="n">ctx_len</span>
+    <span class="n">prefill_compute_s</span> <span class="o">=</span> <span class="n">prefill_flops</span> <span class="o">/</span> <span class="p">(</span><span class="n">tflops</span> <span class="o">*</span> <span class="mf">1e12</span> <span class="o">*</span> <span class="n">mfu</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">&quot;decode_ms&quot;</span><span class="p">:</span> <span class="nb">max</span><span class="p">(</span><span class="n">decode_read_s</span><span class="p">,</span> <span class="n">decode_compute_s</span><span class="p">)</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">,</span>
+        <span class="s2">&quot;decode_bound&quot;</span><span class="p">:</span> <span class="s2">&quot;memory&quot;</span> <span class="k">if</span> <span class="n">decode_read_s</span> <span class="o">&gt;</span> <span class="n">decode_compute_s</span> <span class="k">else</span> <span class="s2">&quot;compute&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;decode_ratio&quot;</span><span class="p">:</span> <span class="n">decode_read_s</span> <span class="o">/</span> <span class="n">decode_compute_s</span><span class="p">,</span>
+        <span class="s2">&quot;prefill_ms&quot;</span><span class="p">:</span> <span class="nb">max</span><span class="p">(</span><span class="n">prefill_compute_s</span><span class="p">,</span> <span class="n">weight_bytes</span> <span class="o">/</span> <span class="p">(</span><span class="n">hbm_tb_s</span> <span class="o">*</span> <span class="mf">1e12</span><span class="p">))</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">,</span>
+    <span class="p">}</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;70B model, FP8 weights, 2k-token prompt</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;batch&#39;</span><span class="si">:</span><span class="s2">&gt;6</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="s1">&#39;decode/step&#39;</span><span class="si">:</span><span class="s2">&gt;13</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="s1">&#39;bound&#39;</span><span class="si">:</span><span class="s2">&gt;8</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="s1">&#39;read:compute&#39;</span><span class="si">:</span><span class="s2">&gt;14</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="s1">&#39;prefill(all)&#39;</span><span class="si">:</span><span class="s2">&gt;14</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="s1">&#39;tok/s&#39;</span><span class="si">:</span><span class="s2">&gt;9</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;-&quot;</span> <span class="o">*</span> <span class="mi">66</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">32</span><span class="p">,</span> <span class="mi">128</span><span class="p">,</span> <span class="mi">512</span><span class="p">]:</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">roofline</span><span class="p">(</span><span class="mi">70</span><span class="p">,</span> <span class="n">batch</span><span class="o">=</span><span class="n">b</span><span class="p">,</span> <span class="n">ctx_len</span><span class="o">=</span><span class="mi">2048</span><span class="p">)</span>
+    <span class="n">tps</span> <span class="o">=</span> <span class="n">b</span> <span class="o">/</span> <span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="s2">&quot;decode_ms&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="mi">1000</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">b</span><span class="si">:</span><span class="s2">&gt;6</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">r</span><span class="p">[</span><span class="s1">&#39;decode_ms&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">&gt;11.2f</span><span class="si">}</span><span class="s2">ms </span><span class="si">{</span><span class="n">r</span><span class="p">[</span><span class="s1">&#39;decode_bound&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">&gt;8</span><span class="si">}</span><span class="s2"> &quot;</span>
+          <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">r</span><span class="p">[</span><span class="s1">&#39;decode_ratio&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">&gt;13.1f</span><span class="si">}</span><span class="s2">x </span><span class="si">{</span><span class="n">r</span><span class="p">[</span><span class="s1">&#39;prefill_ms&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">&gt;12.0f</span><span class="si">}</span><span class="s2">ms </span><span class="si">{</span><span class="n">tps</span><span class="si">:</span><span class="s2">&gt;9.0f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Read the &#39;bound&#39; column. At batch 1 the GPU spends ~100x longer reading weights&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;than computing with them — you are renting a supercomputer to do memory copies.&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Extra sequences are nearly free until the ratio crosses 1 and you become&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;compute-bound; past that, throughput stops improving and only latency grows.&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;An under-batched deployment is the most common way to waste GPU money.&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;(prefill column is for the whole batch, which is why it scales with it)&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>70B model, FP8 weights, 2k-token prompt
+
+ batch   decode/step    bound   read:compute   prefill(all)     tok/s
+------------------------------------------------------------------
+     1       20.90ms   memory         103.4x          414ms        48
+     8       20.90ms   memory          12.9x         3312ms       383
+    32       20.90ms   memory           3.2x        13246ms      1531
+   128       25.87ms  compute           0.8x        52985ms      4948
+   512      103.49ms  compute           0.2x       211941ms      4948
+
+Read the &#39;bound&#39; column. At batch 1 the GPU spends ~100x longer reading weights
+than computing with them — you are renting a supercomputer to do memory copies.
+Extra sequences are nearly free until the ratio crosses 1 and you become
+compute-bound; past that, throughput stops improving and only latency grows.
+An under-batched deployment is the most common way to waste GPU money.
+(prefill column is for the whole batch, which is why it scales with it)
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="continuous-batching">
+<h2>2. Continuous Batching<a class="headerlink" href="#continuous-batching" title="Link to this heading">#</a></h2>
+<p><strong>Static batching</strong> collects N requests, runs them together until <em>all</em> finish, then starts
+the next batch. Since output lengths vary wildly, short requests sit idle waiting for the
+longest one, and no new work is admitted meanwhile.</p>
+<p><strong>Continuous batching</strong> (also “in-flight batching”) makes the admission decision at <em>every
+forward step</em>: finished sequences are evicted immediately and queued requests take their slot.</p>
+<p>This is not an optimization you tune — it has been table stakes in every serious engine since
+about 2023. It’s worth knowing precisely because an interviewer may probe whether you think
+it’s still a differentiator.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="mi">7</span><span class="p">)</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">simulate</span><span class="p">(</span><span class="n">requests</span><span class="p">,</span> <span class="n">max_concurrent</span><span class="p">,</span> <span class="n">mode</span><span class="p">,</span> <span class="n">step_ms</span><span class="o">=</span><span class="mf">12.0</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    requests: list of output lengths (in tokens).</span>
+<span class="sd">    Returns mean completion latency in ms.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">requests</span><span class="p">)</span>
+    <span class="n">done</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="s2">&quot;static&quot;</span><span class="p">:</span>
+        <span class="n">t</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">max_concurrent</span><span class="p">):</span>
+            <span class="n">grp</span> <span class="o">=</span> <span class="n">requests</span><span class="p">[</span><span class="n">i</span><span class="p">:</span><span class="n">i</span> <span class="o">+</span> <span class="n">max_concurrent</span><span class="p">]</span>
+            <span class="n">batch_ms</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">grp</span><span class="p">)</span> <span class="o">*</span> <span class="n">step_ms</span>          <span class="c1"># everyone waits for the longest</span>
+            <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">grp</span><span class="p">):</span>
+                <span class="n">done</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">t</span> <span class="o">+</span> <span class="n">batch_ms</span>
+            <span class="n">t</span> <span class="o">+=</span> <span class="n">batch_ms</span>
+    <span class="k">else</span><span class="p">:</span>  <span class="c1"># continuous</span>
+        <span class="n">remaining</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">requests</span><span class="p">)</span>
+        <span class="n">idx</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">))</span>
+        <span class="n">active</span><span class="p">,</span> <span class="n">t</span> <span class="o">=</span> <span class="p">[],</span> <span class="mf">0.0</span>
+        <span class="k">while</span> <span class="n">remaining</span> <span class="ow">or</span> <span class="n">active</span><span class="p">:</span>
+            <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="n">active</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">max_concurrent</span> <span class="ow">and</span> <span class="n">remaining</span><span class="p">:</span>
+                <span class="n">active</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">idx</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="n">remaining</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)])</span>
+            <span class="n">t</span> <span class="o">+=</span> <span class="n">step_ms</span>
+            <span class="k">for</span> <span class="n">slot</span> <span class="ow">in</span> <span class="n">active</span><span class="p">:</span>
+                <span class="n">slot</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-=</span> <span class="mi">1</span>
+            <span class="k">for</span> <span class="n">slot</span> <span class="ow">in</span> <span class="p">[</span><span class="n">s</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">active</span> <span class="k">if</span> <span class="n">s</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">]:</span>
+                <span class="n">done</span><span class="p">[</span><span class="n">slot</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="n">t</span>                   <span class="c1"># evicted the moment it finishes</span>
+                <span class="n">active</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">slot</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">done</span><span class="o">.</span><span class="n">mean</span><span class="p">(),</span> <span class="n">done</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+
+<span class="c1"># Realistic workload: most replies short, a few very long.</span>
+<span class="n">lengths</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span>
+    <span class="n">rng</span><span class="o">.</span><span class="n">integers</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mi">80</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">180</span><span class="p">),</span>
+    <span class="n">rng</span><span class="o">.</span><span class="n">integers</span><span class="p">(</span><span class="mi">400</span><span class="p">,</span> <span class="mi">900</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">20</span><span class="p">),</span>
+<span class="p">])</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+<span class="n">rng</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="n">lengths</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;scheduling&#39;</span><span class="si">:</span><span class="s2">&lt;16</span><span class="si">}{</span><span class="s1">&#39;mean latency&#39;</span><span class="si">:</span><span class="s2">&gt;15</span><span class="si">}{</span><span class="s1">&#39;makespan&#39;</span><span class="si">:</span><span class="s2">&gt;12</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;-&quot;</span> <span class="o">*</span> <span class="mi">43</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">mode</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;static&quot;</span><span class="p">,</span> <span class="s2">&quot;continuous&quot;</span><span class="p">]:</span>
+    <span class="n">mean_ms</span><span class="p">,</span> <span class="n">max_ms</span> <span class="o">=</span> <span class="n">simulate</span><span class="p">(</span><span class="n">lengths</span><span class="p">,</span> <span class="n">max_concurrent</span><span class="o">=</span><span class="mi">16</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="n">mode</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">mode</span><span class="si">:</span><span class="s2">&lt;16</span><span class="si">}{</span><span class="n">mean_ms</span><span class="o">/</span><span class="mi">1000</span><span class="si">:</span><span class="s2">&gt;13.1f</span><span class="si">}</span><span class="s2">s </span><span class="si">{</span><span class="n">max_ms</span><span class="o">/</span><span class="mi">1000</span><span class="si">:</span><span class="s2">&gt;10.1f</span><span class="si">}</span><span class="s2">s&quot;</span><span class="p">)</span>
+
+<span class="n">s_mean</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">simulate</span><span class="p">(</span><span class="n">lengths</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="s2">&quot;static&quot;</span><span class="p">)</span>
+<span class="n">c_mean</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">simulate</span><span class="p">(</span><span class="n">lengths</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="s2">&quot;continuous&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Mean latency improvement: </span><span class="si">{</span><span class="n">s_mean</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">c_mean</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">x&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;The gain comes entirely from output-length variance. If every request emitted&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;exactly the same number of tokens, the two schedulers would be identical.&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>scheduling         mean latency    makespan
+-------------------------------------------
+static                   44.4s       85.7s
+continuous                7.0s       21.4s
+
+Mean latency improvement: 6.3x
+The gain comes entirely from output-length variance. If every request emitted
+exactly the same number of tokens, the two schedulers would be identical.
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="kv-cache-management">
+<h2>3. KV Cache Management<a class="headerlink" href="#kv-cache-management" title="Link to this heading">#</a></h2>
+<p>The KV cache is the reason a general web server can’t just “run the model.” Two ideas define
+the modern serving stack:</p>
+<section id="pagedattention">
+<h3>PagedAttention<a class="headerlink" href="#pagedattention" title="Link to this heading">#</a></h3>
+<p>Naively, you reserve contiguous memory for each sequence’s maximum possible length. Since
+actual lengths vary enormously, most of that reservation is never used — internal fragmentation
+that wastes most of the cache.</p>
+<p>PagedAttention borrows the operating-system idea: store KV in <strong>fixed-size pages</strong> with an
+indirection table mapping logical positions to physical pages. Allocate pages on demand, so
+waste is bounded by one partial page per sequence. This is what let batch sizes grow by an
+order of magnitude, and it’s the core idea behind vLLM.</p>
+</section>
+<section id="prefix-caching-radixattention">
+<h3>Prefix caching / RadixAttention<a class="headerlink" href="#prefix-caching-radixattention" title="Link to this heading">#</a></h3>
+<p>If many requests share a prefix — the same system prompt, the same few-shot examples, the same
+document in a RAG pipeline, the same conversation history on each agent turn — the KV for that
+prefix is <em>identical</em> every time. Cache it and reuse it.</p>
+<p>RadixAttention organizes cached prefixes in a radix tree so overlaps are found automatically
+rather than declared. For agent workloads, where each turn re-sends a growing history, this is
+frequently the single largest win available.</p>
+<blockquote>
+<div><p>💡 <strong>Interview Tip:</strong> “We’d put the invariant content at the front of the prompt so it’s
+prefix-cacheable” is a small sentence that signals real serving experience. It’s also
+actionable advice: reordering a prompt to make the stable part a literal prefix can cut TTFT
+dramatically at no quality cost.</p>
+</div></blockquote>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">fragmentation</span><span class="p">(</span><span class="n">seq_lens</span><span class="p">,</span> <span class="n">max_len</span><span class="p">,</span> <span class="n">page_size</span><span class="o">=</span><span class="mi">16</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compare naive max-length reservation against paged allocation.&quot;&quot;&quot;</span>
+    <span class="n">naive</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">seq_lens</span><span class="p">)</span> <span class="o">*</span> <span class="n">max_len</span>
+    <span class="n">paged</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">L</span> <span class="o">/</span> <span class="n">page_size</span><span class="p">))</span> <span class="o">*</span> <span class="n">page_size</span> <span class="k">for</span> <span class="n">L</span> <span class="ow">in</span> <span class="n">seq_lens</span><span class="p">)</span>
+    <span class="n">used</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">seq_lens</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">used</span><span class="p">,</span> <span class="n">naive</span><span class="p">,</span> <span class="n">paged</span>
+
+<span class="n">lens</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">integers</span><span class="p">(</span><span class="mi">50</span><span class="p">,</span> <span class="mi">600</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">64</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+<span class="n">used</span><span class="p">,</span> <span class="n">naive</span><span class="p">,</span> <span class="n">paged</span> <span class="o">=</span> <span class="n">fragmentation</span><span class="p">(</span><span class="n">lens</span><span class="p">,</span> <span class="n">max_len</span><span class="o">=</span><span class="mi">4096</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;64 concurrent sequences, actual lengths 50-600, max supported 4096</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;scheme&#39;</span><span class="si">:</span><span class="s2">&lt;26</span><span class="si">}{</span><span class="s1">&#39;KV slots&#39;</span><span class="si">:</span><span class="s2">&gt;12</span><span class="si">}{</span><span class="s1">&#39;utilization&#39;</span><span class="si">:</span><span class="s2">&gt;14</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;-&quot;</span> <span class="o">*</span> <span class="mi">52</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;actual tokens&#39;</span><span class="si">:</span><span class="s2">&lt;26</span><span class="si">}{</span><span class="n">used</span><span class="si">:</span><span class="s2">&gt;12,</span><span class="si">}{</span><span class="s1">&#39;—&#39;</span><span class="si">:</span><span class="s2">&gt;14</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;naive max reservation&#39;</span><span class="si">:</span><span class="s2">&lt;26</span><span class="si">}{</span><span class="n">naive</span><span class="si">:</span><span class="s2">&gt;12,</span><span class="si">}{</span><span class="n">used</span><span class="o">/</span><span class="n">naive</span><span class="si">:</span><span class="s2">&gt;13.1%</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;paged (page=16)&#39;</span><span class="si">:</span><span class="s2">&lt;26</span><span class="si">}{</span><span class="n">paged</span><span class="si">:</span><span class="s2">&gt;12,</span><span class="si">}{</span><span class="n">used</span><span class="o">/</span><span class="n">paged</span><span class="si">:</span><span class="s2">&gt;13.1%</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Paging fits </span><span class="si">{</span><span class="n">naive</span><span class="o">/</span><span class="n">paged</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">x more sequences in the same memory.&quot;</span><span class="p">)</span>
+
+<span class="c1"># --- Prefix caching on an agent workload ---</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">Prefix reuse across agent turns (2k-token system prompt + growing history):</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="n">SYSTEM</span> <span class="o">=</span> <span class="mi">2000</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;turn&#39;</span><span class="si">:</span><span class="s2">&gt;5</span><span class="si">}{</span><span class="s1">&#39;total prompt&#39;</span><span class="si">:</span><span class="s2">&gt;14</span><span class="si">}{</span><span class="s1">&#39;no cache&#39;</span><span class="si">:</span><span class="s2">&gt;11</span><span class="si">}{</span><span class="s1">&#39;w/ prefix cache&#39;</span><span class="si">:</span><span class="s2">&gt;17</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;-&quot;</span> <span class="o">*</span> <span class="mi">48</span><span class="p">)</span>
+<span class="n">total_nocache</span> <span class="o">=</span> <span class="n">total_cache</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">history</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="k">for</span> <span class="n">turn</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">7</span><span class="p">):</span>
+    <span class="n">prompt</span> <span class="o">=</span> <span class="n">SYSTEM</span> <span class="o">+</span> <span class="n">history</span>
+    <span class="n">new_tokens</span> <span class="o">=</span> <span class="n">prompt</span> <span class="k">if</span> <span class="n">turn</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="n">prompt</span> <span class="o">-</span> <span class="n">prev_prompt</span>
+    <span class="n">total_nocache</span> <span class="o">+=</span> <span class="n">prompt</span>
+    <span class="n">total_cache</span> <span class="o">+=</span> <span class="n">new_tokens</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">turn</span><span class="si">:</span><span class="s2">&gt;5</span><span class="si">}{</span><span class="n">prompt</span><span class="si">:</span><span class="s2">&gt;14,</span><span class="si">}{</span><span class="n">prompt</span><span class="si">:</span><span class="s2">&gt;11,</span><span class="si">}{</span><span class="n">new_tokens</span><span class="si">:</span><span class="s2">&gt;17,</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">prev_prompt</span> <span class="o">=</span> <span class="n">prompt</span>
+    <span class="n">history</span> <span class="o">+=</span> <span class="mi">350</span>                      <span class="c1"># each turn appends output + next user message</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;-&quot;</span> <span class="o">*</span> <span class="mi">48</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;TOTAL&#39;</span><span class="si">:</span><span class="s2">&gt;5</span><span class="si">}{</span><span class="s1">&#39;&#39;</span><span class="si">:</span><span class="s2">&gt;14</span><span class="si">}{</span><span class="n">total_nocache</span><span class="si">:</span><span class="s2">&gt;11,</span><span class="si">}{</span><span class="n">total_cache</span><span class="si">:</span><span class="s2">&gt;17,</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Prefill tokens saved: </span><span class="si">{</span><span class="mi">1</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">total_cache</span><span class="o">/</span><span class="n">total_nocache</span><span class="si">:</span><span class="s2">.0%</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;This is why agent frameworks obsess over keeping the prompt prefix byte-identical.&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;A single changing token near the front (a timestamp, a shuffled tool list)&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;invalidates the entire cache below it.&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>64 concurrent sequences, actual lengths 50-600, max supported 4096
+
+scheme                        KV slots   utilization
+----------------------------------------------------
+actual tokens                   20,105             —
+naive max reservation          262,144         7.7%
+paged (page=16)                 20,560        97.8%
+
+Paging fits 12.8x more sequences in the same memory.
+
+
+Prefix reuse across agent turns (2k-token system prompt + growing history):
+
+ turn  total prompt   no cache  w/ prefix cache
+------------------------------------------------
+    1         2,000      2,000            2,000
+    2         2,350      2,350              350
+    3         2,700      2,700              350
+    4         3,050      3,050              350
+    5         3,400      3,400              350
+    6         3,750      3,750              350
+------------------------------------------------
+TOTAL                   17,250            3,750
+
+Prefill tokens saved: 78%
+This is why agent frameworks obsess over keeping the prompt prefix byte-identical.
+A single changing token near the front (a timestamp, a shuffled tool list)
+invalidates the entire cache below it.
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="quantization">
+<h2>4. Quantization<a class="headerlink" href="#quantization" title="Link to this heading">#</a></h2>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Precision</p></th>
+<th class="head"><p>Bytes/param</p></th>
+<th class="head"><p>70B weights</p></th>
+<th class="head"><p>Typical quality cost</p></th>
+<th class="head"><p>Notes</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><strong>FP32</strong></p></td>
+<td><p>4</p></td>
+<td><p>280 GB</p></td>
+<td><p>—</p></td>
+<td><p>Training only; nobody serves this</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>BF16</strong></p></td>
+<td><p>2</p></td>
+<td><p>140 GB</p></td>
+<td><p>Reference</p></td>
+<td><p>Long-time default; still the quality baseline</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>FP8</strong></p></td>
+<td><p>1</p></td>
+<td><p>70 GB</p></td>
+<td><p>Very small</p></td>
+<td><p>Native on recent datacenter GPUs; now common for weights <em>and</em> KV cache</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>INT8</strong></p></td>
+<td><p>1</p></td>
+<td><p>70 GB</p></td>
+<td><p>Small</p></td>
+<td><p>Mature tooling; broad hardware support</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>INT4</strong></p></td>
+<td><p>0.5</p></td>
+<td><p>35 GB</p></td>
+<td><p>Noticeable, task-dependent</p></td>
+<td><p>AWQ / GPTQ; strong for memory-bound single-stream</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Sub-4-bit</strong></p></td>
+<td><p>&lt;0.5</p></td>
+<td><p>&lt;35 GB</p></td>
+<td><p>Significant</p></td>
+<td><p>Edge and local use</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>Two things to be precise about:</strong></p>
+<ol class="arabic simple">
+<li><p><strong>Weight quantization and KV-cache quantization are separate decisions.</strong> You can serve
+BF16 weights with an FP8 cache, or vice versa. At long context the cache often dominates
+memory, so quantizing it can matter more than quantizing weights.</p></li>
+<li><p><strong>Quantization mainly buys memory and bandwidth, not FLOPs</strong> — unless the hardware has
+native support for that format’s arithmetic. Since decode is bandwidth-bound, halving bytes
+read roughly halves decode time, which is why it feels like a compute win.</p></li>
+</ol>
+<p><strong>Evaluate on your task, not on perplexity.</strong> Quantization damage is uneven: it often shows up
+first in long-context retrieval, code generation, and multi-step reasoning while leaving
+short-form benchmarks nearly untouched.</p>
+</section>
+<section id="speculative-decoding">
+<h2>5. Speculative Decoding<a class="headerlink" href="#speculative-decoding" title="Link to this heading">#</a></h2>
+<p>A small <strong>draft</strong> model proposes K tokens cheaply. The large <strong>verifier</strong> scores all K+1
+positions in a <em>single</em> forward pass — which costs barely more than one token, because that
+pass is parallel like prefill. Accept the longest prefix the verifier agrees with, then
+correct at the first divergence.</p>
+<p><strong>Why it’s free quality-wise:</strong> with the standard acceptance rule, the output distribution is
+mathematically identical to sampling from the large model alone. You are trading compute for
+latency, not quality for latency.</p>
+<p><strong>Where it disappoints:</strong></p>
+<ul class="simple">
+<li><p>Speedup is entirely governed by the acceptance rate. Predictable text (boilerplate, code
+scaffolding, structured output) accepts well; creative or high-entropy text does not.</p></li>
+<li><p>It burns extra FLOPs. Under a heavily batched, compute-saturated server it can <em>reduce</em>
+aggregate throughput even while improving single-stream latency.</p></li>
+<li><p>You now operate two models, and the draft must stay aligned with the verifier across updates.</p></li>
+</ul>
+<p><strong>Variants worth naming:</strong> self-speculation using early layers as the draft; n-gram or
+prompt-lookup decoding (draft by copying from the prompt — excellent for summarization and
+editing, where output heavily overlaps input); and Medusa-style multi-head drafting.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">spec_speedup</span><span class="p">(</span><span class="n">gamma</span><span class="p">,</span> <span class="n">accept_rate</span><span class="p">,</span> <span class="n">verify_cost</span><span class="o">=</span><span class="mf">1.15</span><span class="p">,</span> <span class="n">draft_cost</span><span class="o">=</span><span class="mf">0.12</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    gamma: draft tokens proposed per round.</span>
+<span class="sd">    verify_cost: verifier forward pass over gamma+1 positions, relative to one normal step.</span>
+<span class="sd">    draft_cost: one draft-model step, relative to one verifier step.</span>
+<span class="sd">    Expected accepted tokens for i.i.d. acceptance = (1 - a^(g+1)) / (1 - a).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">a</span> <span class="o">=</span> <span class="n">accept_rate</span>
+    <span class="n">exp_tokens</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">a</span> <span class="o">**</span> <span class="p">(</span><span class="n">gamma</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span> <span class="o">/</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">a</span><span class="p">)</span> <span class="k">if</span> <span class="n">a</span> <span class="o">&lt;</span> <span class="mi">1</span> <span class="k">else</span> <span class="n">gamma</span> <span class="o">+</span> <span class="mi">1</span>
+    <span class="n">cost</span> <span class="o">=</span> <span class="n">verify_cost</span> <span class="o">+</span> <span class="n">gamma</span> <span class="o">*</span> <span class="n">draft_cost</span>
+    <span class="k">return</span> <span class="n">exp_tokens</span> <span class="o">/</span> <span class="n">cost</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;accept rate&#39;</span><span class="si">:</span><span class="s2">&gt;12</span><span class="si">}</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;g=&#39;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nb">str</span><span class="p">(</span><span class="n">g</span><span class="p">)</span><span class="si">:</span><span class="s2">&gt;9</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">g</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">8</span><span class="p">]))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;-&quot;</span> <span class="o">*</span> <span class="mi">50</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="p">[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.65</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">]:</span>
+    <span class="n">row</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">spec_speedup</span><span class="p">(</span><span class="n">g</span><span class="p">,</span><span class="w"> </span><span class="n">a</span><span class="p">)</span><span class="si">:</span><span class="s2">&gt;9.2f</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">g</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">8</span><span class="p">])</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">a</span><span class="si">:</span><span class="s2">&gt;11.0%</span><span class="si">}</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="n">row</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Two things this table shows:&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;  1. Speedup is dominated by acceptance rate, not by gamma.&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;  2. Larger gamma HURTS at low acceptance — you pay for drafts you throw away.&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;     Tune gamma to your measured acceptance rate; do not just raise it.&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span> accept rate      g=2      g=4      g=6      g=8
+--------------------------------------------------
+        50%     1.26     1.19     1.06     0.95
+        65%     1.49     1.55     1.45     1.33
+        80%     1.76     2.06     2.11     2.05
+        90%     1.95     2.51     2.79     2.90
+
+Two things this table shows:
+  1. Speedup is dominated by acceptance rate, not by gamma.
+  2. Larger gamma HURTS at low acceptance — you pay for drafts you throw away.
+     Tune gamma to your measured acceptance rate; do not just raise it.
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="the-serving-stack">
+<h2>6. The Serving Stack<a class="headerlink" href="#the-serving-stack" title="Link to this heading">#</a></h2>
+<p>You will be asked “what would you actually deploy.” As of 2026 three open engines dominate:</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Engine</p></th>
+<th class="head"><p>Distinguishing idea</p></th>
+<th class="head"><p>Strongest fit</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><strong>vLLM</strong></p></td>
+<td><p>PagedAttention; widest model coverage; largest community</p></td>
+<td><p>General-purpose default; high-throughput batch</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>SGLang</strong></p></td>
+<td><p>RadixAttention prefix reuse; structured-generation focus</p></td>
+<td><p>Agents, shared system prompts, constrained output</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>TensorRT-LLM</strong></p></td>
+<td><p>Ahead-of-time compilation to NVIDIA kernels</p></td>
+<td><p>NVIDIA-committed teams who can absorb compile time</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>All three now do continuous batching, paged KV, tensor parallelism, FP8/INT8/INT4
+quantization, streaming, and speculative decoding. <strong>Per-token throughput between them is
+generally within 10–20% on the same model and hardware</strong>, and which one leads flips with
+workload shape and release cadence. So the honest interview answer is not “engine X is
+fastest” — it’s a decision framework:</p>
+<ol class="arabic simple">
+<li><p><strong>Workload shape.</strong> Heavy shared prefixes (agents, RAG with a fixed corpus prompt) favour
+aggressive prefix reuse. Uniform independent requests favour raw throughput.</p></li>
+<li><p><strong>Structured output requirements.</strong> If every response must satisfy a schema, prefer an
+engine with first-class constrained decoding.</p></li>
+<li><p><strong>Hardware commitment.</strong> Compilation-based stacks pay off only if you’re staying on one
+vendor.</p></li>
+<li><p><strong>Operational maturity.</strong> Whatever your team can debug at 3am beats a 15% benchmark win.</p></li>
+</ol>
+<p>Since all of them expose an OpenAI-compatible API, swapping is largely a config change — so
+this is a reversible decision, and worth saying so.</p>
+<p><strong>Also worth knowing:</strong> these are fast-moving projects that have shipped critical CVEs,
+including remote-code-execution issues in multimodal and disaggregated-serving paths. Pin
+versions, track advisories, and don’t expose an inference server directly to untrusted input.</p>
+<section id="beyond-a-single-replica">
+<h3>Beyond a single replica<a class="headerlink" href="#beyond-a-single-replica" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><strong>Chunked prefill</strong> — split long prefills into pieces so they interleave with in-flight
+decodes instead of stalling them. Protects TPOT when a 100k-token prompt arrives.</p></li>
+<li><p><strong>Disaggregated prefill/decode</strong> — run the two phases on separate hardware pools sized to
+their different bottlenecks. Powerful, and operationally more complex.</p></li>
+<li><p><strong>Router in front</strong> — send easy requests to a small model, hard ones to a large one. Usually
+the largest cost lever available, and it’s a <em>product</em> decision more than an infra one.</p></li>
+</ul>
+</section>
+</section>
+<section id="common-interview-questions">
+<h2>Common Interview Questions<a class="headerlink" href="#common-interview-questions" title="Link to this heading">#</a></h2>
+<p><strong>Q: Why is decode memory-bandwidth-bound and what follows from that?</strong>
+Emitting one token requires reading all model weights and the KV cache from HBM while doing
+only ~2×params FLOPs. Accelerators have far more FLOP/s than bytes/s, so the read dominates.
+Consequences: batching is the primary throughput lever (weights get read once for the whole
+batch), quantization helps roughly in proportion to bytes saved, and single-stream latency is
+nearly independent of how much compute you throw at it.</p>
+<p><strong>Q: What does PagedAttention solve?</strong>
+Internal fragmentation. Reserving contiguous max-length KV per sequence wastes most of the
+cache because real lengths vary. Paging allocates fixed-size blocks on demand with an
+indirection table, bounding waste to one partial page per sequence, and it makes prefix
+sharing between requests cheap because pages can be referenced by more than one sequence.
+The practical result is a large increase in feasible batch size.</p>
+<p><strong>Q: Your agent product has a 4k-token system prompt and p95 TTFT is too high. What do you do?</strong>
+Prefix caching first — that prompt is identical on every request, so its KV should be computed
+once and reused. Make sure nothing variable (timestamps, shuffled tool ordering, session IDs)
+sits before the stable content, since anything that changes near the front invalidates
+everything after it. Then chunked prefill so long prompts don’t stall decodes, and only then
+look at shortening the prompt or switching engines.</p>
+<p><strong>Q: When is speculative decoding a bad idea?</strong>
+When the server is already compute-saturated at high batch size — speculation spends extra
+FLOPs to buy latency, and if compute is the constraint it lowers aggregate throughput. Also
+when the text is high-entropy, since low acceptance means you discard most drafted tokens and
+pay for them anyway. It shines on low-batch, latency-sensitive, predictable-output workloads.</p>
+<p><strong>Q: How do you choose between vLLM, SGLang, and TensorRT-LLM?</strong>
+Throughput between them is close enough that the benchmark rarely decides it. I’d choose on
+workload shape (heavy shared prefixes favour radix-style reuse), structured output needs,
+hardware commitment (compiled stacks lock you to a vendor), and what the team can operate.
+They all expose OpenAI-compatible APIs, so the decision is reversible — which is worth saying,
+because it lowers the stakes and shows you’ve actually migrated one.</p>
+<p><strong>Q: Where would you cut cost first on an LLM feature?</strong>
+Routing, before any infra work. Most traffic is easy; sending all of it to the largest model
+is usually the biggest single waste. Then prefix caching, then quantization, then batching
+configuration. Distillation of the common path (llm2) often beats all of these but takes
+longer to land.</p>
+</section>
+<section id="key-takeaways">
+<h2>Key Takeaways<a class="headerlink" href="#key-takeaways" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>Prefill is parallel and compute-bound (sets TTFT); decode is sequential and bandwidth-bound (sets TPOT)</p></li>
+<li><p>Batching is the dominant throughput lever because it amortizes weight reads across sequences</p></li>
+<li><p>Continuous batching has been table stakes since ~2023 — treat it as the baseline, not a win</p></li>
+<li><p>PagedAttention removes KV fragmentation; prefix caching removes redundant prefill for shared prompts</p></li>
+<li><p>Keep the invariant part of a prompt at the very front so it stays prefix-cacheable</p></li>
+<li><p>Weight and KV-cache quantization are independent choices; at long context the cache may dominate</p></li>
+<li><p>Speculative decoding is exact, not approximate — but its speedup lives or dies on acceptance rate</p></li>
+<li><p>vLLM / SGLang / TensorRT-LLM are within ~10–20% on throughput; choose on workload shape and operability</p></li>
+<li><p>Cheapest cost lever is usually routing easy traffic to a smaller model, not tuning the serving stack</p></li>
+</ul>
+</section>
+</section>
+
+    <script type="text/x-thebe-config">
+    {
+        requestKernel: true,
+        binderOptions: {
+            repo: "binder-examples/jupyter-stacks-datascience",
+            ref: "master",
+        },
+        codeMirrorConfig: {
+            theme: "abcdef",
+            mode: "python"
+        },
+        kernelOptions: {
+            name: "python3",
+            path: "./LLM Engineering"
+        },
+        predefinedOutput: true
+    }
+    </script>
+    <script>kernelName = 'python3'</script>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="llm2_pretraining_finetuning.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Post-Training: SFT, Preference Optimization &amp; RLVR</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="llm4_rag_systems.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">RAG Systems: Retrieval-Augmented Generation</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2023.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.4.7.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.17.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

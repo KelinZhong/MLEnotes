@@ -1,0 +1,1226 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Metrics, Thresholds &amp; Imbalanced Data &#8212; Machine Learning Engineer Notes</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=55c26ed414f5f8a31ebb" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=55c26ed414f5f8a31ebb" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../_static/togglebutton.css?v=9c3e77be" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-thebe.css?v=4fa983c6" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../_static/scripts/fontawesome.js?digest=55c26ed414f5f8a31ebb"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb" />
+
+    <script src="../_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=f281be69"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js"></script>
+    <script>let toggleHintShow = 'Click to show';</script>
+    <script>let toggleHintHide = 'Click to hide';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="../_static/togglebutton.js?v=b8b12719"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script async="async" src="../_static/sphinx-thebe.js?v=c100c467"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'ML Foundations/ML7_metrics_and_imbalance';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Deep Learning" href="../Deep%20Learning/DL0.html" />
+    <link rel="prev" title="ML Foundations" href="ML0.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  
+    
+    <script src="../_static/searchtools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../intro.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">Machine Learning Engineer Notes</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    Topics
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" current active">
+  <a class="nav-link dropdown-item nav-internal" href="ML0.html">
+    ML Foundations
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../Deep%20Learning/DL0.html">
+    Deep Learning
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../PyTorch%20Guide/P0_pytorch.html">
+    PyTorch Guide
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../MLOps/mlops0.html">
+    MLOps
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../LLM%20Engineering/llm0.html">
+    LLM Engineering
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../ML%20System%20Design/mlsd0.html">
+    ML System Design
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../MLE%20Interview/mle0.html">
+    The MLE Interview Loop
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../ML%20Coding/mlc0.html">
+    ML Coding Round
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../TensorFlow%20Guide/tf0.html">
+    TensorFlow Guide (reference)
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="ML0.html">
+    ML Foundations
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../Deep%20Learning/DL0.html">
+    Deep Learning
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../PyTorch%20Guide/P0_pytorch.html">
+    PyTorch Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../MLOps/mlops0.html">
+    MLOps
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../LLM%20Engineering/llm0.html">
+    LLM Engineering
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../ML%20System%20Design/mlsd0.html">
+    ML System Design
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../MLE%20Interview/mle0.html">
+    The MLE Interview Loop
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../ML%20Coding/mlc0.html">
+    ML Coding Round
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../TensorFlow%20Guide/tf0.html">
+    TensorFlow Guide (reference)
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item pst-sidebar-collapse"><button id="pst-collapse-sidebar-button" aria-expanded="true" aria-controls="pst-primary-sidebar"><svg class="pst-icon svg-inline--fa" role="img" aria-hidden="true" focusable="false" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+    <path fill="currentColor" d="M3 15.5C2.36232 15.5 1.74874 15.2564 1.28478 14.8189C0.820828 14.3815 0.541576 13.7832 0.504167 13.1467L0.5 13L0.5 3C0.499965 2.36232 0.743605 1.74874 1.18107 1.28478C1.61854 0.820828 2.21676 0.541576 2.85333 0.504167L3 0.5L13 0.5C13.6377 0.499965 14.2513 0.743605 14.7152 1.18107C15.1792 1.61854 15.4584 2.21676 15.4958 2.85333L15.5 3L15.5 13C15.5 13.6377 15.2564 14.2513 14.8189 14.7152C14.3815 15.1792 13.7832 15.4584 13.1467 15.4958L13 15.5L3 15.5ZM3 13.8333L10.5 13.8333L10.5 2.16667L3 2.16667C2.79589 2.16669 2.59889 2.24163 2.44636 2.37726C2.29383 2.5129 2.19638 2.69979 2.1725 2.9025L2.16667 3L2.16667 13C2.16669 13.2041 2.24163 13.4011 2.37726 13.5536C2.5129 13.7062 2.69979 13.8036 2.9025 13.8275L3 13.8333ZM6.65583 10.325L6.5775 10.2558L4.91083 8.58917C4.76735 8.44567 4.68116 8.25476 4.66843 8.05223C4.65569 7.84971 4.71729 7.6495 4.84167 7.48917L4.91083 7.41083L6.5775 5.74417C6.72747 5.59471 6.9287 5.50794 7.14032 5.50148C7.35194 5.49502 7.55809 5.56935 7.7169 5.70937C7.8757 5.8494 7.97525 6.04463 7.99533 6.25539C8.01541 6.46616 7.95451 6.67667 7.825 6.84417L7.75583 6.9225L6.67917 8L7.75583 9.0775C7.89931 9.22099 7.98551 9.41191 7.99824 9.61443C8.01097 9.81695 7.94938 10.0172 7.825 10.1775L7.75583 10.2558C7.61234 10.3993 7.42142 10.4855 7.2189 10.4982C7.01638 10.511 6.81617 10.4494 6.65583 10.325Z"/>
+  </svg>
+  <span class="pst-collapse-sidebar-label">Collapse Sidebar</span>
+  <span class="pst-expand-sidebar-label">Expand Sidebar</span>
+</button></div>
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Metrics, Thresholds &amp; Imbalanced Data</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item"><div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> 
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-confusion-matrix-and-what-comes-from-it">1. The Confusion Matrix and What Comes From It</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#accuracy-is-a-trap-under-imbalance">Accuracy is a trap under imbalance</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#roc-auc-vs-pr-auc">2. ROC-AUC vs PR-AUC</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#threshold-selection-where-the-business-enters">3. Threshold Selection: Where the Business Enters</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#how-to-actually-choose-one">How to actually choose one</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#calibration">4. Calibration</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#when-calibration-matters">When calibration matters</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#when-it-doesn-t">When it doesn’t</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#what-breaks-calibration">What breaks calibration</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fixes">Fixes</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#class-imbalance">5. Class Imbalance</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#connecting-offline-metrics-to-online-ones">6. Connecting Offline Metrics to Online Ones</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#how-the-link-breaks">How the link breaks</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#what-to-do">What to do</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#what-changes-in-production">What Changes in Production</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#common-interview-questions">Common Interview Questions</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#key-takeaways">Key Takeaways</a></li>
+</ul>
+  </nav></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../intro.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="ML0.html" class="nav-link">ML Foundations</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Metrics, Thresholds &amp; Imbalanced Data</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="metrics-thresholds-imbalanced-data">
+<h1>Metrics, Thresholds &amp; Imbalanced Data<a class="headerlink" href="#metrics-thresholds-imbalanced-data" title="Link to this heading">#</a></h1>
+<p><strong>Topics:</strong> Confusion Matrix · Precision/Recall/F1 · ROC-AUC vs PR-AUC · Threshold Selection ·
+Calibration · Class Imbalance · Offline↔Online Metric Alignment</p>
+<blockquote>
+<div><p>📌 <strong>If you’re transitioning from a DS role, this is the chapter to read carefully.</strong> You
+almost certainly know precision and recall. What’s less commonly carried over from analytics
+work is: choosing an operating threshold against an explicit business cost, treating
+calibration as separate from ranking quality, and connecting an offline metric to an online
+one you can actually move. Those three things are most of what “productionizing a model”
+means in practice.</p>
+</div></blockquote>
+<section id="the-confusion-matrix-and-what-comes-from-it">
+<h2>1. The Confusion Matrix and What Comes From It<a class="headerlink" href="#the-confusion-matrix-and-what-comes-from-it" title="Link to this heading">#</a></h2>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p></p></th>
+<th class="head"><p>Predicted positive</p></th>
+<th class="head"><p>Predicted negative</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><strong>Actually positive</strong></p></td>
+<td><p>TP</p></td>
+<td><p>FN</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Actually negative</strong></p></td>
+<td><p>FP</p></td>
+<td><p>TN</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Metric</p></th>
+<th class="head"><p>Formula</p></th>
+<th class="head"><p>Reads as</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Precision</p></td>
+<td><p>TP / (TP + FP)</p></td>
+<td><p>Of the things I flagged, how many were right?</p></td>
+</tr>
+<tr class="row-odd"><td><p>Recall (TPR)</p></td>
+<td><p>TP / (TP + FN)</p></td>
+<td><p>Of the things I should have flagged, how many did I catch?</p></td>
+</tr>
+<tr class="row-even"><td><p>Specificity (TNR)</p></td>
+<td><p>TN / (TN + FP)</p></td>
+<td><p>Of the negatives, how many did I correctly leave alone?</p></td>
+</tr>
+<tr class="row-odd"><td><p>F1</p></td>
+<td><p>Harmonic mean of P and R</p></td>
+<td><p>One number when you have no cost information</p></td>
+</tr>
+<tr class="row-even"><td><p>FPR</p></td>
+<td><p>FP / (FP + TN)</p></td>
+<td><p>What fraction of negatives did I wrongly flag?</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>F1 is a fallback, not a goal.</strong> It weights precision and recall equally, which is almost never
+what the business wants. Use it to compare models when you genuinely have no cost information;
+replace it with an explicit cost function as soon as you do.</p>
+<section id="accuracy-is-a-trap-under-imbalance">
+<h3>Accuracy is a trap under imbalance<a class="headerlink" href="#accuracy-is-a-trap-under-imbalance" title="Link to this heading">#</a></h3>
+<p>At 0.5% fraud, a model that predicts “never fraud” scores 99.5% accuracy and has zero value.
+This is the single most common interview trap in this area.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">make_classification</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.linear_model</span><span class="w"> </span><span class="kn">import</span> <span class="n">LogisticRegression</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.model_selection</span><span class="w"> </span><span class="kn">import</span> <span class="n">train_test_split</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span><span class="n">confusion_matrix</span><span class="p">,</span> <span class="n">precision_score</span><span class="p">,</span> <span class="n">recall_score</span><span class="p">,</span> <span class="n">f1_score</span><span class="p">,</span>
+                             <span class="n">roc_auc_score</span><span class="p">,</span> <span class="n">average_precision_score</span><span class="p">,</span> <span class="n">accuracy_score</span><span class="p">)</span>
+
+<span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+<span class="c1"># 2% positive rate — a realistic fraud / churn / defect setting.</span>
+<span class="n">X</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">make_classification</span><span class="p">(</span><span class="n">n_samples</span><span class="o">=</span><span class="mi">20000</span><span class="p">,</span> <span class="n">n_features</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">n_informative</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span>
+                            <span class="n">weights</span><span class="o">=</span><span class="p">[</span><span class="mf">0.98</span><span class="p">,</span> <span class="mf">0.02</span><span class="p">],</span> <span class="n">flip_y</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
+<span class="n">Xtr</span><span class="p">,</span> <span class="n">Xte</span><span class="p">,</span> <span class="n">ytr</span><span class="p">,</span> <span class="n">yte</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">test_size</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span> <span class="n">stratify</span><span class="o">=</span><span class="n">y</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
+
+<span class="n">model</span> <span class="o">=</span> <span class="n">LogisticRegression</span><span class="p">(</span><span class="n">max_iter</span><span class="o">=</span><span class="mi">2000</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">Xtr</span><span class="p">,</span> <span class="n">ytr</span><span class="p">)</span>
+<span class="n">proba</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">Xte</span><span class="p">)[:,</span> <span class="mi">1</span><span class="p">]</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Positive rate in test set: </span><span class="si">{</span><span class="n">yte</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="si">:</span><span class="s2">.2%</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;model&#39;</span><span class="si">:</span><span class="s2">&lt;28</span><span class="si">}{</span><span class="s1">&#39;accuracy&#39;</span><span class="si">:</span><span class="s2">&gt;10</span><span class="si">}{</span><span class="s1">&#39;precision&#39;</span><span class="si">:</span><span class="s2">&gt;11</span><span class="si">}{</span><span class="s1">&#39;recall&#39;</span><span class="si">:</span><span class="s2">&gt;9</span><span class="si">}{</span><span class="s1">&#39;F1&#39;</span><span class="si">:</span><span class="s2">&gt;8</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;-&quot;</span> <span class="o">*</span> <span class="mi">66</span><span class="p">)</span>
+
+<span class="n">trivial</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">yte</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;always predict negative&#39;</span><span class="si">:</span><span class="s2">&lt;28</span><span class="si">}{</span><span class="n">accuracy_score</span><span class="p">(</span><span class="n">yte</span><span class="p">,</span><span class="w"> </span><span class="n">trivial</span><span class="p">)</span><span class="si">:</span><span class="s2">&gt;10.4f</span><span class="si">}</span><span class="s2">&quot;</span>
+      <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="mf">0.0</span><span class="si">:</span><span class="s2">&gt;11.4f</span><span class="si">}{</span><span class="mf">0.0</span><span class="si">:</span><span class="s2">&gt;9.4f</span><span class="si">}{</span><span class="mf">0.0</span><span class="si">:</span><span class="s2">&gt;8.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="n">pred</span> <span class="o">=</span> <span class="p">(</span><span class="n">proba</span> <span class="o">&gt;=</span> <span class="mf">0.5</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;logistic @ threshold 0.5&#39;</span><span class="si">:</span><span class="s2">&lt;28</span><span class="si">}{</span><span class="n">accuracy_score</span><span class="p">(</span><span class="n">yte</span><span class="p">,</span><span class="w"> </span><span class="n">pred</span><span class="p">)</span><span class="si">:</span><span class="s2">&gt;10.4f</span><span class="si">}</span><span class="s2">&quot;</span>
+      <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">precision_score</span><span class="p">(</span><span class="n">yte</span><span class="p">,</span><span class="w"> </span><span class="n">pred</span><span class="p">,</span><span class="w"> </span><span class="n">zero_division</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="si">:</span><span class="s2">&gt;11.4f</span><span class="si">}</span><span class="s2">&quot;</span>
+      <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">recall_score</span><span class="p">(</span><span class="n">yte</span><span class="p">,</span><span class="w"> </span><span class="n">pred</span><span class="p">)</span><span class="si">:</span><span class="s2">&gt;9.4f</span><span class="si">}{</span><span class="n">f1_score</span><span class="p">(</span><span class="n">yte</span><span class="p">,</span><span class="w"> </span><span class="n">pred</span><span class="p">)</span><span class="si">:</span><span class="s2">&gt;8.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;The useless model beats nothing but scores 97.9</span><span class="si">% a</span><span class="s2">ccuracy.&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Report accuracy on an imbalanced problem and you have said almost nothing.&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Positive rate in test set: 2.43%
+
+model                         accuracy  precision   recall      F1
+------------------------------------------------------------------
+always predict negative         0.9757     0.0000   0.0000  0.0000
+logistic @ threshold 0.5        0.9808     0.9429   0.2260  0.3646
+
+The useless model beats nothing but scores 97.9% accuracy.
+Report accuracy on an imbalanced problem and you have said almost nothing.
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="roc-auc-vs-pr-auc">
+<h2>2. ROC-AUC vs PR-AUC<a class="headerlink" href="#roc-auc-vs-pr-auc" title="Link to this heading">#</a></h2>
+<p>Both summarize performance across <em>all</em> thresholds. They disagree, and the disagreement matters.</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p></p></th>
+<th class="head"><p>ROC-AUC</p></th>
+<th class="head"><p>PR-AUC (average precision)</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Axes</p></td>
+<td><p>TPR vs <strong>FPR</strong></p></td>
+<td><p>Precision vs Recall</p></td>
+</tr>
+<tr class="row-odd"><td><p>Baseline (random)</p></td>
+<td><p>0.5 always</p></td>
+<td><p>The positive rate</p></td>
+</tr>
+<tr class="row-even"><td><p>Under heavy imbalance</p></td>
+<td><p>Stays optimistic</p></td>
+<td><p>Drops honestly</p></td>
+</tr>
+<tr class="row-odd"><td><p>Answers</p></td>
+<td><p>“Does it rank a random positive above a random negative?”</p></td>
+<td><p>“If I act on the top predictions, how many are right?”</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>Why ROC-AUC misleads under imbalance.</strong> FPR has TN in the denominator. When negatives vastly
+outnumber positives, thousands of false positives barely move FPR — so the ROC curve stays
+flattering while precision collapses. PR-AUC has no TN term anywhere, so it reflects what a
+person acting on the alerts would actually experience.</p>
+<p><strong>Rule:</strong> when the positive class is rare <em>and</em> you’ll act on individual predictions, lead with
+PR-AUC. ROC-AUC is fine for balanced problems and for comparing rankers.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">precision_recall_curve</span><span class="p">,</span> <span class="n">roc_curve</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">compare</span><span class="p">(</span><span class="n">pos_rate</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">40000</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+    <span class="n">X</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">make_classification</span><span class="p">(</span><span class="n">n_samples</span><span class="o">=</span><span class="n">n</span><span class="p">,</span> <span class="n">n_features</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">n_informative</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span>
+                                <span class="n">weights</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span> <span class="o">-</span> <span class="n">pos_rate</span><span class="p">,</span> <span class="n">pos_rate</span><span class="p">],</span> <span class="n">flip_y</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span>
+                                <span class="n">random_state</span><span class="o">=</span><span class="n">seed</span><span class="p">)</span>
+    <span class="n">Xtr</span><span class="p">,</span> <span class="n">Xte</span><span class="p">,</span> <span class="n">ytr</span><span class="p">,</span> <span class="n">yte</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">test_size</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span> <span class="n">stratify</span><span class="o">=</span><span class="n">y</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="n">seed</span><span class="p">)</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="n">LogisticRegression</span><span class="p">(</span><span class="n">max_iter</span><span class="o">=</span><span class="mi">2000</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">Xtr</span><span class="p">,</span> <span class="n">ytr</span><span class="p">)</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">Xte</span><span class="p">)[:,</span> <span class="mi">1</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">roc_auc_score</span><span class="p">(</span><span class="n">yte</span><span class="p">,</span> <span class="n">p</span><span class="p">),</span> <span class="n">average_precision_score</span><span class="p">(</span><span class="n">yte</span><span class="p">,</span> <span class="n">p</span><span class="p">),</span> <span class="n">yte</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;positive rate&#39;</span><span class="si">:</span><span class="s2">&gt;14</span><span class="si">}{</span><span class="s1">&#39;ROC-AUC&#39;</span><span class="si">:</span><span class="s2">&gt;10</span><span class="si">}{</span><span class="s1">&#39;PR-AUC&#39;</span><span class="si">:</span><span class="s2">&gt;9</span><span class="si">}{</span><span class="s1">&#39;PR baseline&#39;</span><span class="si">:</span><span class="s2">&gt;13</span><span class="si">}{</span><span class="s1">&#39;ROC baseline&#39;</span><span class="si">:</span><span class="s2">&gt;14</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;-&quot;</span> <span class="o">*</span> <span class="mi">62</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">rate</span> <span class="ow">in</span> <span class="p">[</span><span class="mf">0.50</span><span class="p">,</span> <span class="mf">0.20</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.002</span><span class="p">]:</span>
+    <span class="n">roc</span><span class="p">,</span> <span class="n">pr</span><span class="p">,</span> <span class="n">actual</span> <span class="o">=</span> <span class="n">compare</span><span class="p">(</span><span class="n">rate</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">actual</span><span class="si">:</span><span class="s2">&gt;13.2%</span><span class="si">}{</span><span class="n">roc</span><span class="si">:</span><span class="s2">&gt;10.3f</span><span class="si">}{</span><span class="n">pr</span><span class="si">:</span><span class="s2">&gt;9.3f</span><span class="si">}{</span><span class="n">actual</span><span class="si">:</span><span class="s2">&gt;13.3f</span><span class="si">}{</span><span class="mf">0.5</span><span class="si">:</span><span class="s2">&gt;14.1f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;ROC-AUC barely moves as the problem gets 250x harder.&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;PR-AUC tracks the difficulty — and its baseline moves with it, so a PR-AUC of&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;0.30 at a 0.2% positive rate is a strong model, while 0.30 at 50</span><span class="si">% i</span><span class="s2">s a broken one.&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Always report the baseline alongside PR-AUC; the number alone is uninterpretable.&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span> positive rate   ROC-AUC   PR-AUC  PR baseline  ROC baseline
+--------------------------------------------------------------
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>       49.98%     0.964    0.958        0.500           0.5
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>       20.23%     0.961    0.875        0.202           0.5
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>        5.38%     0.943    0.695        0.054           0.5
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>        1.42%     0.834    0.299        0.014           0.5
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>        0.62%     0.638    0.037        0.006           0.5
+
+ROC-AUC barely moves as the problem gets 250x harder.
+PR-AUC tracks the difficulty — and its baseline moves with it, so a PR-AUC of
+0.30 at a 0.2% positive rate is a strong model, while 0.30 at 50% is a broken one.
+Always report the baseline alongside PR-AUC; the number alone is uninterpretable.
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="threshold-selection-where-the-business-enters">
+<h2>3. Threshold Selection: Where the Business Enters<a class="headerlink" href="#threshold-selection-where-the-business-enters" title="Link to this heading">#</a></h2>
+<p>A classifier outputs a score. <strong>The threshold is a separate decision, and it is not a modeling
+decision</strong> — it’s a business one. Training a better model and choosing a better threshold are
+independent levers, and the second is usually faster and cheaper.</p>
+<p><code class="docutils literal notranslate"><span class="pre">0.5</span></code> is a default, not an answer. It is only optimal when classes are balanced and the two
+error types cost the same — which is almost never true.</p>
+<section id="how-to-actually-choose-one">
+<h3>How to actually choose one<a class="headerlink" href="#how-to-actually-choose-one" title="Link to this heading">#</a></h3>
+<ol class="arabic simple">
+<li><p><strong>Write down the cost of each error.</strong> A missed fraud costs the chargeback; a false positive
+costs a blocked customer and a support ticket. Get real numbers from whoever owns the P&amp;L.</p></li>
+<li><p><strong>Minimize expected cost across thresholds.</strong> This is a one-line sweep.</p></li>
+<li><p><strong>Or optimize under a constraint</strong> — “maximize recall subject to precision ≥ 0.80,” or “the
+review team can handle 500 cases a day.” Capacity constraints are extremely common and often
+decide the threshold outright.</p></li>
+<li><p><strong>Re-check it when the base rate shifts.</strong> A threshold tuned at 2% fraud is wrong at 6%.</p></li>
+</ol>
+<blockquote>
+<div><p>💡 <strong>Interview Tip:</strong> Asked “how would you pick the threshold,” the weak answer is “tune F1.”
+The strong answer asks a question back: <em>“What does a false positive cost relative to a false
+negative, and is there a capacity limit on the downstream action?”</em> That single question
+signals more production experience than any metric you could name.</p>
+</div></blockquote>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">expected_cost</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">scores</span><span class="p">,</span> <span class="n">thr</span><span class="p">,</span> <span class="n">cost_fp</span><span class="p">,</span> <span class="n">cost_fn</span><span class="p">):</span>
+    <span class="n">pred</span> <span class="o">=</span> <span class="p">(</span><span class="n">scores</span> <span class="o">&gt;=</span> <span class="n">thr</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+    <span class="n">tn</span><span class="p">,</span> <span class="n">fp</span><span class="p">,</span> <span class="n">fn</span><span class="p">,</span> <span class="n">tp</span> <span class="o">=</span> <span class="n">confusion_matrix</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">pred</span><span class="p">,</span> <span class="n">labels</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">fp</span> <span class="o">*</span> <span class="n">cost_fp</span> <span class="o">+</span> <span class="n">fn</span> <span class="o">*</span> <span class="n">cost_fn</span><span class="p">,</span> <span class="n">fp</span><span class="p">,</span> <span class="n">fn</span><span class="p">,</span> <span class="n">tp</span>
+
+<span class="n">thresholds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.99</span><span class="p">,</span> <span class="mi">99</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Same model and scores. Only the cost ratio changes.</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;scenario&#39;</span><span class="si">:</span><span class="s2">&lt;34</span><span class="si">}{</span><span class="s1">&#39;best thr&#39;</span><span class="si">:</span><span class="s2">&gt;10</span><span class="si">}{</span><span class="s1">&#39;precision&#39;</span><span class="si">:</span><span class="s2">&gt;11</span><span class="si">}{</span><span class="s1">&#39;recall&#39;</span><span class="si">:</span><span class="s2">&gt;9</span><span class="si">}{</span><span class="s1">&#39;flagged&#39;</span><span class="si">:</span><span class="s2">&gt;9</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;-&quot;</span> <span class="o">*</span> <span class="mi">73</span><span class="p">)</span>
+
+<span class="n">scenarios</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">(</span><span class="s2">&quot;FN 100x worse (fraud loss)&quot;</span><span class="p">,</span>      <span class="mi">1</span><span class="p">,</span>   <span class="mi">100</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;FN 10x worse&quot;</span><span class="p">,</span>                     <span class="mi">1</span><span class="p">,</span>    <span class="mi">10</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;symmetric costs&quot;</span><span class="p">,</span>                  <span class="mi">1</span><span class="p">,</span>     <span class="mi">1</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;FP 5x worse (blocking a customer)&quot;</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span>    <span class="mi">1</span><span class="p">),</span>
+<span class="p">]</span>
+
+<span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">c_fp</span><span class="p">,</span> <span class="n">c_fn</span> <span class="ow">in</span> <span class="n">scenarios</span><span class="p">:</span>
+    <span class="n">costs</span> <span class="o">=</span> <span class="p">[</span><span class="n">expected_cost</span><span class="p">(</span><span class="n">yte</span><span class="p">,</span> <span class="n">proba</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">c_fp</span><span class="p">,</span> <span class="n">c_fn</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">thresholds</span><span class="p">]</span>
+    <span class="n">best</span> <span class="o">=</span> <span class="n">thresholds</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">costs</span><span class="p">))]</span>
+    <span class="n">pred</span> <span class="o">=</span> <span class="p">(</span><span class="n">proba</span> <span class="o">&gt;=</span> <span class="n">best</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">:</span><span class="s2">&lt;34</span><span class="si">}{</span><span class="n">best</span><span class="si">:</span><span class="s2">&gt;10.2f</span><span class="si">}</span><span class="s2">&quot;</span>
+          <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">precision_score</span><span class="p">(</span><span class="n">yte</span><span class="p">,</span><span class="w"> </span><span class="n">pred</span><span class="p">,</span><span class="w"> </span><span class="n">zero_division</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="si">:</span><span class="s2">&gt;11.3f</span><span class="si">}</span><span class="s2">&quot;</span>
+          <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">recall_score</span><span class="p">(</span><span class="n">yte</span><span class="p">,</span><span class="w"> </span><span class="n">pred</span><span class="p">)</span><span class="si">:</span><span class="s2">&gt;9.3f</span><span class="si">}{</span><span class="n">pred</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="si">:</span><span class="s2">&gt;9</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">()</span>
+<span class="c1"># Capacity-constrained variant — often the real-world binding constraint</span>
+<span class="n">CAPACITY</span> <span class="o">=</span> <span class="mi">100</span>
+<span class="n">k</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="o">-</span><span class="n">proba</span><span class="p">)[:</span><span class="n">CAPACITY</span><span class="p">]</span>
+<span class="n">caught</span> <span class="o">=</span> <span class="n">yte</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Capacity constraint instead of cost: review team handles </span><span class="si">{</span><span class="n">CAPACITY</span><span class="si">}</span><span class="s2"> cases/day.&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Threshold = the </span><span class="si">{</span><span class="n">CAPACITY</span><span class="si">}</span><span class="s2">th highest score = </span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">proba</span><span class="p">)[</span><span class="o">-</span><span class="n">CAPACITY</span><span class="p">]</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Precision@</span><span class="si">{</span><span class="n">CAPACITY</span><span class="si">}</span><span class="s2"> = </span><span class="si">{</span><span class="n">caught</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">CAPACITY</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">   &quot;</span>
+      <span class="sa">f</span><span class="s2">&quot;recall@</span><span class="si">{</span><span class="n">CAPACITY</span><span class="si">}</span><span class="s2"> = </span><span class="si">{</span><span class="n">caught</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">yte</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="n">lo</span> <span class="o">=</span> <span class="n">thresholds</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">([</span><span class="n">expected_cost</span><span class="p">(</span><span class="n">yte</span><span class="p">,</span> <span class="n">proba</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">100</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">thresholds</span><span class="p">]))]</span>
+<span class="n">hi</span> <span class="o">=</span> <span class="n">thresholds</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">([</span><span class="n">expected_cost</span><span class="p">(</span><span class="n">yte</span><span class="p">,</span> <span class="n">proba</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">thresholds</span><span class="p">]))]</span>
+<span class="nb">print</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The threshold moved from </span><span class="si">{</span><span class="n">lo</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">hi</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> without retraining anything,&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;and recall ranged from 0.80 down to 0.20 across those settings.&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;That range is why &#39;we improved AUC by 0.01&#39; is often a much smaller win&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;than &#39;we set the threshold correctly for the first time&#39;.&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Same model and scores. Only the cost ratio changes.
+
+scenario                            best thr  precision   recall  flagged
+-------------------------------------------------------------------------
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>FN 100x worse (fraud loss)              0.02      0.072    0.795     1600
+FN 10x worse                            0.13      0.360    0.521      211
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>symmetric costs                         0.33      0.736    0.363       72
+FP 5x worse (blocking a customer)       0.54      0.967    0.199       30
+
+Capacity constraint instead of cost: review team handles 100 cases/day.
+  Threshold = the 100th highest score = 0.236
+  Precision@100 = 0.600   recall@100 = 0.411
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>The threshold moved from 0.02 to 0.54 without retraining anything,
+and recall ranged from 0.80 down to 0.20 across those settings.
+That range is why &#39;we improved AUC by 0.01&#39; is often a much smaller win
+than &#39;we set the threshold correctly for the first time&#39;.
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="calibration">
+<h2>4. Calibration<a class="headerlink" href="#calibration" title="Link to this heading">#</a></h2>
+<p><strong>Ranking quality and probability quality are different properties.</strong> A model can rank perfectly
+(AUC 1.0) while every predicted probability is wrong. Squaring all scores preserves order
+exactly and destroys calibration.</p>
+<p>A model is <strong>calibrated</strong> if, among predictions of 0.3, roughly 30% are actually positive.</p>
+<section id="when-calibration-matters">
+<h3>When calibration matters<a class="headerlink" href="#when-calibration-matters" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><strong>Anything that multiplies the probability by a value.</strong> Expected-value decisions,
+ad auctions (bid = pCTR × value), expected loss, inventory. Miscalibration corrupts the
+arithmetic directly.</p></li>
+<li><p><strong>Thresholds with a business meaning.</strong> “Escalate above 80% confidence” is meaningless if 80%
+actually means 40%.</p></li>
+<li><p><strong>Showing scores to humans</strong>, who will interpret them as probabilities whether or not you
+intend it.</p></li>
+</ul>
+</section>
+<section id="when-it-doesn-t">
+<h3>When it doesn’t<a class="headerlink" href="#when-it-doesn-t" title="Link to this heading">#</a></h3>
+<p>Pure ranking with a fixed cut — top-k retrieval, sorting a feed. Order is all that’s used.</p>
+</section>
+<section id="what-breaks-calibration">
+<h3>What breaks calibration<a class="headerlink" href="#what-breaks-calibration" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><strong>Class rebalancing.</strong> Oversampling, undersampling, and <code class="docutils literal notranslate"><span class="pre">class_weight='balanced'</span></code> all shift
+the base rate the model sees, so its outputs no longer reflect true probabilities. This is the
+most common cause in practice and it surprises people.</p></li>
+<li><p>Regularization, some tree ensembles (which tend to be over-confident near 0 and 1), and SVMs
+(whose decision function isn’t a probability at all).</p></li>
+</ul>
+</section>
+<section id="fixes">
+<h3>Fixes<a class="headerlink" href="#fixes" title="Link to this heading">#</a></h3>
+<p><strong>Platt scaling</strong> (fit a logistic regression on the scores) and <strong>isotonic regression</strong> (fit a
+non-decreasing step function; more flexible, needs more data). Both must be fitted on a
+<em>held-out</em> set — calibrating on the training set achieves nothing.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.calibration</span><span class="w"> </span><span class="kn">import</span> <span class="n">CalibratedClassifierCV</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.frozen</span><span class="w"> </span><span class="kn">import</span> <span class="n">FrozenEstimator</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">brier_score_loss</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">ece</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">prob</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Expected Calibration Error: mean |confidence - accuracy| weighted by bin size.&quot;&quot;&quot;</span>
+    <span class="n">edges</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">bins</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">total</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="k">for</span> <span class="n">lo</span><span class="p">,</span> <span class="n">hi</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">edges</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">edges</span><span class="p">[</span><span class="mi">1</span><span class="p">:]):</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="p">(</span><span class="n">prob</span> <span class="o">&gt;</span> <span class="n">lo</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">prob</span> <span class="o">&lt;=</span> <span class="n">hi</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">m</span><span class="o">.</span><span class="n">sum</span><span class="p">():</span>
+            <span class="n">total</span> <span class="o">+=</span> <span class="n">m</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span> <span class="o">*</span> <span class="nb">abs</span><span class="p">(</span><span class="n">prob</span><span class="p">[</span><span class="n">m</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span> <span class="o">-</span> <span class="n">y_true</span><span class="p">[</span><span class="n">m</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span>
+    <span class="k">return</span> <span class="n">total</span>
+
+<span class="n">Xcal</span><span class="p">,</span> <span class="n">Xho</span><span class="p">,</span> <span class="n">ycal</span><span class="p">,</span> <span class="n">yho</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span><span class="n">Xte</span><span class="p">,</span> <span class="n">yte</span><span class="p">,</span> <span class="n">test_size</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">stratify</span><span class="o">=</span><span class="n">yte</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+<span class="n">base</span> <span class="o">=</span> <span class="n">LogisticRegression</span><span class="p">(</span><span class="n">max_iter</span><span class="o">=</span><span class="mi">2000</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">Xtr</span><span class="p">,</span> <span class="n">ytr</span><span class="p">)</span>
+<span class="c1"># The rebalanced model: better recall at 0.5, but its probabilities now lie.</span>
+<span class="n">weighted</span> <span class="o">=</span> <span class="n">LogisticRegression</span><span class="p">(</span><span class="n">max_iter</span><span class="o">=</span><span class="mi">2000</span><span class="p">,</span> <span class="n">class_weight</span><span class="o">=</span><span class="s2">&quot;balanced&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">Xtr</span><span class="p">,</span> <span class="n">ytr</span><span class="p">)</span>
+<span class="c1"># NOTE: cv=&quot;prefit&quot; was removed in sklearn 1.8 — wrap the fitted model in FrozenEstimator.</span>
+<span class="n">recalib</span> <span class="o">=</span> <span class="n">CalibratedClassifierCV</span><span class="p">(</span><span class="n">FrozenEstimator</span><span class="p">(</span><span class="n">weighted</span><span class="p">),</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;isotonic&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">Xcal</span><span class="p">,</span> <span class="n">ycal</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;model&#39;</span><span class="si">:</span><span class="s2">&lt;34</span><span class="si">}{</span><span class="s1">&#39;ROC-AUC&#39;</span><span class="si">:</span><span class="s2">&gt;9</span><span class="si">}{</span><span class="s1">&#39;Brier&#39;</span><span class="si">:</span><span class="s2">&gt;9</span><span class="si">}{</span><span class="s1">&#39;ECE&#39;</span><span class="si">:</span><span class="s2">&gt;8</span><span class="si">}{</span><span class="s1">&#39;mean pred&#39;</span><span class="si">:</span><span class="s2">&gt;11</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;-&quot;</span> <span class="o">*</span> <span class="mi">71</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;true positive rate&#39;</span><span class="si">:</span><span class="s2">&lt;34</span><span class="si">}{</span><span class="s1">&#39;—&#39;</span><span class="si">:</span><span class="s2">&gt;9</span><span class="si">}{</span><span class="s1">&#39;—&#39;</span><span class="si">:</span><span class="s2">&gt;9</span><span class="si">}{</span><span class="s1">&#39;—&#39;</span><span class="si">:</span><span class="s2">&gt;8</span><span class="si">}{</span><span class="n">yho</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="si">:</span><span class="s2">&gt;11.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">m</span> <span class="ow">in</span> <span class="p">[(</span><span class="s2">&quot;logistic (unweighted)&quot;</span><span class="p">,</span> <span class="n">base</span><span class="p">),</span>
+                <span class="p">(</span><span class="s2">&quot;logistic (class_weight=balanced)&quot;</span><span class="p">,</span> <span class="n">weighted</span><span class="p">),</span>
+                <span class="p">(</span><span class="s2">&quot;  + isotonic recalibration&quot;</span><span class="p">,</span> <span class="n">recalib</span><span class="p">)]:</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">Xho</span><span class="p">)[:,</span> <span class="mi">1</span><span class="p">]</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">:</span><span class="s2">&lt;34</span><span class="si">}{</span><span class="n">roc_auc_score</span><span class="p">(</span><span class="n">yho</span><span class="p">,</span><span class="w"> </span><span class="n">p</span><span class="p">)</span><span class="si">:</span><span class="s2">&gt;9.3f</span><span class="si">}{</span><span class="n">brier_score_loss</span><span class="p">(</span><span class="n">yho</span><span class="p">,</span><span class="w"> </span><span class="n">p</span><span class="p">)</span><span class="si">:</span><span class="s2">&gt;9.4f</span><span class="si">}</span><span class="s2">&quot;</span>
+          <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">ece</span><span class="p">(</span><span class="n">yho</span><span class="p">,</span><span class="w"> </span><span class="n">p</span><span class="p">)</span><span class="si">:</span><span class="s2">&gt;8.4f</span><span class="si">}{</span><span class="n">p</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="si">:</span><span class="s2">&gt;11.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Look at ROC-AUC: essentially identical across all three. Ranking is untouched.&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Look at &#39;mean pred&#39; against the true positive rate: the balanced model predicts&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;a positive rate roughly an order of magnitude too high. It ranks just as well and&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;its probabilities are unusable for any expected-value calculation.&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;This is the trap: class_weight=&#39;balanced&#39; looks like a free improvement because&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;recall goes up and AUC doesn&#39;t move. It silently breaks every downstream&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;computation that treats the output as a probability.&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>model                               ROC-AUC    Brier     ECE  mean pred
+-----------------------------------------------------------------------
+true positive rate                        —        —       —     0.0243
+logistic (unweighted)                 0.825   0.0177  0.0048     0.0254
+logistic (class_weight=balanced)      0.825   0.1436  0.2949     0.3192
+  + isotonic recalibration            0.826   0.0200  0.0105     0.0248
+
+Look at ROC-AUC: essentially identical across all three. Ranking is untouched.
+Look at &#39;mean pred&#39; against the true positive rate: the balanced model predicts
+a positive rate roughly an order of magnitude too high. It ranks just as well and
+its probabilities are unusable for any expected-value calculation.
+
+This is the trap: class_weight=&#39;balanced&#39; looks like a free improvement because
+recall goes up and AUC doesn&#39;t move. It silently breaks every downstream
+computation that treats the output as a probability.
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="class-imbalance">
+<h2>5. Class Imbalance<a class="headerlink" href="#class-imbalance" title="Link to this heading">#</a></h2>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Approach</p></th>
+<th class="head"><p>Mechanism</p></th>
+<th class="head"><p>Watch out for</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><strong>Do nothing, move the threshold</strong></p></td>
+<td><p>Train normally, tune the operating point</p></td>
+<td><p>Usually the right first move — and it preserves calibration</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Class weights</strong></p></td>
+<td><p>Penalize minority errors more in the loss</p></td>
+<td><p>Breaks calibration (above)</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>Undersample majority</strong></p></td>
+<td><p>Discard majority examples</p></td>
+<td><p>Throws away real data; increases variance</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Oversample minority</strong></p></td>
+<td><p>Duplicate minority examples</p></td>
+<td><p>Overfits duplicates; must happen <em>inside</em> CV folds</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>SMOTE</strong></p></td>
+<td><p>Synthesize interpolated minority points</p></td>
+<td><p>Interpolating in high dimensions can create implausible examples; weaker than its reputation</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Collect more minority data</strong></p></td>
+<td><p>The actual fix</p></td>
+<td><p>Slow, often impossible, always best</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>Reframe as anomaly detection</strong></p></td>
+<td><p>Model the majority, flag deviations</p></td>
+<td><p>Appropriate at extreme imbalance (&lt;0.1%)</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>Start by doing nothing.</strong> Train the model, evaluate with PR-AUC, and tune the threshold
+against costs. A large fraction of “imbalance problems” are really “we reported accuracy and
+used a 0.5 threshold” problems, and resampling gets applied as a fix for something that was
+never broken.</p>
+<p><strong>The leakage trap:</strong> resampling must happen <em>inside</em> each cross-validation fold. Oversample
+before splitting and copies of the same minority row land in both train and validation, so your
+validation score measures memorization. This is a very common interview probe.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="n">Pipeline</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.model_selection</span><span class="w"> </span><span class="kn">import</span> <span class="n">cross_val_score</span><span class="p">,</span> <span class="n">StratifiedKFold</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.preprocessing</span><span class="w"> </span><span class="kn">import</span> <span class="n">StandardScaler</span>
+
+<span class="c1"># Leakage demo: oversample before vs inside the CV split.</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">naive_oversample</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
+    <span class="n">pos</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">y</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">need</span> <span class="o">=</span> <span class="p">(</span><span class="n">y</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">pos</span><span class="p">)</span>
+    <span class="n">extra</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">pos</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">need</span><span class="p">,</span> <span class="n">replace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">y</span><span class="p">)),</span> <span class="n">extra</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">X</span><span class="p">[</span><span class="n">idx</span><span class="p">],</span> <span class="n">y</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
+
+<span class="n">Xs</span><span class="p">,</span> <span class="n">ys</span> <span class="o">=</span> <span class="n">X</span><span class="p">[:</span><span class="mi">6000</span><span class="p">],</span> <span class="n">y</span><span class="p">[:</span><span class="mi">6000</span><span class="p">]</span>
+<span class="n">cv</span> <span class="o">=</span> <span class="n">StratifiedKFold</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">clf</span> <span class="o">=</span> <span class="n">Pipeline</span><span class="p">([(</span><span class="s2">&quot;sc&quot;</span><span class="p">,</span> <span class="n">StandardScaler</span><span class="p">()),</span> <span class="p">(</span><span class="s2">&quot;lr&quot;</span><span class="p">,</span> <span class="n">LogisticRegression</span><span class="p">(</span><span class="n">max_iter</span><span class="o">=</span><span class="mi">2000</span><span class="p">))])</span>
+
+<span class="c1"># WRONG: oversample the whole dataset, then cross-validate over it.</span>
+<span class="n">Xo</span><span class="p">,</span> <span class="n">yo</span> <span class="o">=</span> <span class="n">naive_oversample</span><span class="p">(</span><span class="n">Xs</span><span class="p">,</span> <span class="n">ys</span><span class="p">)</span>
+<span class="n">wrong</span> <span class="o">=</span> <span class="n">cross_val_score</span><span class="p">(</span><span class="n">clf</span><span class="p">,</span> <span class="n">Xo</span><span class="p">,</span> <span class="n">yo</span><span class="p">,</span> <span class="n">cv</span><span class="o">=</span><span class="n">cv</span><span class="p">,</span> <span class="n">scoring</span><span class="o">=</span><span class="s2">&quot;average_precision&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+
+<span class="c1"># RIGHT: cross-validate on the original data; the model sees the true distribution.</span>
+<span class="n">right</span> <span class="o">=</span> <span class="n">cross_val_score</span><span class="p">(</span><span class="n">clf</span><span class="p">,</span> <span class="n">Xs</span><span class="p">,</span> <span class="n">ys</span><span class="p">,</span> <span class="n">cv</span><span class="o">=</span><span class="n">cv</span><span class="p">,</span> <span class="n">scoring</span><span class="o">=</span><span class="s2">&quot;average_precision&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;protocol&#39;</span><span class="si">:</span><span class="s2">&lt;44</span><span class="si">}{</span><span class="s1">&#39;PR-AUC&#39;</span><span class="si">:</span><span class="s2">&gt;9</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;-&quot;</span> <span class="o">*</span> <span class="mi">53</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;oversample BEFORE split (leaks)&#39;</span><span class="si">:</span><span class="s2">&lt;44</span><span class="si">}{</span><span class="n">wrong</span><span class="si">:</span><span class="s2">&gt;9.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;no resampling, honest CV&#39;</span><span class="si">:</span><span class="s2">&lt;44</span><span class="si">}{</span><span class="n">right</span><span class="si">:</span><span class="s2">&gt;9.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Inflation from leakage: </span><span class="si">{</span><span class="n">wrong</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">right</span><span class="si">:</span><span class="s2">+.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Duplicated minority rows land in both train and validation folds, so the model&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;is scored partly on rows it memorized. The optimistic number ships, production&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;underperforms, and the postmortem blames drift.&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>protocol                                       PR-AUC
+-----------------------------------------------------
+oversample BEFORE split (leaks)                 0.867
+no resampling, honest CV                        0.388
+
+Inflation from leakage: +0.480
+
+Duplicated minority rows land in both train and validation folds, so the model
+is scored partly on rows it memorized. The optimistic number ships, production
+underperforms, and the postmortem blames drift.
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="connecting-offline-metrics-to-online-ones">
+<h2>6. Connecting Offline Metrics to Online Ones<a class="headerlink" href="#connecting-offline-metrics-to-online-ones" title="Link to this heading">#</a></h2>
+<p>This is the part that most distinguishes an MLE from an analyst, and it’s where an
+experimentation background is a real asset.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Business</span> <span class="n">metric</span>        <span class="n">revenue</span><span class="p">,</span> <span class="n">retention</span><span class="p">,</span> <span class="n">fraud</span> <span class="n">loss</span>        <span class="n">weeks</span> <span class="n">to</span> <span class="n">move</span><span class="p">,</span> <span class="n">high</span> <span class="n">noise</span>
+      <span class="o">^</span>
+<span class="n">Online</span> <span class="n">proxy</span>           <span class="n">CTR</span><span class="p">,</span> <span class="n">completion</span> <span class="n">rate</span><span class="p">,</span> <span class="n">block</span> <span class="n">rate</span>      <span class="n">days</span><span class="p">,</span> <span class="n">A</span><span class="o">/</span><span class="n">B</span> <span class="n">testable</span>
+      <span class="o">^</span>
+<span class="n">Offline</span> <span class="n">metric</span>         <span class="n">PR</span><span class="o">-</span><span class="n">AUC</span><span class="p">,</span> <span class="n">NDCG</span><span class="o">@</span><span class="mi">10</span><span class="p">,</span> <span class="n">calibration</span> <span class="n">error</span>    <span class="n">minutes</span><span class="p">,</span> <span class="n">every</span> <span class="n">commit</span>
+</pre></div>
+</div>
+<p>You optimize the bottom because it’s fast. You are <em>paid</em> for the top. <strong>The link between them
+is an assumption, and it needs to be validated, not assumed.</strong></p>
+<section id="how-the-link-breaks">
+<h3>How the link breaks<a class="headerlink" href="#how-the-link-breaks" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><strong>Ranking metrics ignore position bias.</strong> Offline NDCG computed on logged data rewards
+reproducing what was already shown.</p></li>
+<li><p><strong>Offline evaluation is counterfactual-blind.</strong> You only observe outcomes for items that were
+actually served — the classic recsys problem.</p></li>
+<li><p><strong>The offline metric may not be the constraint.</strong> Improving PR-AUC when the review team is
+capacity-bound at 500 cases/day changes nothing you can see.</p></li>
+<li><p><strong>Guardrails move instead.</strong> Precision improves, recall drops, and complaint volume rises.</p></li>
+</ul>
+</section>
+<section id="what-to-do">
+<h3>What to do<a class="headerlink" href="#what-to-do" title="Link to this heading">#</a></h3>
+<ol class="arabic simple">
+<li><p>Pick an offline metric and <strong>verify empirically that it correlates with your online metric</strong>
+across several past experiments. If it doesn’t, it’s the wrong offline metric.</p></li>
+<li><p>Always ship with <strong>guardrail metrics</strong> — the things that must not get worse.</p></li>
+<li><p>Expect the offline gain to shrink online. A large offline win that produces no online
+movement is the normal outcome, not an anomaly.</p></li>
+</ol>
+<blockquote>
+<div><p>💡 <strong>Interview Tip:</strong> If you have an experimentation background, this is where to spend your
+credibility. “I’d validate that the offline metric actually predicts the online one before
+trusting it as a decision gate” is a sentence most candidates don’t say, and it’s exactly the
+instinct an MLE team wants.</p>
+</div></blockquote>
+</section>
+</section>
+<section id="what-changes-in-production">
+<h2>What Changes in Production<a class="headerlink" href="#what-changes-in-production" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><strong>The threshold is a deployed artifact</strong>, versioned alongside the model. It needs an owner, a
+change process, and monitoring — and it will need re-tuning when the base rate drifts.</p></li>
+<li><p><strong>Calibration decays</strong> as the population shifts. Monitor predicted-positive-rate against
+actual-positive-rate over time; divergence is an early warning that fires before your
+accuracy metric does.</p></li>
+<li><p><strong>Labels arrive late, or never.</strong> Fraud confirms in weeks; churn in months. Your online metric
+is delayed, so you need leading indicators (score distribution, flag rate, feature drift) to
+detect problems before ground truth exists.</p></li>
+<li><p><strong>The score distribution is your most sensitive monitor.</strong> It requires no labels, computes in
+real time, and shifts before performance does. Alert on it.</p></li>
+</ul>
+</section>
+<section id="common-interview-questions">
+<h2>Common Interview Questions<a class="headerlink" href="#common-interview-questions" title="Link to this heading">#</a></h2>
+<p><strong>Q: Your model has 99% accuracy. Are you happy?</strong>
+Not without knowing the base rate. At a 1% positive rate, predicting the majority class always
+gives 99% and catches nothing. I’d want the confusion matrix, PR-AUC against its baseline (the
+positive rate), and the precision and recall at the operating threshold we’d actually deploy.</p>
+<p><strong>Q: ROC-AUC or PR-AUC?</strong>
+PR-AUC when positives are rare and you act on individual predictions, because FPR has TN in the
+denominator — so with vast numbers of negatives, thousands of false positives barely move the
+ROC curve while precision collapses. ROC-AUC is fine for balanced problems and comparing
+rankers. And always report PR-AUC’s baseline, since it equals the positive rate and the number
+is meaningless without it.</p>
+<p><strong>Q: How do you choose a classification threshold?</strong>
+By asking what the errors cost. I’d get the relative cost of a false positive and a false
+negative from whoever owns the outcome, sweep thresholds to minimize expected cost, and check
+whether a capacity constraint binds first — if the review team handles 500 cases a day, that
+sets the threshold regardless of what the cost curve says. And I’d re-tune when the base rate
+shifts.</p>
+<p><strong>Q: A model has AUC 0.95 but its probabilities are useless. How?</strong>
+AUC measures ranking only; it’s invariant to any monotonic transform of the scores. Squaring
+every prediction leaves AUC identical and destroys calibration. If the output feeds an
+expected-value computation — a bid, an expected loss, an escalation rule with a stated
+confidence — you need calibration measured separately, via reliability curves, Brier score, or
+ECE, and fixed with Platt or isotonic scaling on held-out data.</p>
+<p><strong>Q: What’s wrong with <code class="docutils literal notranslate"><span class="pre">class_weight='balanced'</span></code>?</strong>
+Nothing, if you only need ranking. But it changes the effective base rate the model trains
+against, so its outputs no longer estimate true probabilities — typically over-predicting the
+positive class substantially. AUC is unchanged, which makes it look free, so it silently breaks
+every downstream calculation that treats the score as a probability. Recalibrate afterward on
+held-out data, or skip the weighting and move the threshold instead.</p>
+<p><strong>Q: Where does resampling go relative to cross-validation?</strong>
+Inside each fold, always. Oversampling before splitting puts duplicates of the same minority
+row into both train and validation, so validation partly measures memorization and the score is
+inflated. Use a pipeline so the resampling step is fitted per fold.</p>
+<p><strong>Q: Offline metrics improved but the A/B test was flat. What happened?</strong>
+Several possibilities and I’d check them in order. The offline metric may not predict the
+online one — worth validating against past experiments before trusting it as a gate. Offline
+evaluation on logged data is counterfactual-blind and biased toward reproducing what was
+already shown. The metric may not be the binding constraint. Or a guardrail moved and offset
+the gain. The general lesson is that offline improvement is a hypothesis about online
+improvement, not evidence of it.</p>
+</section>
+<section id="key-takeaways">
+<h2>Key Takeaways<a class="headerlink" href="#key-takeaways" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>Accuracy is uninformative under imbalance; always report the base rate alongside any metric</p></li>
+<li><p>PR-AUC reflects rare-positive performance honestly because it has no TN term; its baseline is the positive rate</p></li>
+<li><p>The threshold is a business decision independent of the model — often a bigger lever than retraining</p></li>
+<li><p>Ask what errors cost, and check whether a capacity constraint binds before optimizing anything</p></li>
+<li><p>Calibration ≠ ranking: AUC is invariant to monotonic transforms that destroy probability quality</p></li>
+<li><p>Calibration matters whenever the score is multiplied by something or shown to a human</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">class_weight='balanced'</span></code> and resampling both break calibration while leaving AUC unchanged</p></li>
+<li><p>Try “do nothing and tune the threshold” before any resampling scheme</p></li>
+<li><p>Resample inside CV folds, never before splitting</p></li>
+<li><p>Validate that your offline metric actually predicts the online one — that link is an assumption</p></li>
+</ul>
+</section>
+</section>
+
+    <script type="text/x-thebe-config">
+    {
+        requestKernel: true,
+        binderOptions: {
+            repo: "binder-examples/jupyter-stacks-datascience",
+            ref: "master",
+        },
+        codeMirrorConfig: {
+            theme: "abcdef",
+            mode: "python"
+        },
+        kernelOptions: {
+            name: "python3",
+            path: "./ML Foundations"
+        },
+        predefinedOutput: true
+    }
+    </script>
+    <script>kernelName = 'python3'</script>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="ML0.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">ML Foundations</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="../Deep%20Learning/DL0.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Deep Learning</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2023.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.4.7.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.17.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

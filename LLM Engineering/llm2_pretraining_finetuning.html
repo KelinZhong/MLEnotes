@@ -1,0 +1,1205 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Post-Training: SFT, Preference Optimization &amp; RLVR &#8212; Machine Learning Engineer Notes</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=55c26ed414f5f8a31ebb" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=55c26ed414f5f8a31ebb" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../_static/togglebutton.css?v=9c3e77be" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-thebe.css?v=4fa983c6" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../_static/scripts/fontawesome.js?digest=55c26ed414f5f8a31ebb"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb" />
+
+    <script src="../_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=f281be69"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js"></script>
+    <script>let toggleHintShow = 'Click to show';</script>
+    <script>let toggleHintHide = 'Click to hide';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="../_static/togglebutton.js?v=b8b12719"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script async="async" src="../_static/sphinx-thebe.js?v=c100c467"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'LLM Engineering/llm2_pretraining_finetuning';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="LLM Inference Optimization" href="llm3_inference_optimization.html" />
+    <link rel="prev" title="Transformer Internals for Inference" href="llm1_transformer_internals.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  
+    
+    <script src="../_static/searchtools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../intro.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">Machine Learning Engineer Notes</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    Topics
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../ML%20Foundations/ML0.html">
+    ML Foundations
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../Deep%20Learning/DL0.html">
+    Deep Learning
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../PyTorch%20Guide/P0_pytorch.html">
+    PyTorch Guide
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../MLOps/mlops0.html">
+    MLOps
+  </a>
+</li>
+
+
+<li class=" current active">
+  <a class="nav-link dropdown-item nav-internal" href="llm0.html">
+    LLM Engineering
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../ML%20System%20Design/mlsd0.html">
+    ML System Design
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../MLE%20Interview/mle0.html">
+    The MLE Interview Loop
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../ML%20Coding/mlc0.html">
+    ML Coding Round
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../TensorFlow%20Guide/tf0.html">
+    TensorFlow Guide (reference)
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../ML%20Foundations/ML0.html">
+    ML Foundations
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../Deep%20Learning/DL0.html">
+    Deep Learning
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../PyTorch%20Guide/P0_pytorch.html">
+    PyTorch Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../MLOps/mlops0.html">
+    MLOps
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="llm0.html">
+    LLM Engineering
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../ML%20System%20Design/mlsd0.html">
+    ML System Design
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../MLE%20Interview/mle0.html">
+    The MLE Interview Loop
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../ML%20Coding/mlc0.html">
+    ML Coding Round
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../TensorFlow%20Guide/tf0.html">
+    TensorFlow Guide (reference)
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item pst-sidebar-collapse"><button id="pst-collapse-sidebar-button" aria-expanded="true" aria-controls="pst-primary-sidebar"><svg class="pst-icon svg-inline--fa" role="img" aria-hidden="true" focusable="false" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+    <path fill="currentColor" d="M3 15.5C2.36232 15.5 1.74874 15.2564 1.28478 14.8189C0.820828 14.3815 0.541576 13.7832 0.504167 13.1467L0.5 13L0.5 3C0.499965 2.36232 0.743605 1.74874 1.18107 1.28478C1.61854 0.820828 2.21676 0.541576 2.85333 0.504167L3 0.5L13 0.5C13.6377 0.499965 14.2513 0.743605 14.7152 1.18107C15.1792 1.61854 15.4584 2.21676 15.4958 2.85333L15.5 3L15.5 13C15.5 13.6377 15.2564 14.2513 14.8189 14.7152C14.3815 15.1792 13.7832 15.4584 13.1467 15.4958L13 15.5L3 15.5ZM3 13.8333L10.5 13.8333L10.5 2.16667L3 2.16667C2.79589 2.16669 2.59889 2.24163 2.44636 2.37726C2.29383 2.5129 2.19638 2.69979 2.1725 2.9025L2.16667 3L2.16667 13C2.16669 13.2041 2.24163 13.4011 2.37726 13.5536C2.5129 13.7062 2.69979 13.8036 2.9025 13.8275L3 13.8333ZM6.65583 10.325L6.5775 10.2558L4.91083 8.58917C4.76735 8.44567 4.68116 8.25476 4.66843 8.05223C4.65569 7.84971 4.71729 7.6495 4.84167 7.48917L4.91083 7.41083L6.5775 5.74417C6.72747 5.59471 6.9287 5.50794 7.14032 5.50148C7.35194 5.49502 7.55809 5.56935 7.7169 5.70937C7.8757 5.8494 7.97525 6.04463 7.99533 6.25539C8.01541 6.46616 7.95451 6.67667 7.825 6.84417L7.75583 6.9225L6.67917 8L7.75583 9.0775C7.89931 9.22099 7.98551 9.41191 7.99824 9.61443C8.01097 9.81695 7.94938 10.0172 7.825 10.1775L7.75583 10.2558C7.61234 10.3993 7.42142 10.4855 7.2189 10.4982C7.01638 10.511 6.81617 10.4494 6.65583 10.325Z"/>
+  </svg>
+  <span class="pst-collapse-sidebar-label">Collapse Sidebar</span>
+  <span class="pst-expand-sidebar-label">Expand Sidebar</span>
+</button></div>
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="llm1_transformer_internals.html">Transformer Internals for Inference</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Post-Training: SFT, Preference Optimization &amp; RLVR</a></li>
+<li class="toctree-l1"><a class="reference internal" href="llm3_inference_optimization.html">LLM Inference Optimization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="llm4_rag_systems.html">RAG Systems: Retrieval-Augmented Generation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="llm5_prompting_agents.html">Prompting, Tools &amp; Agents</a></li>
+<li class="toctree-l1"><a class="reference internal" href="llm6_llm_evaluation.html">LLM Evaluation: BLEU, ROUGE, LLM-as-Judge</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item"><div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> 
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#why-this-matters">Why This Matters</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-pipeline">1. The Pipeline</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#preference-optimization-rlhf-dpo-grpo">2. Preference Optimization: RLHF → DPO → GRPO</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#rlhf-the-20222023-recipe">RLHF (the 2022–2023 recipe)</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#dpo-2023">DPO (2023)</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#grpo-2024-onward">GRPO (2024 onward)</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#rlvr-reinforcement-learning-from-verifiable-rewards">3. RLVR: Reinforcement Learning from Verifiable Rewards</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#the-catch-reward-hacking">The catch: reward hacking</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#parameter-efficient-fine-tuning">4. Parameter-Efficient Fine-Tuning</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#lora">LoRA</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#qlora">QLoRA</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#distillation">5. Distillation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#catastrophic-forgetting">6. Catastrophic Forgetting</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#common-interview-questions">Common Interview Questions</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#key-takeaways">Key Takeaways</a></li>
+</ul>
+  </nav></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../intro.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="llm0.html" class="nav-link">LLM Landscape &amp; Interview Map</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Post-Training: SFT, Preference Optimization &amp; RLVR</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="post-training-sft-preference-optimization-rlvr">
+<h1>Post-Training: SFT, Preference Optimization &amp; RLVR<a class="headerlink" href="#post-training-sft-preference-optimization-rlvr" title="Link to this heading">#</a></h1>
+<p>Pretraining produces a model that continues text. Everything that makes it <em>useful</em> —
+instruction-following, refusals, formatting, reasoning — comes from post-training. This is
+also where the field moved fastest: the RLHF-with-a-reward-model recipe that defined 2023 is
+now one option among several, and no longer the default for reasoning work.</p>
+<blockquote>
+<div><p>⏱️ Method names in this chapter are moving targets. The <strong>shape</strong> of the pipeline
+(imitate → prefer → verify) has been stable and is what interviews actually test.</p>
+</div></blockquote>
+<section id="why-this-matters">
+<h2>Why This Matters<a class="headerlink" href="#why-this-matters" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>The three post-training stages and what each one can and cannot fix</p></li>
+<li><p>DPO vs RLHF vs GRPO — what changed and why the field moved</p></li>
+<li><p>RLVR: what makes a reward <em>verifiable</em> and why that changed reasoning training</p></li>
+<li><p>LoRA and QLoRA: the parameter math, and why low-rank adaptation works at all</p></li>
+<li><p>Distillation as a first-class deployment tool, not an afterthought</p></li>
+<li><p>Catastrophic forgetting, reward hacking, and the failure modes of each method</p></li>
+</ul>
+</section>
+<section id="the-pipeline">
+<h2>1. The Pipeline<a class="headerlink" href="#the-pipeline" title="Link to this heading">#</a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>PRETRAINING — next-token prediction on web-scale text
+  → knows language, facts, code, some reasoning
+  → does not follow instructions; no notion of helpful or harmful
+
+STAGE 1: SFT — supervised fine-tuning on (instruction, response) pairs
+  → follows instructions, adopts a format and persona
+  → teaches IMITATION: &quot;responses look like this&quot;
+  → cannot exceed demonstration quality
+
+STAGE 2: PREFERENCE OPTIMIZATION — DPO / RLHF on (chosen, rejected) pairs
+  → learns what humans prefer between two plausible answers
+  → teaches RANKING: &quot;this is better than that&quot;
+  → good for taste, tone, harmlessness; weak signal for correctness
+
+STAGE 3: RLVR — RL against a verifiable checker
+  → learns from outcomes an automated verifier can confirm
+  → teaches CORRECTNESS: &quot;this answer passes the test&quot;
+  → the stage that produced reasoning models
+</pre></div>
+</div>
+<p><strong>Each stage exists because the previous one has a ceiling.</strong> SFT can’t beat its
+demonstrations. Preference data is expensive, subjective, and noisy on questions with an
+objectively right answer — two annotators comparing proofs are largely guessing. RLVR
+sidesteps that by replacing the human with a checker.</p>
+</section>
+<section id="preference-optimization-rlhf-dpo-grpo">
+<h2>2. Preference Optimization: RLHF → DPO → GRPO<a class="headerlink" href="#preference-optimization-rlhf-dpo-grpo" title="Link to this heading">#</a></h2>
+<section id="rlhf-the-20222023-recipe">
+<h3>RLHF (the 2022–2023 recipe)<a class="headerlink" href="#rlhf-the-20222023-recipe" title="Link to this heading">#</a></h3>
+<p>Train a reward model on human preference pairs, then optimize the policy against it with PPO.
+Three models in memory (policy, reference, reward) plus a value critic. Powerful, expensive,
+fiddly.</p>
+</section>
+<section id="dpo-2023">
+<h3>DPO (2023)<a class="headerlink" href="#dpo-2023" title="Link to this heading">#</a></h3>
+<p>The insight: the RL objective has a closed form that lets you skip the reward model entirely
+and optimize a classification loss directly on preference pairs. No reward model, no rollouts,
+no RL loop. Vastly simpler, and it matched RLHF on many alignment benchmarks — which is why it
+became the default for a while.</p>
+<p><strong>DPO’s limitation:</strong> it’s <em>offline</em>. It learns from a fixed set of pairs someone already
+collected. It never sees what the current policy would actually generate, so it can’t
+discover that a new behaviour is better.</p>
+</section>
+<section id="grpo-2024-onward">
+<h3>GRPO (2024 onward)<a class="headerlink" href="#grpo-2024-onward" title="Link to this heading">#</a></h3>
+<p>Group Relative Policy Optimization is online and critic-free. For each prompt, sample a
+<em>group</em> of completions from the current policy, score them, and compute each one’s advantage
+relative to the <strong>group mean</strong>. That group-relative baseline replaces the learned value critic
+— which is the expensive, unstable part of PPO.</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p></p></th>
+<th class="head"><p>RLHF/PPO</p></th>
+<th class="head"><p>DPO</p></th>
+<th class="head"><p>GRPO</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><strong>Reward source</strong></p></td>
+<td><p>Learned reward model</p></td>
+<td><p>Preference pairs (implicit)</p></td>
+<td><p>Verifier or reward model</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Online?</strong></p></td>
+<td><p>Yes</p></td>
+<td><p>No — fixed dataset</p></td>
+<td><p>Yes — samples during training</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>Value critic</strong></p></td>
+<td><p>Yes</p></td>
+<td><p>N/A</p></td>
+<td><p>No — group mean is the baseline</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Models in memory</strong></p></td>
+<td><p>Policy, ref, reward, critic</p></td>
+<td><p>Policy, ref</p></td>
+<td><p>Policy, ref</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>Best at</strong></p></td>
+<td><p>General alignment</p></td>
+<td><p>Cheap, stable alignment</p></td>
+<td><p>Reasoning, verifiable tasks</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<blockquote>
+<div><p>💡 <strong>Interview Tip:</strong> If you say “we’d use RLHF” for a math or code task, expect a follow-up.
+The current answer is RLVR with GRPO or one of its descendants. DPO remains a perfectly good
+answer for tone and harmlessness, where there is no verifier.</p>
+</div></blockquote>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">sigmoid</span><span class="p">(</span><span class="n">z</span><span class="p">):</span>
+    <span class="k">return</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">z</span><span class="p">))</span>
+
+<span class="c1"># ---------- DPO loss ----------</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">dpo_loss</span><span class="p">(</span><span class="n">pi_chosen</span><span class="p">,</span> <span class="n">pi_rejected</span><span class="p">,</span> <span class="n">ref_chosen</span><span class="p">,</span> <span class="n">ref_rejected</span><span class="p">,</span> <span class="n">beta</span><span class="o">=</span><span class="mf">0.1</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Offline. Operates on log-probs of a FIXED pair.</span>
+<span class="sd">    Pushes the policy toward `chosen` relative to the reference model.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">margin</span> <span class="o">=</span> <span class="p">(</span><span class="n">pi_chosen</span> <span class="o">-</span> <span class="n">ref_chosen</span><span class="p">)</span> <span class="o">-</span> <span class="p">(</span><span class="n">pi_rejected</span> <span class="o">-</span> <span class="n">ref_rejected</span><span class="p">)</span>
+    <span class="k">return</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">sigmoid</span><span class="p">(</span><span class="n">beta</span> <span class="o">*</span> <span class="n">margin</span><span class="p">)</span> <span class="o">+</span> <span class="mf">1e-12</span><span class="p">),</span> <span class="n">margin</span>
+
+<span class="c1"># ---------- GRPO advantages ----------</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">grpo_advantages</span><span class="p">(</span><span class="n">rewards</span><span class="p">,</span> <span class="n">eps</span><span class="o">=</span><span class="mf">1e-8</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Online, critic-free. Given G sampled completions for ONE prompt,</span>
+<span class="sd">    the advantage is each reward standardized within the group.</span>
+<span class="sd">    The group mean IS the baseline — no value network required.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">rewards</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">r</span> <span class="o">-</span> <span class="n">r</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span> <span class="o">/</span> <span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">std</span><span class="p">()</span> <span class="o">+</span> <span class="n">eps</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=== DPO on one preference pair ===&quot;</span><span class="p">)</span>
+<span class="n">loss</span><span class="p">,</span> <span class="n">margin</span> <span class="o">=</span> <span class="n">dpo_loss</span><span class="p">(</span><span class="n">pi_chosen</span><span class="o">=-</span><span class="mf">2.1</span><span class="p">,</span> <span class="n">pi_rejected</span><span class="o">=-</span><span class="mf">3.4</span><span class="p">,</span> <span class="n">ref_chosen</span><span class="o">=-</span><span class="mf">2.3</span><span class="p">,</span> <span class="n">ref_rejected</span><span class="o">=-</span><span class="mf">2.9</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  implicit reward margin : </span><span class="si">{</span><span class="n">margin</span><span class="si">:</span><span class="s2">+.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  loss                   : </span><span class="si">{</span><span class="n">loss</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;  Positive margin = policy already prefers `chosen` more than the reference does.</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=== GRPO on a group of 8 sampled answers to one math problem ===&quot;</span><span class="p">)</span>
+<span class="c1"># Verifier returns 1.0 if the final answer is correct, else 0.0</span>
+<span class="n">rewards</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">])</span>
+<span class="n">adv</span> <span class="o">=</span> <span class="n">grpo_advantages</span><span class="p">(</span><span class="n">rewards</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  </span><span class="si">{</span><span class="s1">&#39;completion&#39;</span><span class="si">:</span><span class="s2">&lt;12</span><span class="si">}{</span><span class="s1">&#39;reward&#39;</span><span class="si">:</span><span class="s2">&gt;8</span><span class="si">}{</span><span class="s1">&#39;advantage&#39;</span><span class="si">:</span><span class="s2">&gt;12</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">a</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">rewards</span><span class="p">,</span> <span class="n">adv</span><span class="p">)):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  </span><span class="si">{</span><span class="s1">&#39;#&#39;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="si">:</span><span class="s2">&lt;12</span><span class="si">}{</span><span class="n">r</span><span class="si">:</span><span class="s2">&gt;8.1f</span><span class="si">}{</span><span class="n">a</span><span class="si">:</span><span class="s2">&gt;12.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">  group solve rate: </span><span class="si">{</span><span class="n">rewards</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="si">:</span><span class="s2">.0%</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;  Correct answers get positive advantage, wrong ones negative — all measured&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;  against how THIS policy currently performs on THIS prompt. No critic needed.&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>=== DPO on one preference pair ===
+  implicit reward margin : +0.700
+  loss                   : 0.6588
+  Positive margin = policy already prefers `chosen` more than the reference does.
+
+=== GRPO on a group of 8 sampled answers to one math problem ===
+  completion    reward   advantage
+  #0               1.0       1.291
+  #1               0.0      -0.775
+  #2               1.0       1.291
+  #3               0.0      -0.775
+  #4               0.0      -0.775
+  #5               1.0       1.291
+  #6               0.0      -0.775
+  #7               0.0      -0.775
+
+  group solve rate: 38%
+  Correct answers get positive advantage, wrong ones negative — all measured
+  against how THIS policy currently performs on THIS prompt. No critic needed.
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Why the group-relative baseline matters: it auto-calibrates to problem difficulty.</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">show</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">rewards</span><span class="p">):</span>
+    <span class="n">adv</span> <span class="o">=</span> <span class="n">grpo_advantages</span><span class="p">(</span><span class="n">rewards</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">:</span><span class="s2">&lt;26</span><span class="si">}</span><span class="s2"> solve=</span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">rewards</span><span class="p">)</span><span class="si">:</span><span class="s2">&gt;4.0%</span><span class="si">}</span><span class="s2">  adv range=[</span><span class="si">{</span><span class="n">adv</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="si">:</span><span class="s2">+.2f</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">adv</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="si">:</span><span class="s2">+.2f</span><span class="si">}</span><span class="s2">]&quot;</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Same verifier, three difficulty regimes:</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="n">show</span><span class="p">(</span><span class="s2">&quot;easy (7/8 correct)&quot;</span><span class="p">,</span>   <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">))</span>
+<span class="n">show</span><span class="p">(</span><span class="s2">&quot;medium (4/8 correct)&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">))</span>
+<span class="n">show</span><span class="p">(</span><span class="s2">&quot;hard (1/8 correct)&quot;</span><span class="p">,</span>   <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">()</span>
+<span class="n">show</span><span class="p">(</span><span class="s2">&quot;degenerate: all correct&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">))</span>
+<span class="n">show</span><span class="p">(</span><span class="s2">&quot;degenerate: all wrong&quot;</span><span class="p">,</span>   <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;The last two are the practical failure mode: when every sample in the group&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;agrees, the advantage collapses to zero and the prompt contributes NO gradient.&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Curriculum design — keeping prompts near the model&#39;s current ability — is&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;therefore not a nicety in RLVR. It is what keeps training signal alive.&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Same verifier, three difficulty regimes:
+
+easy (7/8 correct)         solve= 88%  adv range=[-2.65, +0.38]
+medium (4/8 correct)       solve= 50%  adv range=[-1.00, +1.00]
+hard (1/8 correct)         solve= 12%  adv range=[-0.38, +2.65]
+
+degenerate: all correct    solve=100%  adv range=[+0.00, +0.00]
+degenerate: all wrong      solve=  0%  adv range=[+0.00, +0.00]
+
+The last two are the practical failure mode: when every sample in the group
+agrees, the advantage collapses to zero and the prompt contributes NO gradient.
+Curriculum design — keeping prompts near the model&#39;s current ability — is
+therefore not a nicety in RLVR. It is what keeps training signal alive.
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="rlvr-reinforcement-learning-from-verifiable-rewards">
+<h2>3. RLVR: Reinforcement Learning from Verifiable Rewards<a class="headerlink" href="#rlvr-reinforcement-learning-from-verifiable-rewards" title="Link to this heading">#</a></h2>
+<p>The idea is almost embarrassingly simple: <strong>replace the human rater with a program that
+checks the answer.</strong></p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Domain</p></th>
+<th class="head"><p>Verifier</p></th>
+<th class="head"><p>Reward</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Math</p></td>
+<td><p>Symbolic/numeric equality against ground truth</p></td>
+<td><p>1 if equal</p></td>
+</tr>
+<tr class="row-odd"><td><p>Code</p></td>
+<td><p>Run the unit tests</p></td>
+<td><p>Fraction passing</p></td>
+</tr>
+<tr class="row-even"><td><p>Structured output</p></td>
+<td><p>Schema validation</p></td>
+<td><p>1 if parses and validates</p></td>
+</tr>
+<tr class="row-odd"><td><p>Tool use</p></td>
+<td><p>Did the call succeed with valid arguments</p></td>
+<td><p>1 if valid</p></td>
+</tr>
+<tr class="row-even"><td><p>Instruction following</p></td>
+<td><p>Programmatic constraint checks (length, format)</p></td>
+<td><p>1 if satisfied</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>This is what unlocked reasoning models. Long chains of thought are hard to supervise
+step-by-step — but if you only reward the <em>final</em> verified answer, the model is free to
+discover whatever intermediate reasoning gets there. Nobody has to label the reasoning.</p>
+<section id="the-catch-reward-hacking">
+<h3>The catch: reward hacking<a class="headerlink" href="#the-catch-reward-hacking" title="Link to this heading">#</a></h3>
+<p>A verifier is an optimization target, and any gap between “passes the check” and “is actually
+correct” will be found and exploited. Documented failure modes include tests being trivially
+short-circuited, answer-format exploits, and — most concerning — models exploiting a flaw
+while producing chain-of-thought that doesn’t mention it, which defeats monitoring that reads
+the reasoning trace.</p>
+<p><strong>Mitigations:</strong> hold out verifiers the model never trains against, audit high-reward samples
+by hand, keep a KL penalty to the reference model, and treat <em>any</em> sudden reward jump as a
+suspected exploit until proven otherwise.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Reward hacking, concretely: a verifier with a gap, and what optimization does to it.</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">leaky_verifier</span><span class="p">(</span><span class="n">answer</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Rewards any response that CONTAINS the right answer anywhere.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="mf">1.0</span> <span class="k">if</span> <span class="s2">&quot;42&quot;</span> <span class="ow">in</span> <span class="n">answer</span> <span class="k">else</span> <span class="mf">0.0</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">strict_verifier</span><span class="p">(</span><span class="n">answer</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Rewards only a correctly formatted final answer.&quot;&quot;&quot;</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+    <span class="n">m</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^ANSWER:\s*(-?\d+)\s*$&quot;</span><span class="p">,</span> <span class="n">answer</span><span class="o">.</span><span class="n">strip</span><span class="p">(),</span> <span class="n">re</span><span class="o">.</span><span class="n">M</span><span class="p">)</span>
+    <span class="k">return</span> <span class="mf">1.0</span> <span class="k">if</span> <span class="n">m</span> <span class="ow">and</span> <span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;42&quot;</span> <span class="k">else</span> <span class="mf">0.0</span>
+
+<span class="n">candidates</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">(</span><span class="s2">&quot;genuine solution&quot;</span><span class="p">,</span>      <span class="s2">&quot;6 times 7 is 42.</span><span class="se">\n</span><span class="s2">ANSWER: 42&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;spam every number&quot;</span><span class="p">,</span>     <span class="s2">&quot;Maybe 40 41 42 43 44 45 46 47 48&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;restate the question&quot;</span><span class="p">,</span>  <span class="s2">&quot;Is the answer 42? I am not sure.</span><span class="se">\n</span><span class="s2">ANSWER: 7&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;wrong but formatted&quot;</span><span class="p">,</span>   <span class="s2">&quot;The product is 36.</span><span class="se">\n</span><span class="s2">ANSWER: 36&quot;</span><span class="p">),</span>
+<span class="p">]</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;candidate&#39;</span><span class="si">:</span><span class="s2">&lt;24</span><span class="si">}{</span><span class="s1">&#39;leaky&#39;</span><span class="si">:</span><span class="s2">&gt;8</span><span class="si">}{</span><span class="s1">&#39;strict&#39;</span><span class="si">:</span><span class="s2">&gt;8</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;-&quot;</span> <span class="o">*</span> <span class="mi">40</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">text</span> <span class="ow">in</span> <span class="n">candidates</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">:</span><span class="s2">&lt;24</span><span class="si">}{</span><span class="n">leaky_verifier</span><span class="p">(</span><span class="n">text</span><span class="p">)</span><span class="si">:</span><span class="s2">&gt;8.0f</span><span class="si">}{</span><span class="n">strict_verifier</span><span class="p">(</span><span class="n">text</span><span class="p">)</span><span class="si">:</span><span class="s2">&gt;8.0f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Under the leaky verifier, &#39;spam every number&#39; scores as well as a real solution&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;at a fraction of the effort — so RL finds it. The model is not cheating; it is&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;doing exactly what you rewarded. Verifier design IS reward design.&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>candidate                  leaky  strict
+----------------------------------------
+genuine solution               1       1
+spam every number              1       0
+restate the question           1       0
+wrong but formatted            0       0
+
+Under the leaky verifier, &#39;spam every number&#39; scores as well as a real solution
+at a fraction of the effort — so RL finds it. The model is not cheating; it is
+doing exactly what you rewarded. Verifier design IS reward design.
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="parameter-efficient-fine-tuning">
+<h2>4. Parameter-Efficient Fine-Tuning<a class="headerlink" href="#parameter-efficient-fine-tuning" title="Link to this heading">#</a></h2>
+<section id="lora">
+<h3>LoRA<a class="headerlink" href="#lora" title="Link to this heading">#</a></h3>
+<p>Freeze the pretrained weight <span class="math notranslate nohighlight">\(W\)</span> and learn a low-rank update: <span class="math notranslate nohighlight">\(W' = W + \frac{\alpha}{r}BA\)</span>,
+where <span class="math notranslate nohighlight">\(B \in \mathbb{R}^{d_{out} \times r}\)</span> and <span class="math notranslate nohighlight">\(A \in \mathbb{R}^{r \times d_{in}}\)</span> with
+<span class="math notranslate nohighlight">\(r \ll d\)</span>.</p>
+<p>The hypothesis: the <em>update</em> needed for adaptation has low intrinsic rank, even though <span class="math notranslate nohighlight">\(W\)</span>
+itself does not. Empirically, <span class="math notranslate nohighlight">\(r = 8\)</span>–<span class="math notranslate nohighlight">\(64\)</span> matches full fine-tuning on most adaptation tasks.</p>
+<p>Three practical properties worth naming in an interview:</p>
+<ol class="arabic simple">
+<li><p><strong>Base weights never move</strong>, so catastrophic forgetting is structurally prevented.</p></li>
+<li><p><strong>Adapters are swappable</strong> — serve one base model with many task adapters, hot-swapped per
+request. This is a serving-cost argument, not just a training one.</p></li>
+<li><p><strong>Adapters can be merged</strong> into <span class="math notranslate nohighlight">\(W\)</span> post-training for zero inference overhead — at the cost
+of losing swappability.</p></li>
+</ol>
+</section>
+<section id="qlora">
+<h3>QLoRA<a class="headerlink" href="#qlora" title="Link to this heading">#</a></h3>
+<p>Quantize the frozen base to 4-bit and train LoRA adapters on top in higher precision.
+Gradients flow <em>through</em> the quantized base without updating it. This is what makes
+fine-tuning a large model on a single GPU feasible. You pay a little quality and some training
+speed for a large drop in memory.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># The parameter math — this is the number interviews ask for.</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">lora_params</span><span class="p">(</span><span class="n">d_in</span><span class="p">,</span> <span class="n">d_out</span><span class="p">,</span> <span class="n">rank</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">rank</span> <span class="o">*</span> <span class="p">(</span><span class="n">d_in</span> <span class="o">+</span> <span class="n">d_out</span><span class="p">)</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">report</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">d_in</span><span class="p">,</span> <span class="n">d_out</span><span class="p">,</span> <span class="n">n_matrices</span><span class="p">,</span> <span class="n">rank</span><span class="p">):</span>
+    <span class="n">full</span> <span class="o">=</span> <span class="n">d_in</span> <span class="o">*</span> <span class="n">d_out</span> <span class="o">*</span> <span class="n">n_matrices</span>
+    <span class="n">lora</span> <span class="o">=</span> <span class="n">lora_params</span><span class="p">(</span><span class="n">d_in</span><span class="p">,</span> <span class="n">d_out</span><span class="p">,</span> <span class="n">rank</span><span class="p">)</span> <span class="o">*</span> <span class="n">n_matrices</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">:</span><span class="s2">&lt;30</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">full</span><span class="o">/</span><span class="mf">1e6</span><span class="si">:</span><span class="s2">&gt;10.1f</span><span class="si">}</span><span class="s2">M </span><span class="si">{</span><span class="n">lora</span><span class="o">/</span><span class="mf">1e6</span><span class="si">:</span><span class="s2">&gt;10.2f</span><span class="si">}</span><span class="s2">M </span><span class="si">{</span><span class="mi">100</span><span class="o">*</span><span class="n">lora</span><span class="o">/</span><span class="n">full</span><span class="si">:</span><span class="s2">&gt;9.2f</span><span class="si">}</span><span class="s2">%&quot;</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;target&#39;</span><span class="si">:</span><span class="s2">&lt;30</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="s1">&#39;full FT&#39;</span><span class="si">:</span><span class="s2">&gt;11</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="s1">&#39;LoRA r=16&#39;</span><span class="si">:</span><span class="s2">&gt;11</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="s1">&#39;trainable&#39;</span><span class="si">:</span><span class="s2">&gt;10</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;-&quot;</span> <span class="o">*</span> <span class="mi">64</span><span class="p">)</span>
+<span class="n">report</span><span class="p">(</span><span class="s2">&quot;Attention q,v (32 layers)&quot;</span><span class="p">,</span> <span class="mi">4096</span><span class="p">,</span> <span class="mi">4096</span><span class="p">,</span> <span class="mi">32</span> <span class="o">*</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">16</span><span class="p">)</span>
+<span class="n">report</span><span class="p">(</span><span class="s2">&quot;Attention q,k,v,o (32 lyr)&quot;</span><span class="p">,</span> <span class="mi">4096</span><span class="p">,</span> <span class="mi">4096</span><span class="p">,</span> <span class="mi">32</span> <span class="o">*</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">16</span><span class="p">)</span>
+<span class="n">report</span><span class="p">(</span><span class="s2">&quot;+ FFN (32 layers)&quot;</span><span class="p">,</span>         <span class="mi">4096</span><span class="p">,</span> <span class="mi">11008</span><span class="p">,</span> <span class="mi">32</span> <span class="o">*</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">16</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Memory during training (7B model, rough):&quot;</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">label</span><span class="p">,</span> <span class="n">gb</span> <span class="ow">in</span> <span class="p">[</span>
+    <span class="p">(</span><span class="s2">&quot;Full FT, Adam, bf16&quot;</span><span class="p">,</span> <span class="mi">7</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">+</span> <span class="mi">7</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">+</span> <span class="mi">7</span> <span class="o">*</span> <span class="mi">8</span><span class="p">),</span>   <span class="c1"># weights + grads + optimizer states</span>
+    <span class="p">(</span><span class="s2">&quot;LoRA, bf16 base&quot;</span><span class="p">,</span>      <span class="mi">7</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">+</span> <span class="mf">0.1</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;QLoRA, 4-bit base&quot;</span><span class="p">,</span>    <span class="mi">7</span> <span class="o">*</span> <span class="mf">0.5</span> <span class="o">+</span> <span class="mf">0.1</span><span class="p">),</span>
+<span class="p">]:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  </span><span class="si">{</span><span class="n">label</span><span class="si">:</span><span class="s2">&lt;24</span><span class="si">}</span><span class="s2"> ~</span><span class="si">{</span><span class="n">gb</span><span class="si">:</span><span class="s2">&gt;5.1f</span><span class="si">}</span><span class="s2"> GB&quot;</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Full fine-tuning is dominated by Adam&#39;s two moment buffers (4 bytes/param each),&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;not by the weights. Freezing the base removes gradients AND optimizer state,&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;which is why LoRA&#39;s saving is far larger than the trainable-parameter ratio suggests.&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>target                             full FT   LoRA r=16  trainable
+----------------------------------------------------------------
+Attention q,v (32 layers)          1073.7M       8.39M      0.78%
+Attention q,k,v,o (32 lyr)         2147.5M      16.78M      0.78%
++ FFN (32 layers)                  4328.5M      23.20M      0.54%
+
+Memory during training (7B model, rough):
+  Full FT, Adam, bf16      ~ 84.0 GB
+  LoRA, bf16 base          ~ 14.1 GB
+  QLoRA, 4-bit base        ~  3.6 GB
+
+Full fine-tuning is dominated by Adam&#39;s two moment buffers (4 bytes/param each),
+not by the weights. Freezing the base removes gradients AND optimizer state,
+which is why LoRA&#39;s saving is far larger than the trainable-parameter ratio suggests.
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="distillation">
+<h2>5. Distillation<a class="headerlink" href="#distillation" title="Link to this heading">#</a></h2>
+<p>Train a small <strong>student</strong> to imitate a large <strong>teacher</strong>. Chronically under-taught relative to
+how much it’s used in production.</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Flavour</p></th>
+<th class="head"><p>Signal</p></th>
+<th class="head"><p>Notes</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><strong>Response distillation</strong></p></td>
+<td><p>Teacher’s generated outputs as SFT targets</p></td>
+<td><p>Simplest; just a data-generation pipeline</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Logit distillation</strong></p></td>
+<td><p>Teacher’s full output distribution</p></td>
+<td><p>Richer signal; needs teacher logits, so open weights or self-hosted</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>Reasoning distillation</strong></p></td>
+<td><p>Teacher’s chain of thought plus the answer</p></td>
+<td><p>How small reasoning models are built</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>Why it belongs in an MLE’s toolkit:</strong> most production LLM features do not need a frontier
+model. They need frontier <em>quality on one narrow task</em>. Distillation is the standard way to
+convert the first into the second — often 10–50× cheaper per request at comparable task
+quality.</p>
+<p><strong>The standard pipeline:</strong> prototype with the frontier model → log real production traffic →
+filter and verify the good responses → fine-tune a small model on them → A/B the small model
+against the large one → route the easy majority to the small model and escalate the hard tail.</p>
+<p><strong>Caveats:</strong> the student inherits the teacher’s mistakes and biases; quality is capped near
+the teacher on the distilled distribution and degrades off it; and check the teacher’s terms
+of service before distilling from a commercial API.</p>
+</section>
+<section id="catastrophic-forgetting">
+<h2>6. Catastrophic Forgetting<a class="headerlink" href="#catastrophic-forgetting" title="Link to this heading">#</a></h2>
+<p>Fine-tuning on a narrow task degrades unrelated capabilities. It is the single most common
+way a fine-tuning project quietly fails: the target metric improves, ships, and something
+else regresses that nobody was measuring.</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Mitigation</p></th>
+<th class="head"><p>Mechanism</p></th>
+<th class="head"><p>Cost</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><strong>LoRA / QLoRA</strong></p></td>
+<td><p>Base weights physically cannot move</p></td>
+<td><p>Slight capacity limit</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Replay</strong></p></td>
+<td><p>Mix general data into the fine-tuning set</p></td>
+<td><p>Needs representative general data</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>Low LR + early stopping</strong></p></td>
+<td><p>Move less far from the initialization</p></td>
+<td><p>Blunt; may underfit the target</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>KL penalty to reference</strong></p></td>
+<td><p>Explicitly penalize divergence</p></td>
+<td><p>An extra forward pass per step</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>Broad eval suite</strong></p></td>
+<td><p>Detect it rather than prevent it</p></td>
+<td><p>The one you must do regardless</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<blockquote>
+<div><p>💡 <strong>Interview Tip:</strong> The strongest answer here isn’t a technique, it’s a process: <em>“I’d keep
+a general-capability eval suite and run it on every fine-tuned checkpoint, not just the task
+metric.”</em> Forgetting is invisible unless you look for it.</p>
+</div></blockquote>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.linear_model</span><span class="w"> </span><span class="kn">import</span> <span class="n">SGDClassifier</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">make_classification</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">accuracy_score</span>
+
+<span class="c1"># Catastrophic forgetting, minimal reproduction.</span>
+<span class="c1"># Task A = &quot;general capability&quot;, Task B = &quot;the narrow thing you fine-tune on&quot;.</span>
+<span class="n">XA</span><span class="p">,</span> <span class="n">yA</span> <span class="o">=</span> <span class="n">make_classification</span><span class="p">(</span><span class="n">n_samples</span><span class="o">=</span><span class="mi">600</span><span class="p">,</span> <span class="n">n_features</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span> <span class="n">n_informative</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">XB</span><span class="p">,</span> <span class="n">yB</span> <span class="o">=</span> <span class="n">make_classification</span><span class="p">(</span><span class="n">n_samples</span><span class="o">=</span><span class="mi">600</span><span class="p">,</span> <span class="n">n_features</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span> <span class="n">n_informative</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">7</span><span class="p">)</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">evaluate</span><span class="p">(</span><span class="n">m</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">accuracy_score</span><span class="p">(</span><span class="n">yA</span><span class="p">,</span> <span class="n">m</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">XA</span><span class="p">)),</span> <span class="n">accuracy_score</span><span class="p">(</span><span class="n">yB</span><span class="p">,</span> <span class="n">m</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">XB</span><span class="p">))</span>
+
+<span class="c1"># --- Naive sequential fine-tuning ---</span>
+<span class="n">m</span> <span class="o">=</span> <span class="n">SGDClassifier</span><span class="p">(</span><span class="n">loss</span><span class="o">=</span><span class="s2">&quot;log_loss&quot;</span><span class="p">,</span> <span class="n">learning_rate</span><span class="o">=</span><span class="s2">&quot;constant&quot;</span><span class="p">,</span> <span class="n">eta0</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">m</span><span class="o">.</span><span class="n">partial_fit</span><span class="p">(</span><span class="n">XA</span><span class="p">,</span> <span class="n">yA</span><span class="p">,</span> <span class="n">classes</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+<span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">30</span><span class="p">):</span>
+    <span class="n">m</span><span class="o">.</span><span class="n">partial_fit</span><span class="p">(</span><span class="n">XA</span><span class="p">,</span> <span class="n">yA</span><span class="p">)</span>
+<span class="n">a0</span><span class="p">,</span> <span class="n">b0</span> <span class="o">=</span> <span class="n">evaluate</span><span class="p">(</span><span class="n">m</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">30</span><span class="p">):</span>
+    <span class="n">m</span><span class="o">.</span><span class="n">partial_fit</span><span class="p">(</span><span class="n">XB</span><span class="p">,</span> <span class="n">yB</span><span class="p">)</span>          <span class="c1"># fine-tune on B only</span>
+<span class="n">a1</span><span class="p">,</span> <span class="n">b1</span> <span class="o">=</span> <span class="n">evaluate</span><span class="p">(</span><span class="n">m</span><span class="p">)</span>
+
+<span class="c1"># --- Same budget, but with replay (mix 50% of A back into each step) ---</span>
+<span class="n">mr</span> <span class="o">=</span> <span class="n">SGDClassifier</span><span class="p">(</span><span class="n">loss</span><span class="o">=</span><span class="s2">&quot;log_loss&quot;</span><span class="p">,</span> <span class="n">learning_rate</span><span class="o">=</span><span class="s2">&quot;constant&quot;</span><span class="p">,</span> <span class="n">eta0</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">mr</span><span class="o">.</span><span class="n">partial_fit</span><span class="p">(</span><span class="n">XA</span><span class="p">,</span> <span class="n">yA</span><span class="p">,</span> <span class="n">classes</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+<span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">30</span><span class="p">):</span>
+    <span class="n">mr</span><span class="o">.</span><span class="n">partial_fit</span><span class="p">(</span><span class="n">XA</span><span class="p">,</span> <span class="n">yA</span><span class="p">)</span>
+
+<span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">30</span><span class="p">):</span>
+    <span class="n">idx</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">XA</span><span class="p">),</span> <span class="n">size</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">XA</span><span class="p">)</span> <span class="o">//</span> <span class="mi">2</span><span class="p">,</span> <span class="n">replace</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">Xmix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">([</span><span class="n">XB</span><span class="p">,</span> <span class="n">XA</span><span class="p">[</span><span class="n">idx</span><span class="p">]])</span>
+    <span class="n">ymix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">yB</span><span class="p">,</span> <span class="n">yA</span><span class="p">[</span><span class="n">idx</span><span class="p">]])</span>
+    <span class="n">mr</span><span class="o">.</span><span class="n">partial_fit</span><span class="p">(</span><span class="n">Xmix</span><span class="p">,</span> <span class="n">ymix</span><span class="p">)</span>
+<span class="n">a2</span><span class="p">,</span> <span class="n">b2</span> <span class="o">=</span> <span class="n">evaluate</span><span class="p">(</span><span class="n">mr</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;stage&#39;</span><span class="si">:</span><span class="s2">&lt;34</span><span class="si">}{</span><span class="s1">&#39;Task A&#39;</span><span class="si">:</span><span class="s2">&gt;9</span><span class="si">}{</span><span class="s1">&#39;Task B&#39;</span><span class="si">:</span><span class="s2">&gt;9</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;-&quot;</span> <span class="o">*</span> <span class="mi">52</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;after pretraining on A&#39;</span><span class="si">:</span><span class="s2">&lt;34</span><span class="si">}{</span><span class="n">a0</span><span class="si">:</span><span class="s2">&gt;9.3f</span><span class="si">}{</span><span class="n">b0</span><span class="si">:</span><span class="s2">&gt;9.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;after naive fine-tune on B&#39;</span><span class="si">:</span><span class="s2">&lt;34</span><span class="si">}{</span><span class="n">a1</span><span class="si">:</span><span class="s2">&gt;9.3f</span><span class="si">}{</span><span class="n">b1</span><span class="si">:</span><span class="s2">&gt;9.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;after fine-tune on B w/ replay&#39;</span><span class="si">:</span><span class="s2">&lt;34</span><span class="si">}{</span><span class="n">a2</span><span class="si">:</span><span class="s2">&gt;9.3f</span><span class="si">}{</span><span class="n">b2</span><span class="si">:</span><span class="s2">&gt;9.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">()</span>
+<span class="n">lost</span> <span class="o">=</span> <span class="n">a0</span> <span class="o">-</span> <span class="n">a1</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Naive fine-tuning gave up </span><span class="si">{</span><span class="n">lost</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2"> accuracy on Task A to gain </span><span class="si">{</span><span class="n">b1</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">b0</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2"> on Task B.&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Replay recovered </span><span class="si">{</span><span class="n">a2</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">a1</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2"> of that loss (</span><span class="si">{</span><span class="p">(</span><span class="n">a2</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">a1</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">lost</span><span class="si">:</span><span class="s2">.0%</span><span class="si">}</span><span class="s2">) at the same step budget,&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;while still reaching </span><span class="si">{</span><span class="n">b2</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2"> on Task B.&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;A linear model is the mildest possible version of this. In a large network with&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;billions of shared parameters the effect is far more severe — and you only see it&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;if you are still measuring Task A after you stop caring about it.&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>stage                                Task A   Task B
+----------------------------------------------------
+after pretraining on A                0.737    0.368
+after naive fine-tune on B            0.600    0.833
+after fine-tune on B w/ replay        0.675    0.840
+
+Naive fine-tuning gave up 0.137 accuracy on Task A to gain 0.465 on Task B.
+Replay recovered 0.075 of that loss (55%) at the same step budget,
+while still reaching 0.840 on Task B.
+
+A linear model is the mildest possible version of this. In a large network with
+billions of shared parameters the effect is far more severe — and you only see it
+if you are still measuring Task A after you stop caring about it.
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="common-interview-questions">
+<h2>Common Interview Questions<a class="headerlink" href="#common-interview-questions" title="Link to this heading">#</a></h2>
+<p><strong>Q: Walk me through modern post-training.</strong>
+Three stages. SFT teaches imitation from demonstration pairs — it establishes format and
+instruction-following but can’t exceed its demonstrations. Preference optimization (DPO, or
+RLHF where you want an inspectable reward model) teaches ranking from chosen/rejected pairs,
+which is right for tone and harmlessness. RLVR teaches correctness by optimizing against an
+automated verifier — the stage that produced reasoning models. Each exists because the
+previous one has a ceiling.</p>
+<p><strong>Q: DPO vs GRPO — when would you pick each?</strong>
+DPO is offline and learns from a fixed preference dataset: cheap, stable, and a good fit when
+“better” is subjective and no verifier exists. GRPO is online — it samples a group of
+completions from the current policy and uses the group mean as the advantage baseline instead
+of a learned critic. Use GRPO when you have a programmatic verifier and want the model to
+<em>discover</em> better behaviours rather than imitate ranked ones. Math, code, and tool use are the
+natural fits.</p>
+<p><strong>Q: Why is GRPO critic-free, and why does that matter?</strong>
+PPO needs a value network to estimate the baseline for advantage computation — that critic is
+roughly as large as the policy, costs memory, and is a common source of instability. GRPO
+gets the baseline for free by sampling G completions per prompt and standardizing rewards
+within the group. Fewer models in memory, one less thing to diverge.</p>
+<p><strong>Q: What’s the biggest risk in an RLVR setup?</strong>
+Reward hacking. The verifier is the objective, so any gap between “passes the check” and “is
+correct” gets found and exploited — and the model may not verbalize the exploit in its chain
+of thought, which defeats trace-based monitoring. Mitigations: held-out verifiers, manual
+audit of high-reward samples, a KL penalty to the reference policy, and treating sudden reward
+jumps as suspected exploits.</p>
+<p><strong>Q: LoRA saves ~99% of trainable parameters. Does it save 99% of memory?</strong>
+No, but it saves more than you’d guess — for a different reason. Full fine-tuning memory is
+dominated by Adam’s optimizer states (two fp32 moments per parameter), not the weights.
+Freezing the base eliminates gradients <em>and</em> optimizer state for those parameters, so the drop
+is large. But the frozen base still has to be resident, which is exactly what QLoRA addresses
+by quantizing it to 4-bit.</p>
+<p><strong>Q: When would you distil instead of fine-tune?</strong>
+When quality is already acceptable and the problem is cost or latency. Fine-tuning adapts a
+model to a task; distillation transfers existing capability into a smaller, cheaper model. The
+production pattern is to prototype with a frontier model, log and filter real traffic, train a
+small student on it, then route the easy majority to the student and escalate the hard tail.</p>
+<p><strong>Q: How do you know fine-tuning didn’t break something else?</strong>
+You don’t, unless you measure. Keep a general-capability eval suite separate from the task
+metric and run it on every checkpoint. Catastrophic forgetting doesn’t announce itself — the
+target metric goes up while unrelated behaviour silently regresses.</p>
+</section>
+<section id="key-takeaways">
+<h2>Key Takeaways<a class="headerlink" href="#key-takeaways" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>Pipeline shape is stable: SFT (imitate) → preference optimization (rank) → RLVR (verify)</p></li>
+<li><p>DPO is offline and critic-free; GRPO is online and critic-free, using the group mean as baseline</p></li>
+<li><p>RLVR replaced human raters with programmatic verifiers — the mechanism behind reasoning models</p></li>
+<li><p>Verifier design <em>is</em> reward design: any gap between “passes” and “correct” will be exploited</p></li>
+<li><p>Degenerate groups (all-right or all-wrong) give zero gradient, so curriculum matters in RLVR</p></li>
+<li><p>LoRA’s memory win comes mostly from eliminating Adam optimizer state, not from the weights</p></li>
+<li><p>QLoRA quantizes the frozen base to 4-bit so large models fine-tune on a single GPU</p></li>
+<li><p>Distillation is the standard cost lever: prototype large, log traffic, train small, route by difficulty</p></li>
+<li><p>Always run a general eval suite alongside the task metric — forgetting is invisible otherwise</p></li>
+</ul>
+</section>
+</section>
+
+    <script type="text/x-thebe-config">
+    {
+        requestKernel: true,
+        binderOptions: {
+            repo: "binder-examples/jupyter-stacks-datascience",
+            ref: "master",
+        },
+        codeMirrorConfig: {
+            theme: "abcdef",
+            mode: "python"
+        },
+        kernelOptions: {
+            name: "python3",
+            path: "./LLM Engineering"
+        },
+        predefinedOutput: true
+    }
+    </script>
+    <script>kernelName = 'python3'</script>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="llm1_transformer_internals.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Transformer Internals for Inference</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="llm3_inference_optimization.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">LLM Inference Optimization</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2023.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.4.7.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.17.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

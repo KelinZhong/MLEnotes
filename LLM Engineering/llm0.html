@@ -1,0 +1,1034 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>LLM Landscape &amp; Interview Map &#8212; Machine Learning Engineer Notes</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=55c26ed414f5f8a31ebb" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=55c26ed414f5f8a31ebb" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../_static/togglebutton.css?v=9c3e77be" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-thebe.css?v=4fa983c6" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../_static/scripts/fontawesome.js?digest=55c26ed414f5f8a31ebb"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb" />
+
+    <script src="../_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=f281be69"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js"></script>
+    <script>let toggleHintShow = 'Click to show';</script>
+    <script>let toggleHintHide = 'Click to hide';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="../_static/togglebutton.js?v=b8b12719"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script async="async" src="../_static/sphinx-thebe.js?v=c100c467"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'LLM Engineering/llm0';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Transformer Internals for Inference" href="llm1_transformer_internals.html" />
+    <link rel="prev" title="Infra Quick Reference: Docker, K8s &amp; Friends" href="../MLOps/mlops7_ml_infra_tools.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  
+    
+    <script src="../_static/searchtools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../intro.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">Machine Learning Engineer Notes</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    Topics
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../ML%20Foundations/ML0.html">
+    ML Foundations
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../Deep%20Learning/DL0.html">
+    Deep Learning
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../PyTorch%20Guide/P0_pytorch.html">
+    PyTorch Guide
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../MLOps/mlops0.html">
+    MLOps
+  </a>
+</li>
+
+
+<li class=" current active">
+  <a class="nav-link dropdown-item nav-internal" href="#">
+    LLM Engineering
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../ML%20System%20Design/mlsd0.html">
+    ML System Design
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../MLE%20Interview/mle0.html">
+    The MLE Interview Loop
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../ML%20Coding/mlc0.html">
+    ML Coding Round
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../TensorFlow%20Guide/tf0.html">
+    TensorFlow Guide (reference)
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../ML%20Foundations/ML0.html">
+    ML Foundations
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../Deep%20Learning/DL0.html">
+    Deep Learning
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../PyTorch%20Guide/P0_pytorch.html">
+    PyTorch Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../MLOps/mlops0.html">
+    MLOps
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="#">
+    LLM Engineering
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../ML%20System%20Design/mlsd0.html">
+    ML System Design
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../MLE%20Interview/mle0.html">
+    The MLE Interview Loop
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../ML%20Coding/mlc0.html">
+    ML Coding Round
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../TensorFlow%20Guide/tf0.html">
+    TensorFlow Guide (reference)
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item pst-sidebar-collapse"><button id="pst-collapse-sidebar-button" aria-expanded="true" aria-controls="pst-primary-sidebar"><svg class="pst-icon svg-inline--fa" role="img" aria-hidden="true" focusable="false" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+    <path fill="currentColor" d="M3 15.5C2.36232 15.5 1.74874 15.2564 1.28478 14.8189C0.820828 14.3815 0.541576 13.7832 0.504167 13.1467L0.5 13L0.5 3C0.499965 2.36232 0.743605 1.74874 1.18107 1.28478C1.61854 0.820828 2.21676 0.541576 2.85333 0.504167L3 0.5L13 0.5C13.6377 0.499965 14.2513 0.743605 14.7152 1.18107C15.1792 1.61854 15.4584 2.21676 15.4958 2.85333L15.5 3L15.5 13C15.5 13.6377 15.2564 14.2513 14.8189 14.7152C14.3815 15.1792 13.7832 15.4584 13.1467 15.4958L13 15.5L3 15.5ZM3 13.8333L10.5 13.8333L10.5 2.16667L3 2.16667C2.79589 2.16669 2.59889 2.24163 2.44636 2.37726C2.29383 2.5129 2.19638 2.69979 2.1725 2.9025L2.16667 3L2.16667 13C2.16669 13.2041 2.24163 13.4011 2.37726 13.5536C2.5129 13.7062 2.69979 13.8036 2.9025 13.8275L3 13.8333ZM6.65583 10.325L6.5775 10.2558L4.91083 8.58917C4.76735 8.44567 4.68116 8.25476 4.66843 8.05223C4.65569 7.84971 4.71729 7.6495 4.84167 7.48917L4.91083 7.41083L6.5775 5.74417C6.72747 5.59471 6.9287 5.50794 7.14032 5.50148C7.35194 5.49502 7.55809 5.56935 7.7169 5.70937C7.8757 5.8494 7.97525 6.04463 7.99533 6.25539C8.01541 6.46616 7.95451 6.67667 7.825 6.84417L7.75583 6.9225L6.67917 8L7.75583 9.0775C7.89931 9.22099 7.98551 9.41191 7.99824 9.61443C8.01097 9.81695 7.94938 10.0172 7.825 10.1775L7.75583 10.2558C7.61234 10.3993 7.42142 10.4855 7.2189 10.4982C7.01638 10.511 6.81617 10.4494 6.65583 10.325Z"/>
+  </svg>
+  <span class="pst-collapse-sidebar-label">Collapse Sidebar</span>
+  <span class="pst-expand-sidebar-label">Expand Sidebar</span>
+</button></div>
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="llm1_transformer_internals.html">Transformer Internals for Inference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="llm2_pretraining_finetuning.html">Post-Training: SFT, Preference Optimization &amp; RLVR</a></li>
+<li class="toctree-l1"><a class="reference internal" href="llm3_inference_optimization.html">LLM Inference Optimization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="llm4_rag_systems.html">RAG Systems: Retrieval-Augmented Generation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="llm5_prompting_agents.html">Prompting, Tools &amp; Agents</a></li>
+<li class="toctree-l1"><a class="reference internal" href="llm6_llm_evaluation.html">LLM Evaluation: BLEU, ROUGE, LLM-as-Judge</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item"><div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> 
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#why-this-matters">Why This Matters</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#model-tiers-august-2026">Model Tiers (August 2026)</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#architecture-trends-that-became-serving-constraints">Architecture Trends That Became Serving Constraints</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-decision-framework">The Decision Framework</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#open-vs-closed">Open vs Closed</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#scaling-laws-two-eras">Scaling Laws: Two Eras</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#glossary">Glossary</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#common-interview-questions">Common Interview Questions</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#key-takeaways">Key Takeaways</a></li>
+</ul>
+  </nav></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../intro.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">LLM Landscape &amp; Interview Map</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="llm-landscape-interview-map">
+<h1>LLM Landscape &amp; Interview Map<a class="headerlink" href="#llm-landscape-interview-map" title="Link to this heading">#</a></h1>
+<blockquote>
+<div><p>⏱️ <strong>This is a volatile-layer chapter. Last reviewed: August 2026.</strong></p>
+<p>Everything in this notebook — model names, hardware constants, serving engines, price
+points — has a shelf life measured in months. The <em>mechanics</em> live in llm1–llm6 and are
+stable. If this page is more than a year stale, treat the specifics as history and check
+current sources; the decision frameworks below will still hold.</p>
+</div></blockquote>
+<p>LLM-track MLE interviews are now a distinct loop at AI-first companies and an increasingly
+common round everywhere else. This note maps the terrain: what the model tiers are, which
+architectural choices matter for serving, how post-training actually works today, and the
+glossary you need to talk about any of it fluently.</p>
+<section id="why-this-matters">
+<h2>Why This Matters<a class="headerlink" href="#why-this-matters" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>The prompt / RAG / fine-tune / post-train decision tree — the single most-asked LLM design question</p></li>
+<li><p>Open vs closed model tradeoffs, argued with cost and latency numbers rather than vibes</p></li>
+<li><p>Which architectural choices (MoE, GQA, RoPE, context length) show up as serving constraints</p></li>
+<li><p>What “reasoning model” means mechanically, and when the extra tokens are worth paying for</p></li>
+<li><p>Enough glossary fluency to keep up in a 45-minute design discussion</p></li>
+</ul>
+</section>
+<section id="model-tiers-august-2026">
+<h2>Model Tiers (August 2026)<a class="headerlink" href="#model-tiers-august-2026" title="Link to this heading">#</a></h2>
+<p>Think in <strong>tiers and capabilities</strong>, not brand names. Brands churn; the tier structure has
+been stable for two years.</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Tier</p></th>
+<th class="head"><p>What it is</p></th>
+<th class="head"><p>Typical use</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><strong>Frontier closed</strong></p></td>
+<td><p>Largest proprietary models behind an API (OpenAI, Anthropic, Google)</p></td>
+<td><p>Hardest reasoning, agentic work, anything where quality dominates cost</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Frontier open-weight</strong></p></td>
+<td><p>Downloadable weights at near-frontier quality (Llama, Qwen, DeepSeek, Mistral families)</p></td>
+<td><p>Self-hosting for privacy, cost at volume, or customization</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>Small / efficient</strong></p></td>
+<td><p>1B–20B parameter models, often distilled from a larger sibling</p></td>
+<td><p>High-QPS classification, extraction, on-device, cost-sensitive paths</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Reasoning-tuned</strong></p></td>
+<td><p>Models post-trained to emit long chains of thought before answering</p></td>
+<td><p>Math, code, multi-step planning; costs more tokens and latency</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>Embedding / reranker</strong></p></td>
+<td><p>Encoder models producing vectors or relevance scores</p></td>
+<td><p>Retrieval — see llm4</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<blockquote>
+<div><p>💡 <strong>Interview Tip:</strong> Naming a specific model version rarely scores points and dates you
+if you name a stale one. Saying <em>“I’d start with a small open-weight model for the
+extraction step and reserve the frontier model for the planning step”</em> scores every time.</p>
+</div></blockquote>
+</section>
+<section id="architecture-trends-that-became-serving-constraints">
+<h2>Architecture Trends That Became Serving Constraints<a class="headerlink" href="#architecture-trends-that-became-serving-constraints" title="Link to this heading">#</a></h2>
+<p>These are the choices that changed between the original 2017 transformer and what you serve
+today. Each one exists because of an inference bottleneck — which is why they show up in
+system design rounds rather than just research discussions.</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Choice</p></th>
+<th class="head"><p>What it replaced</p></th>
+<th class="head"><p>Why it exists</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><strong>Mixture of Experts (MoE)</strong></p></td>
+<td><p>Dense feed-forward layers</p></td>
+<td><p>Total params grow, <em>active</em> params per token stay small → more capacity per FLOP. Complicates serving: all experts must be resident in memory even though few fire</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Grouped-Query Attention (GQA)</strong></p></td>
+<td><p>Multi-head attention</p></td>
+<td><p>Fewer KV heads than Q heads → proportionally smaller KV cache</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>Multi-head Latent Attention (MLA)</strong></p></td>
+<td><p>GQA</p></td>
+<td><p>Compresses KV into a low-rank latent → further cache reduction</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>RoPE</strong></p></td>
+<td><p>Learned / sinusoidal position embeddings</p></td>
+<td><p>Relative positions, extrapolates further; scaling tricks extend context post-hoc</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>RMSNorm</strong></p></td>
+<td><p>LayerNorm</p></td>
+<td><p>Cheaper (no mean subtraction), empirically as good</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>SwiGLU FFN</strong></p></td>
+<td><p>ReLU FFN at 4× width</p></td>
+<td><p>Gated activation; better quality per parameter</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>Sliding-window / hybrid attention</strong></p></td>
+<td><p>Full causal attention every layer</p></td>
+<td><p>Caps the O(T²) cost on long contexts</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>The through-line:</strong> every one of these trades a little architectural elegance for memory
+or bandwidth at inference. That’s the shape of the whole field right now — training compute
+is no longer the binding constraint, serving cost is.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Why MoE changes the serving conversation.</span>
+<span class="c1"># Dense: every parameter is read for every token.</span>
+<span class="c1"># MoE:   only the active experts are read, but ALL of them occupy memory.</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">moe_vs_dense</span><span class="p">(</span><span class="n">total_params_B</span><span class="p">,</span> <span class="n">n_experts</span><span class="p">,</span> <span class="n">experts_per_token</span><span class="p">,</span> <span class="n">bytes_per_param</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;bytes_per_param: 1 = FP8, 2 = bf16.&quot;&quot;&quot;</span>
+    <span class="n">active_frac</span> <span class="o">=</span> <span class="n">experts_per_token</span> <span class="o">/</span> <span class="n">n_experts</span>
+    <span class="c1"># Rough split: attention is dense, FFN is the part that gets sharded into experts.</span>
+    <span class="n">ffn_share</span> <span class="o">=</span> <span class="mf">0.7</span>
+    <span class="n">active_params_B</span> <span class="o">=</span> <span class="n">total_params_B</span> <span class="o">*</span> <span class="p">((</span><span class="mi">1</span> <span class="o">-</span> <span class="n">ffn_share</span><span class="p">)</span> <span class="o">+</span> <span class="n">ffn_share</span> <span class="o">*</span> <span class="n">active_frac</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">&quot;memory_GB&quot;</span><span class="p">:</span> <span class="n">total_params_B</span> <span class="o">*</span> <span class="mf">1e9</span> <span class="o">*</span> <span class="n">bytes_per_param</span> <span class="o">/</span> <span class="mf">1e9</span><span class="p">,</span>   <span class="c1"># ALL experts resident</span>
+        <span class="s2">&quot;active_params_B&quot;</span><span class="p">:</span> <span class="n">active_params_B</span><span class="p">,</span>                            <span class="c1"># only these are read</span>
+        <span class="s2">&quot;compute_saving&quot;</span><span class="p">:</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">active_params_B</span> <span class="o">/</span> <span class="n">total_params_B</span><span class="p">,</span>
+    <span class="p">}</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;config&#39;</span><span class="si">:</span><span class="s2">&lt;34</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="s1">&#39;mem (GB)&#39;</span><span class="si">:</span><span class="s2">&gt;10</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="s1">&#39;active B&#39;</span><span class="si">:</span><span class="s2">&gt;10</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="s1">&#39;FLOP saving&#39;</span><span class="si">:</span><span class="s2">&gt;12</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">kw</span> <span class="ow">in</span> <span class="p">[</span>
+    <span class="p">(</span><span class="s2">&quot;Dense 70B (bf16)&quot;</span><span class="p">,</span>   <span class="nb">dict</span><span class="p">(</span><span class="n">total_params_B</span><span class="o">=</span><span class="mi">70</span><span class="p">,</span>  <span class="n">n_experts</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>  <span class="n">experts_per_token</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">bytes_per_param</span><span class="o">=</span><span class="mi">2</span><span class="p">)),</span>
+    <span class="p">(</span><span class="s2">&quot;MoE 200B, 8/64 (FP8)&quot;</span><span class="p">,</span> <span class="nb">dict</span><span class="p">(</span><span class="n">total_params_B</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span> <span class="n">n_experts</span><span class="o">=</span><span class="mi">64</span><span class="p">,</span> <span class="n">experts_per_token</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">bytes_per_param</span><span class="o">=</span><span class="mi">1</span><span class="p">)),</span>
+    <span class="p">(</span><span class="s2">&quot;MoE 400B, 8/128 (FP8)&quot;</span><span class="p">,</span> <span class="nb">dict</span><span class="p">(</span><span class="n">total_params_B</span><span class="o">=</span><span class="mi">400</span><span class="p">,</span> <span class="n">n_experts</span><span class="o">=</span><span class="mi">128</span><span class="p">,</span> <span class="n">experts_per_token</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">bytes_per_param</span><span class="o">=</span><span class="mi">1</span><span class="p">)),</span>
+<span class="p">]:</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">moe_vs_dense</span><span class="p">(</span><span class="o">**</span><span class="n">kw</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">:</span><span class="s2">&lt;34</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">r</span><span class="p">[</span><span class="s1">&#39;memory_GB&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">&gt;10.0f</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">r</span><span class="p">[</span><span class="s1">&#39;active_params_B&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">&gt;10.1f</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">r</span><span class="p">[</span><span class="s1">&#39;compute_saving&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">&gt;11.0%</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Read this as: MoE buys you FLOPs, not memory.&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;A 400B MoE still needs 400B params resident — you cannot fit it on one GPU&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;just because only 8 experts fire per token. This is the #1 MoE misconception.&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>config                               mem (GB)   active B  FLOP saving
+Dense 70B (bf16)                          140       70.0          0%
+MoE 200B, 8/64 (FP8)                      200       77.5         61%
+MoE 400B, 8/128 (FP8)                     400      137.5         66%
+
+Read this as: MoE buys you FLOPs, not memory.
+A 400B MoE still needs 400B params resident — you cannot fit it on one GPU
+just because only 8 experts fire per token. This is the #1 MoE misconception.
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="the-decision-framework">
+<h2>The Decision Framework<a class="headerlink" href="#the-decision-framework" title="Link to this heading">#</a></h2>
+<p>This part is evergreen — it has survived every model generation so far.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>Can a well-written prompt on an off-the-shelf model do it?
+  YES → ship that. Measure. Stop.
+  NO  ↓
+Does it fail because the model lacks FACTS it could look up?
+  YES → RAG                                          (llm4)
+  NO  ↓
+Does it fail because the model lacks a SKILL, FORMAT, or STYLE?
+  YES → fine-tune (LoRA first, full FT rarely)       (llm2)
+  NO  ↓
+Does it fail because the task needs multi-step reasoning or tool use?
+  YES → reasoning model, or an agent loop            (llm5)
+  NO  ↓
+Does it fail on cost or latency at your volume?
+  YES → distil to a smaller model; quantize; cache   (llm2, llm3)
+  NO  → the task may not be LLM-shaped. Reconsider.
+</pre></div>
+</div>
+<blockquote>
+<div><p>💡 <strong>Interview Tip:</strong> The trap is jumping to fine-tuning. Interviewers are checking whether
+you reach for the expensive, slow-to-iterate option first. <em>“Fine-tuning teaches a skill;
+RAG supplies facts; distillation buys cost”</em> is the one-liner that shows you know the
+difference.</p>
+</div></blockquote>
+</section>
+<section id="open-vs-closed">
+<h2>Open vs Closed<a class="headerlink" href="#open-vs-closed" title="Link to this heading">#</a></h2>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Dimension</p></th>
+<th class="head"><p>Closed API</p></th>
+<th class="head"><p>Open-weight self-hosted</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><strong>Quality ceiling</strong></p></td>
+<td><p>Highest at any given moment</p></td>
+<td><p>Trails by months, often close enough</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Cost shape</strong></p></td>
+<td><p>Per-token — linear in volume</p></td>
+<td><p>Fixed GPU cost — cheap at high utilization, terrible at low</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>Latency</strong></p></td>
+<td><p>Network round-trip + provider queue</p></td>
+<td><p>You control it; you also own the tail</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Privacy</strong></p></td>
+<td><p>Data leaves your perimeter</p></td>
+<td><p>Stays on-prem</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>Customization</strong></p></td>
+<td><p>Limited (prompt, sometimes FT endpoint)</p></td>
+<td><p>Full — fine-tune, quantize, prune, distil</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Ops burden</strong></p></td>
+<td><p>None</p></td>
+<td><p>Real: serving stack, GPU capacity, upgrades, on-call</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>The crossover argument.</strong> Closed APIs win until per-token spend exceeds the fully-loaded
+cost of GPUs plus the engineers to run them. That crossover is usually higher than people
+expect — a self-hosted deployment at 20% utilization is often more expensive than the API it
+replaced. Compute your actual break-even before proposing a migration.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Break-even: closed API vs self-hosted open-weight model.</span>
+<span class="c1"># The number that decides it is UTILIZATION, not the sticker price per GPU-hour.</span>
+<span class="c1"># All constants below are illustrative — plug in your own before quoting this to anyone.</span>
+
+<span class="n">API_PER_1K</span> <span class="o">=</span> <span class="mf">0.012</span>   <span class="c1"># $ per 1k output tokens for a mid-tier hosted model</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">self_hosted_cost_per_1k</span><span class="p">(</span><span class="n">gpu_hourly</span><span class="p">,</span> <span class="n">n_gpus</span><span class="p">,</span> <span class="n">tokens_per_sec_per_gpu</span><span class="p">,</span>
+                            <span class="n">utilization</span><span class="p">,</span> <span class="n">eng_annual</span><span class="p">):</span>
+    <span class="n">hours_year</span> <span class="o">=</span> <span class="mi">24</span> <span class="o">*</span> <span class="mi">365</span>
+    <span class="n">infra_year</span> <span class="o">=</span> <span class="n">gpu_hourly</span> <span class="o">*</span> <span class="n">n_gpus</span> <span class="o">*</span> <span class="n">hours_year</span> <span class="o">+</span> <span class="n">eng_annual</span>
+    <span class="n">tokens_year</span> <span class="o">=</span> <span class="n">tokens_per_sec_per_gpu</span> <span class="o">*</span> <span class="n">n_gpus</span> <span class="o">*</span> <span class="n">utilization</span> <span class="o">*</span> <span class="mi">3600</span> <span class="o">*</span> <span class="n">hours_year</span>
+    <span class="k">if</span> <span class="n">tokens_year</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;inf&quot;</span><span class="p">),</span> <span class="mf">0.0</span>
+    <span class="k">return</span> <span class="n">infra_year</span> <span class="o">/</span> <span class="p">(</span><span class="n">tokens_year</span> <span class="o">/</span> <span class="mi">1000</span><span class="p">),</span> <span class="n">tokens_year</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;utilization&#39;</span><span class="si">:</span><span class="s2">&gt;12</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="s1">&#39;tokens/yr&#39;</span><span class="si">:</span><span class="s2">&gt;13</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="s1">&#39;$/1k self-host&#39;</span><span class="si">:</span><span class="s2">&gt;16</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="s1">&#39;cheaper&#39;</span><span class="si">:</span><span class="s2">&gt;12</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;-&quot;</span> <span class="o">*</span> <span class="mi">56</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">util</span> <span class="ow">in</span> <span class="p">[</span><span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.15</span><span class="p">,</span> <span class="mf">0.35</span><span class="p">,</span> <span class="mf">0.60</span><span class="p">,</span> <span class="mf">0.85</span><span class="p">]:</span>
+    <span class="n">cost</span><span class="p">,</span> <span class="n">toks</span> <span class="o">=</span> <span class="n">self_hosted_cost_per_1k</span><span class="p">(</span>
+        <span class="n">gpu_hourly</span><span class="o">=</span><span class="mf">3.0</span><span class="p">,</span>               <span class="c1"># 8 GPUs on-demand</span>
+        <span class="n">n_gpus</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span>
+        <span class="n">tokens_per_sec_per_gpu</span><span class="o">=</span><span class="mi">1200</span><span class="p">,</span>  <span class="c1"># aggregate across batched requests</span>
+        <span class="n">utilization</span><span class="o">=</span><span class="n">util</span><span class="p">,</span>
+        <span class="n">eng_annual</span><span class="o">=</span><span class="mi">400_000</span><span class="p">,</span>           <span class="c1"># one loaded senior FTE to run the stack</span>
+    <span class="p">)</span>
+    <span class="n">verdict</span> <span class="o">=</span> <span class="s2">&quot;self-host&quot;</span> <span class="k">if</span> <span class="n">cost</span> <span class="o">&lt;</span> <span class="n">API_PER_1K</span> <span class="k">else</span> <span class="s2">&quot;API&quot;</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">util</span><span class="si">:</span><span class="s2">&gt;11.0%</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">toks</span><span class="o">/</span><span class="mf">1e9</span><span class="si">:</span><span class="s2">&gt;12.0f</span><span class="si">}</span><span class="s2">B </span><span class="si">{</span><span class="n">cost</span><span class="si">:</span><span class="s2">&gt;16.4f</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">verdict</span><span class="si">:</span><span class="s2">&gt;12</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">API reference: $</span><span class="si">{</span><span class="n">API_PER_1K</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2"> per 1k tokens&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Crossover sits between 15</span><span class="si">% a</span><span class="s2">nd 35</span><span class="si">% u</span><span class="s2">tilization here.&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Two terms people leave out, both of which push toward the API:&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;  1. The engineer. Remove the $400k and the crossover drops below 10%.&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;  2. Peakiness. Traffic that peaks at 100% may average 15% — and idle GPUs still bill.&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span> utilization     tokens/yr   $/1k self-host      cheaper
+--------------------------------------------------------
+         5%           15B           0.0403          API
+        15%           45B           0.0134          API
+        35%          106B           0.0058    self-host
+        60%          182B           0.0034    self-host
+        85%          257B           0.0024    self-host
+
+API reference: $0.0120 per 1k tokens
+Crossover sits between 15% and 35% utilization here.
+
+Two terms people leave out, both of which push toward the API:
+  1. The engineer. Remove the $400k and the crossover drops below 10%.
+  2. Peakiness. Traffic that peaks at 100% may average 15% — and idle GPUs still bill.
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="scaling-laws-two-eras">
+<h2>Scaling Laws: Two Eras<a class="headerlink" href="#scaling-laws-two-eras" title="Link to this heading">#</a></h2>
+<p><strong>Training-compute scaling (Chinchilla, 2022).</strong> For a fixed training budget, model size N
+and training tokens T should grow together — roughly T ≈ 20N. A 7B model “wants” ~140B
+tokens for compute-optimal training.</p>
+<p><strong>Why nobody trains compute-optimal anymore.</strong> Chinchilla optimizes <em>training</em> cost. If you
+serve the model billions of times, inference cost dominates the lifetime bill — so you
+deliberately over-train a <em>smaller</em> model far past the Chinchilla point to get a cheaper
+model of equal quality. Modern open models are routinely trained at 100–1000+ tokens per
+parameter.</p>
+<p><strong>Test-time compute scaling (2024 onward).</strong> The newer axis: for a <em>fixed</em> trained model,
+quality improves with tokens spent thinking at inference — longer chains of thought, sampling
+multiple candidates and selecting, or search over reasoning paths. This is the mechanism
+behind reasoning models, and it reframes the cost conversation: capability is now something
+you can buy per-request, not only per-training-run.</p>
+<p><strong>Implication for practitioners:</strong> you now have three dials — model size, training tokens,
+and inference tokens. A smaller model given more thinking time can beat a larger model
+answering immediately, at lower total cost. Route accordingly.</p>
+</section>
+<section id="glossary">
+<h2>Glossary<a class="headerlink" href="#glossary" title="Link to this heading">#</a></h2>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Term</p></th>
+<th class="head"><p>One-line definition</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><strong>Tokenization</strong></p></td>
+<td><p>Text → integer IDs, usually via BPE. Tokens ≠ characters ≠ words</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Context window</strong></p></td>
+<td><p>Max tokens attended at once. Long ≠ free: cost and quality both degrade</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>KV cache</strong></p></td>
+<td><p>Cached keys/values for past tokens so decode doesn’t recompute them</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Prefill</strong></p></td>
+<td><p>Processing the prompt — parallel, compute-bound</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>Decode</strong></p></td>
+<td><p>Emitting tokens one at a time — sequential, memory-bandwidth-bound</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Prefix caching</strong></p></td>
+<td><p>Reusing KV for a shared prompt prefix across requests</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>PagedAttention</strong></p></td>
+<td><p>KV cache in fixed-size pages → no fragmentation, easy sharing</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>RadixAttention</strong></p></td>
+<td><p>Prefix-tree KV reuse; strong fit for agent loops with shared system prompts</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>Continuous batching</strong></p></td>
+<td><p>Admit/evict requests every forward step instead of per fixed batch</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Chunked prefill</strong></p></td>
+<td><p>Split long prefills so they don’t stall in-flight decodes</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>MoE</strong></p></td>
+<td><p>Mixture of Experts — route each token to a few of many FFN experts</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>GQA / MLA</strong></p></td>
+<td><p>Attention variants that shrink the KV cache</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>RoPE</strong></p></td>
+<td><p>Rotary position embedding — encodes relative position by rotation</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>RMSNorm</strong></p></td>
+<td><p>Normalization without mean subtraction; cheaper than LayerNorm</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>SwiGLU</strong></p></td>
+<td><p>Gated FFN activation; standard in modern LLMs</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>FP8</strong></p></td>
+<td><p>8-bit float; now common for both weights and KV cache on recent GPUs</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>SFT</strong></p></td>
+<td><p>Supervised fine-tuning on instruction–response pairs</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>DPO</strong></p></td>
+<td><p>Direct Preference Optimization — preference learning without a reward model or RL loop</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>RLVR</strong></p></td>
+<td><p>RL from Verifiable Rewards — reward comes from a checker, not a learned model</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>GRPO</strong></p></td>
+<td><p>Group Relative Policy Optimization — critic-free RL; the workhorse of RLVR</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>LoRA / QLoRA</strong></p></td>
+<td><p>Low-rank adapters; QLoRA adds a quantized frozen base</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Distillation</strong></p></td>
+<td><p>Train a small student to imitate a large teacher</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>Reasoning tokens</strong></p></td>
+<td><p>Chain-of-thought tokens emitted before the answer; billed, often hidden</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>RAG</strong></p></td>
+<td><p>Retrieval-Augmented Generation — fetch context at query time</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>Grounding</strong></p></td>
+<td><p>Tying output to retrievable, checkable sources</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Hallucination</strong></p></td>
+<td><p>Fluent, confident, wrong</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>Speculative decoding</strong></p></td>
+<td><p>Small draft model proposes; large model verifies in one pass</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Structured output</strong></p></td>
+<td><p>Schema-constrained generation — the decoder cannot emit invalid tokens</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>Tool / function calling</strong></p></td>
+<td><p>Model emits a structured call the runtime executes</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>MCP</strong></p></td>
+<td><p>Model Context Protocol — a standard interface between models and tools/data</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>Eval harness</strong></p></td>
+<td><p>The automated suite you run before shipping a prompt or model change</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="common-interview-questions">
+<h2>Common Interview Questions<a class="headerlink" href="#common-interview-questions" title="Link to this heading">#</a></h2>
+<p><strong>Q: Prompt, RAG, fine-tune, or distil?</strong>
+Prompt first — zero cost, instant iteration, and usually enough. RAG when the failure is
+missing <em>facts</em>, especially facts that change. Fine-tune when the failure is a missing
+<em>skill, format, or style</em> — prompting can’t reliably enforce a rigid output contract at
+scale. Distil when quality is already fine and the problem is purely cost or latency. The
+common mistake is fine-tuning to inject knowledge; that’s RAG’s job, and fine-tuning does it
+badly and expensively.</p>
+<p><strong>Q: What actually changes when you serve an MoE model?</strong>
+Compute per token drops because only a few experts fire, but memory does not — every expert
+must be resident. So MoE improves throughput-per-FLOP while making the model <em>harder</em> to fit,
+which often forces multi-GPU serving with expert-parallel sharding. Additional wrinkle:
+routing is load-dependent, so latency is less predictable than a dense model of equal
+active-parameter count.</p>
+<p><strong>Q: A stakeholder wants to self-host to save money. How do you evaluate that?</strong>
+Compute the break-even honestly. Take current API spend, then model self-hosted cost as GPU
+hours at <em>realistic</em> utilization plus the engineering time to run the stack. Traffic is
+usually peaky, so average utilization is far below peak, and idle GPUs bill anyway. Self-hosting
+usually wins on privacy, latency control, or customization long before it wins on cost.</p>
+<p><strong>Q: When is a reasoning model the wrong choice?</strong>
+When the task is single-step, when latency budget is tight, or when the extra tokens cost more
+than the accuracy is worth. Reasoning models spend tokens to think; on extraction,
+classification, or lookup you pay for thinking that buys nothing. Route: cheap model for the
+easy majority, reasoning model for the hard tail.</p>
+<p><strong>Q: What’s the difference between training-compute and test-time-compute scaling?</strong>
+Chinchilla-style scaling says how to trade model size against training tokens for a fixed
+<em>training</em> budget. Test-time scaling says quality also improves with tokens spent at
+<em>inference</em> on a fixed model. The practical consequence is that capability became a per-request
+purchasing decision, so “which model” is now really “which model at what thinking budget.”</p>
+</section>
+<section id="key-takeaways">
+<h2>Key Takeaways<a class="headerlink" href="#key-takeaways" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>Think in tiers (frontier closed / frontier open / small / reasoning / embedding), not brand names — brands churn</p></li>
+<li><p>Modern architecture choices (MoE, GQA, MLA, RoPE, RMSNorm, SwiGLU) all exist to relieve <em>inference</em> bottlenecks</p></li>
+<li><p>MoE buys FLOPs, not memory: all experts stay resident even though few fire per token</p></li>
+<li><p>Decision order: prompt → RAG (facts) → fine-tune (skills) → distil (cost). Never fine-tune to add knowledge</p></li>
+<li><p>Open vs closed turns on utilization and ops burden, not sticker price; include the engineer in the math</p></li>
+<li><p>Two scaling axes now: training compute (Chinchilla, deliberately violated for serving economics) and test-time compute</p></li>
+<li><p>This chapter is the volatile layer — re-verify it yearly; llm1–llm6 hold the durable mechanics</p></li>
+</ul>
+</section>
+<div class="toctree-wrapper compound">
+</div>
+</section>
+
+    <script type="text/x-thebe-config">
+    {
+        requestKernel: true,
+        binderOptions: {
+            repo: "binder-examples/jupyter-stacks-datascience",
+            ref: "master",
+        },
+        codeMirrorConfig: {
+            theme: "abcdef",
+            mode: "python"
+        },
+        kernelOptions: {
+            name: "python3",
+            path: "./LLM Engineering"
+        },
+        predefinedOutput: true
+    }
+    </script>
+    <script>kernelName = 'python3'</script>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="../MLOps/mlops7_ml_infra_tools.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Infra Quick Reference: Docker, K8s &amp; Friends</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="llm1_transformer_internals.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Transformer Internals for Inference</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2023.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.4.7.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.17.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

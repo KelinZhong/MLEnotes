@@ -1,0 +1,839 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Training Infrastructure &amp; Distributed Basics &#8212; Machine Learning Engineer Notes</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=55c26ed414f5f8a31ebb" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=55c26ed414f5f8a31ebb" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../_static/togglebutton.css?v=9c3e77be" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-thebe.css?v=4fa983c6" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../_static/scripts/fontawesome.js?digest=55c26ed414f5f8a31ebb"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb" />
+
+    <script src="../_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=f281be69"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js"></script>
+    <script>let toggleHintShow = 'Click to show';</script>
+    <script>let toggleHintHide = 'Click to hide';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="../_static/togglebutton.js?v=b8b12719"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script async="async" src="../_static/sphinx-thebe.js?v=c100c467"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'MLOps/mlops2_training_infra';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Model Serving &amp; Latency Optimization" href="mlops3_model_serving.html" />
+    <link rel="prev" title="ML Pipelines, Reproducibility &amp; Versioning" href="mlops1_ml_pipelines.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  
+    
+    <script src="../_static/searchtools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../intro.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">Machine Learning Engineer Notes</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    Topics
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../ML%20Foundations/ML0.html">
+    ML Foundations
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../Deep%20Learning/DL0.html">
+    Deep Learning
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../PyTorch%20Guide/P0_pytorch.html">
+    PyTorch Guide
+  </a>
+</li>
+
+
+<li class=" current active">
+  <a class="nav-link dropdown-item nav-internal" href="mlops0.html">
+    MLOps
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../LLM%20Engineering/llm0.html">
+    LLM Engineering
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../ML%20System%20Design/mlsd0.html">
+    ML System Design
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../MLE%20Interview/mle0.html">
+    The MLE Interview Loop
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../ML%20Coding/mlc0.html">
+    ML Coding Round
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../TensorFlow%20Guide/tf0.html">
+    TensorFlow Guide (reference)
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../ML%20Foundations/ML0.html">
+    ML Foundations
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../Deep%20Learning/DL0.html">
+    Deep Learning
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../PyTorch%20Guide/P0_pytorch.html">
+    PyTorch Guide
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="mlops0.html">
+    MLOps
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../LLM%20Engineering/llm0.html">
+    LLM Engineering
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../ML%20System%20Design/mlsd0.html">
+    ML System Design
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../MLE%20Interview/mle0.html">
+    The MLE Interview Loop
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../ML%20Coding/mlc0.html">
+    ML Coding Round
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../TensorFlow%20Guide/tf0.html">
+    TensorFlow Guide (reference)
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item pst-sidebar-collapse"><button id="pst-collapse-sidebar-button" aria-expanded="true" aria-controls="pst-primary-sidebar"><svg class="pst-icon svg-inline--fa" role="img" aria-hidden="true" focusable="false" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+    <path fill="currentColor" d="M3 15.5C2.36232 15.5 1.74874 15.2564 1.28478 14.8189C0.820828 14.3815 0.541576 13.7832 0.504167 13.1467L0.5 13L0.5 3C0.499965 2.36232 0.743605 1.74874 1.18107 1.28478C1.61854 0.820828 2.21676 0.541576 2.85333 0.504167L3 0.5L13 0.5C13.6377 0.499965 14.2513 0.743605 14.7152 1.18107C15.1792 1.61854 15.4584 2.21676 15.4958 2.85333L15.5 3L15.5 13C15.5 13.6377 15.2564 14.2513 14.8189 14.7152C14.3815 15.1792 13.7832 15.4584 13.1467 15.4958L13 15.5L3 15.5ZM3 13.8333L10.5 13.8333L10.5 2.16667L3 2.16667C2.79589 2.16669 2.59889 2.24163 2.44636 2.37726C2.29383 2.5129 2.19638 2.69979 2.1725 2.9025L2.16667 3L2.16667 13C2.16669 13.2041 2.24163 13.4011 2.37726 13.5536C2.5129 13.7062 2.69979 13.8036 2.9025 13.8275L3 13.8333ZM6.65583 10.325L6.5775 10.2558L4.91083 8.58917C4.76735 8.44567 4.68116 8.25476 4.66843 8.05223C4.65569 7.84971 4.71729 7.6495 4.84167 7.48917L4.91083 7.41083L6.5775 5.74417C6.72747 5.59471 6.9287 5.50794 7.14032 5.50148C7.35194 5.49502 7.55809 5.56935 7.7169 5.70937C7.8757 5.8494 7.97525 6.04463 7.99533 6.25539C8.01541 6.46616 7.95451 6.67667 7.825 6.84417L7.75583 6.9225L6.67917 8L7.75583 9.0775C7.89931 9.22099 7.98551 9.41191 7.99824 9.61443C8.01097 9.81695 7.94938 10.0172 7.825 10.1775L7.75583 10.2558C7.61234 10.3993 7.42142 10.4855 7.2189 10.4982C7.01638 10.511 6.81617 10.4494 6.65583 10.325Z"/>
+  </svg>
+  <span class="pst-collapse-sidebar-label">Collapse Sidebar</span>
+  <span class="pst-expand-sidebar-label">Expand Sidebar</span>
+</button></div>
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="mlops1_ml_pipelines.html">ML Pipelines, Reproducibility &amp; Versioning</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Training Infrastructure &amp; Distributed Basics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mlops3_model_serving.html">Model Serving &amp; Latency Optimization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mlops4_deployment_patterns.html">Deployment Patterns &amp; Rollbacks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mlops5_monitoring_observability.html">Monitoring ML Systems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mlops6_testing_ml_systems.html">Testing ML Systems &amp; CI/CD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mlops7_ml_infra_tools.html">Infra Quick Reference: Docker, K8s &amp; Friends</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item"><div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> 
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#what-interviewers-test">What Interviewers Test</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#parallelism-strategies">Parallelism Strategies</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#common-interview-questions">Common Interview Questions</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#key-takeaways">Key Takeaways</a></li>
+</ul>
+  </nav></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../intro.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="mlops0.html" class="nav-link">MLOps: Why Production ML Is Different</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Training Infrastructure &amp; Distributed Basics</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="training-infrastructure-distributed-basics">
+<h1>Training Infrastructure &amp; Distributed Basics<a class="headerlink" href="#training-infrastructure-distributed-basics" title="Link to this heading">#</a></h1>
+<p>MLEs at scale need to reason about how training is parallelized, how memory is managed, and what to checkpoint. This note covers parallelism strategies, DDP with a NumPy simulation, gradient accumulation, and GPU memory math.</p>
+<section id="what-interviewers-test">
+<h2>What Interviewers Test<a class="headerlink" href="#what-interviewers-test" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>Data parallelism vs model parallelism vs pipeline parallelism — when each is used</p></li>
+<li><p>What AllReduce does in DDP and why it works</p></li>
+<li><p>Mixed precision: fp16, bf16, loss scaling</p></li>
+<li><p>Gradient accumulation as a memory-batch-size tradeoff</p></li>
+<li><p>GPU memory math: parameters + optimizer states + activations</p></li>
+<li><p>Checkpointing: what to save, how to resume</p></li>
+</ul>
+</section>
+<section id="parallelism-strategies">
+<h2>Parallelism Strategies<a class="headerlink" href="#parallelism-strategies" title="Link to this heading">#</a></h2>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Strategy</p></th>
+<th class="head"><p>What it parallelizes</p></th>
+<th class="head"><p>When to use</p></th>
+<th class="head"><p>Communication pattern</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><strong>Data parallelism (DDP)</strong></p></td>
+<td><p>Different data batches on each GPU</p></td>
+<td><p>Model fits in one GPU</p></td>
+<td><p>AllReduce gradients every step</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Model parallelism</strong></p></td>
+<td><p>Different layers on different GPUs</p></td>
+<td><p>Model too large for one GPU</p></td>
+<td><p>P2P activation passing</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>Pipeline parallelism</strong></p></td>
+<td><p>Micro-batches through pipeline of GPUs</p></td>
+<td><p>Deep models, many layers</p></td>
+<td><p>P2P, bubble overhead</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Tensor parallelism</strong></p></td>
+<td><p>Single layer split across GPUs (e.g., Megatron)</p></td>
+<td><p>Very large transformer layers</p></td>
+<td><p>AllReduce within each layer</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>ZeRO (DeepSpeed)</strong></p></td>
+<td><p>Shard optimizer states, gradients, params</p></td>
+<td><p>LLM training</p></td>
+<td><p>AllGather/ReduceScatter</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>FSDP (PyTorch native)</strong></p></td>
+<td><p>Same sharding idea as ZeRO, built into PyTorch</p></td>
+<td><p>LLM training without a second framework</p></td>
+<td><p>AllGather params, ReduceScatter grads</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>ZeRO and FSDP are the same idea from two libraries.</strong> ZeRO stages 1/2/3 shard optimizer
+states, then gradients, then parameters; FSDP is PyTorch’s native implementation of stage-3-style
+full sharding. If you’re already in PyTorch, FSDP is usually the lower-friction choice. See
+<strong>P10</strong> for the code and the memory arithmetic that decides between DDP and FSDP.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+<span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
+
+<span class="c1"># --- DDP AllReduce simulation ---</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">simulate_ddp_allreduce</span><span class="p">(</span><span class="n">n_gpus</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">n_params</span><span class="o">=</span><span class="mi">1000</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    In DDP, each GPU computes gradients on its local batch.</span>
+<span class="sd">    AllReduce averages gradients across all GPUs so every GPU has the same gradient.</span>
+<span class="sd">    This is the ring-AllReduce pattern: O(N * p/G) per GPU, not O(N*p).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Each GPU has a different batch → different local gradients</span>
+    <span class="n">local_grads</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="n">n_params</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_gpus</span><span class="p">)]</span>
+    
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;=== DDP AllReduce Simulation (</span><span class="si">{</span><span class="n">n_gpus</span><span class="si">}</span><span class="s2"> GPUs) ===&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Before AllReduce — gradient variance per GPU:&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">g</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">local_grads</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  GPU </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">: mean=</span><span class="si">{</span><span class="n">g</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">, std=</span><span class="si">{</span><span class="n">g</span><span class="o">.</span><span class="n">std</span><span class="p">()</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    
+    <span class="c1"># AllReduce: average across GPUs (in practice: ring-based)</span>
+    <span class="n">avg_grad</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">local_grads</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">After AllReduce — all GPUs get same gradient:&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Averaged: mean=</span><span class="si">{</span><span class="n">avg_grad</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">, std=</span><span class="si">{</span><span class="n">avg_grad</span><span class="o">.</span><span class="n">std</span><span class="p">()</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  (std reduced by ~1/sqrt(</span><span class="si">{</span><span class="n">n_gpus</span><span class="si">}</span><span class="s2">) = </span><span class="si">{</span><span class="mi">1</span><span class="o">/</span><span class="n">n_gpus</span><span class="o">**</span><span class="mf">0.5</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2"> due to averaging)&quot;</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">avg_grad</span>
+
+<span class="n">avg</span> <span class="o">=</span> <span class="n">simulate_ddp_allreduce</span><span class="p">(</span><span class="n">n_gpus</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">n_params</span><span class="o">=</span><span class="mi">500</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>=== DDP AllReduce Simulation (4 GPUs) ===
+Before AllReduce — gradient variance per GPU:
+  GPU 0: mean=0.0068, std=0.9803
+  GPU 1: mean=0.0318, std=0.9770
+  GPU 2: mean=0.1085, std=1.0092
+  GPU 3: mean=0.0332, std=0.9831
+
+After AllReduce — all GPUs get same gradient:
+  Averaged: mean=0.0451, std=0.4892
+  (std reduced by ~1/sqrt(4) = 0.500 due to averaging)
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># --- GPU memory math ---</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">gpu_memory_estimate</span><span class="p">(</span>
+    <span class="n">n_params</span><span class="p">,</span>
+    <span class="n">bytes_per_param</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>          <span class="c1"># fp16 = 2 bytes, fp32 = 4 bytes</span>
+    <span class="n">optimizer</span><span class="o">=</span><span class="s1">&#39;adam&#39;</span><span class="p">,</span>            <span class="c1"># &#39;sgd&#39;: 1 copy, &#39;adam&#39;: 2 extra copies (m, v)</span>
+    <span class="n">batch_size</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span>
+    <span class="n">seq_len</span><span class="o">=</span><span class="mi">512</span><span class="p">,</span>
+    <span class="n">n_layers</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span>
+    <span class="n">d_model</span><span class="o">=</span><span class="mi">768</span><span class="p">,</span>
+    <span class="n">store_activations</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">bytes_gb</span><span class="o">=</span><span class="mf">1e9</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="c1"># Model parameters</span>
+    <span class="n">param_mem</span> <span class="o">=</span> <span class="n">n_params</span> <span class="o">*</span> <span class="n">bytes_per_param</span>
+    
+    <span class="c1"># Gradients (same size as params, fp16 if AMP)</span>
+    <span class="n">grad_mem</span> <span class="o">=</span> <span class="n">n_params</span> <span class="o">*</span> <span class="n">bytes_per_param</span>
+    
+    <span class="c1"># Optimizer states (fp32 for numerical stability in Adam)</span>
+    <span class="n">opt_states</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;sgd&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;adam&#39;</span><span class="p">:</span> <span class="mi">2</span><span class="p">}[</span><span class="n">optimizer</span><span class="p">]</span> <span class="o">*</span> <span class="n">n_params</span> <span class="o">*</span> <span class="mi">4</span>  <span class="c1"># fp32</span>
+    
+    <span class="c1"># Activations (rough estimate for transformer: O(batch * seq * d_model * n_layers))</span>
+    <span class="n">act_mem</span> <span class="o">=</span> <span class="n">batch_size</span> <span class="o">*</span> <span class="n">seq_len</span> <span class="o">*</span> <span class="n">d_model</span> <span class="o">*</span> <span class="n">n_layers</span> <span class="o">*</span> <span class="mi">4</span> <span class="k">if</span> <span class="n">store_activations</span> <span class="k">else</span> <span class="mi">0</span>
+    
+    <span class="n">total</span> <span class="o">=</span> <span class="n">param_mem</span> <span class="o">+</span> <span class="n">grad_mem</span> <span class="o">+</span> <span class="n">opt_states</span> <span class="o">+</span> <span class="n">act_mem</span>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s1">&#39;params_GB&#39;</span><span class="p">:</span>       <span class="n">param_mem</span> <span class="o">/</span> <span class="n">bytes_gb</span><span class="p">,</span>
+        <span class="s1">&#39;gradients_GB&#39;</span><span class="p">:</span>    <span class="n">grad_mem</span>  <span class="o">/</span> <span class="n">bytes_gb</span><span class="p">,</span>
+        <span class="s1">&#39;optimizer_GB&#39;</span><span class="p">:</span>    <span class="n">opt_states</span> <span class="o">/</span> <span class="n">bytes_gb</span><span class="p">,</span>
+        <span class="s1">&#39;activations_GB&#39;</span><span class="p">:</span>  <span class="n">act_mem</span>  <span class="o">/</span> <span class="n">bytes_gb</span><span class="p">,</span>
+        <span class="s1">&#39;total_GB&#39;</span><span class="p">:</span>        <span class="n">total</span>    <span class="o">/</span> <span class="n">bytes_gb</span><span class="p">,</span>
+    <span class="p">}</span>
+
+<span class="c1"># GPT-2 small: 117M params</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=== GPT-2 Small (117M params) ===&quot;</span><span class="p">)</span>
+<span class="n">mem</span> <span class="o">=</span> <span class="n">gpu_memory_estimate</span><span class="p">(</span><span class="n">n_params</span><span class="o">=</span><span class="mf">117e6</span><span class="p">,</span> <span class="n">optimizer</span><span class="o">=</span><span class="s1">&#39;adam&#39;</span><span class="p">,</span>
+                          <span class="n">batch_size</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">seq_len</span><span class="o">=</span><span class="mi">1024</span><span class="p">,</span> <span class="n">n_layers</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span> <span class="n">d_model</span><span class="o">=</span><span class="mi">768</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">mem</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  </span><span class="si">{</span><span class="n">k</span><span class="si">:</span><span class="s2">&lt;20</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">v</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> GB&quot;</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">()</span>
+<span class="c1"># LLaMA-7B: 7B params  </span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=== LLaMA-7B (7B params, fp16) ===&quot;</span><span class="p">)</span>
+<span class="n">mem_llama</span> <span class="o">=</span> <span class="n">gpu_memory_estimate</span><span class="p">(</span><span class="n">n_params</span><span class="o">=</span><span class="mf">7e9</span><span class="p">,</span> <span class="n">bytes_per_param</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">optimizer</span><span class="o">=</span><span class="s1">&#39;adam&#39;</span><span class="p">,</span>
+                                <span class="n">batch_size</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">seq_len</span><span class="o">=</span><span class="mi">2048</span><span class="p">,</span> <span class="n">n_layers</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span> <span class="n">d_model</span><span class="o">=</span><span class="mi">4096</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">mem_llama</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  </span><span class="si">{</span><span class="n">k</span><span class="si">:</span><span class="s2">&lt;20</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">v</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> GB&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;  (A100 80GB: param+grad+optimizer = ~112GB → needs model parallelism or ZeRO)&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>=== GPT-2 Small (117M params) ===
+  params_GB           : 0.23 GB
+  gradients_GB        : 0.23 GB
+  optimizer_GB        : 0.94 GB
+  activations_GB      : 0.30 GB
+  total_GB            : 1.71 GB
+
+=== LLaMA-7B (7B params, fp16) ===
+  params_GB           : 14.00 GB
+  gradients_GB        : 14.00 GB
+  optimizer_GB        : 56.00 GB
+  activations_GB      : 1.07 GB
+  total_GB            : 85.07 GB
+  (A100 80GB: param+grad+optimizer = ~112GB → needs model parallelism or ZeRO)
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">torch.nn</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">nn</span>
+
+<span class="c1"># --- Gradient accumulation in PyTorch training loop ---</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">training_loop_with_gradient_accumulation</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">dataloader_sim</span><span class="p">,</span> <span class="n">optimizer</span><span class="p">,</span>
+                                              <span class="n">accumulate_steps</span><span class="o">=</span><span class="mi">4</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Gradient accumulation: simulate large batch with small per-step batch.</span>
+<span class="sd">    Effective batch size = per_step_batch * accumulate_steps.</span>
+<span class="sd">    Loss must be divided by accumulate_steps so final gradient magnitude matches.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">device</span> <span class="o">=</span> <span class="s1">&#39;cuda&#39;</span> <span class="k">if</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">is_available</span><span class="p">()</span> <span class="k">else</span> <span class="s1">&#39;cpu&#39;</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+    
+    <span class="n">step</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">optimizer</span><span class="o">.</span><span class="n">zero_grad</span><span class="p">()</span>
+    
+    <span class="k">for</span> <span class="n">micro_step</span><span class="p">,</span> <span class="p">(</span><span class="n">X_batch</span><span class="p">,</span> <span class="n">y_batch</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">dataloader_sim</span><span class="p">):</span>
+        <span class="n">X_batch</span> <span class="o">=</span> <span class="n">X_batch</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+        <span class="n">y_batch</span> <span class="o">=</span> <span class="n">y_batch</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+        
+        <span class="n">out</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="n">X_batch</span><span class="p">)</span>
+        <span class="n">loss</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">functional</span><span class="o">.</span><span class="n">cross_entropy</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">y_batch</span><span class="p">)</span>
+        <span class="n">loss</span> <span class="o">=</span> <span class="n">loss</span> <span class="o">/</span> <span class="n">accumulate_steps</span>   <span class="c1"># CRITICAL: scale loss before backward</span>
+        <span class="n">loss</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span>                  <span class="c1"># accumulate gradients</span>
+        
+        <span class="k">if</span> <span class="p">(</span><span class="n">micro_step</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="n">accumulate_steps</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">optimizer</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
+            <span class="n">optimizer</span><span class="o">.</span><span class="n">zero_grad</span><span class="p">()</span>
+            <span class="n">step</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="n">step</span> <span class="o">&lt;=</span> <span class="mi">3</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Global step </span><span class="si">{</span><span class="n">step</span><span class="si">}</span><span class="s2">: effective batch = </span><span class="si">{</span><span class="n">X_batch</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">accumulate_steps</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="c1"># Simulate</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Sequential</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span> <span class="mi">32</span><span class="p">),</span> <span class="n">nn</span><span class="o">.</span><span class="n">ReLU</span><span class="p">(),</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="mi">32</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+<span class="n">optimizer</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">optim</span><span class="o">.</span><span class="n">Adam</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">)</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">make_batch</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="mi">8</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="mi">16</span><span class="p">),</span> <span class="n">torch</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="p">(</span><span class="n">n</span><span class="p">,))</span>
+
+<span class="n">dataloader_sim</span> <span class="o">=</span> <span class="p">[</span><span class="n">make_batch</span><span class="p">()</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">20</span><span class="p">)]</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Gradient accumulation (accumulate_steps=4, micro_batch=8 → effective batch=32):&quot;</span><span class="p">)</span>
+<span class="n">training_loop_with_gradient_accumulation</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">dataloader_sim</span><span class="p">[:</span><span class="mi">12</span><span class="p">],</span> <span class="n">optimizer</span><span class="p">,</span> <span class="n">accumulate_steps</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Gradient accumulation (accumulate_steps=4, micro_batch=8 → effective batch=32):
+  Global step 1: effective batch = 32
+  Global step 2: effective batch = 32
+  Global step 3: effective batch = 32
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="common-interview-questions">
+<h2>Common Interview Questions<a class="headerlink" href="#common-interview-questions" title="Link to this heading">#</a></h2>
+<p><strong>Q: What is DDP and how does it work?</strong>
+Distributed Data Parallel replicates the model on each GPU; each GPU gets a different mini-batch. After backward, AllReduce averages gradients across all GPUs so all replicas apply the same gradient update. This makes DDP equivalent to training with a single GPU but with a mini-batch N times larger (where N is the number of GPUs). Communication happens via NCCL ring-AllReduce.</p>
+<p><strong>Q: When would you use model parallelism instead of data parallelism?</strong>
+When the model itself doesn’t fit in a single GPU’s memory. For models like GPT-4 or LLaMA-70B, even a single copy of parameters exceeds A100 memory. Model parallelism splits layers across GPUs; pipeline parallelism schedules micro-batches to reduce the bubble overhead.</p>
+<p><strong>Q: What is gradient accumulation and why use it?</strong>
+Gradient accumulation simulates a large batch by running multiple forward-backward passes before each optimizer step. This is useful when memory constraints limit batch size: 4 steps × batch 32 = effective batch 128. The key requirement is to divide the loss by the accumulation steps so the gradient scale matches training with the full batch.</p>
+<p><strong>Q: What is mixed precision training, and why does bf16 not need loss scaling?</strong>
+Mixed precision runs the forward and backward passes in 16-bit while keeping an fp32 master copy of the weights for the optimizer update — roughly half the activation memory and much faster matmuls on tensor cores. With <strong>fp16</strong> the problem is dynamic range: only 5 exponent bits, so small gradients underflow to zero. Loss scaling multiplies the loss before backward to shift them into representable range, then unscales before the optimizer step. <strong>bf16</strong> has 8 exponent bits — the same range as fp32 — so underflow doesn’t happen and <strong>loss scaling is unnecessary</strong>. bf16 pays for that with fewer mantissa bits, which matters far less for training stability than the range does. On Ampere-and-newer hardware bf16 is the default and fp16 is the compatibility option.</p>
+</section>
+<section id="key-takeaways">
+<h2>Key Takeaways<a class="headerlink" href="#key-takeaways" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>DDP: replicate model, different data per GPU, AllReduce gradients → equivalent to N× larger batch</p></li>
+<li><p>Model parallelism: for models too large for one GPU — split layers or tensors across GPUs</p></li>
+<li><p>GPU memory = params + grads + optimizer states + activations; Adam doubles memory vs SGD</p></li>
+<li><p>Gradient accumulation: divide loss by accumulate_steps; simulate large batch under memory constraint</p></li>
+<li><p>Mixed precision: prefer bf16 (fp32 exponent range, no loss scaling needed); fp16 requires a GradScaler</p></li>
+<li><p>FSDP is PyTorch’s native ZeRO-style sharding — use it when params + grads + optimizer states exceed one GPU</p></li>
+<li><p>Always checkpoint: model state + optimizer state + scheduler + epoch + RNG state for exact resume</p></li>
+</ul>
+</section>
+</section>
+
+    <script type="text/x-thebe-config">
+    {
+        requestKernel: true,
+        binderOptions: {
+            repo: "binder-examples/jupyter-stacks-datascience",
+            ref: "master",
+        },
+        codeMirrorConfig: {
+            theme: "abcdef",
+            mode: "python"
+        },
+        kernelOptions: {
+            name: "python3",
+            path: "./MLOps"
+        },
+        predefinedOutput: true
+    }
+    </script>
+    <script>kernelName = 'python3'</script>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="mlops1_ml_pipelines.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">ML Pipelines, Reproducibility &amp; Versioning</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="mlops3_model_serving.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Model Serving &amp; Latency Optimization</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2023.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.4.7.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.17.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>
