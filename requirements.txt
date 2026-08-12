@@ -1,22 +1,28 @@
 # CPU-only PyTorch wheel index.
 # NOTE: --extra-index-url only *adds* a source; pip still resolves to the highest
 # version, which is the CUDA build on PyPI. For a guaranteed CPU wheel, pin the
-# +cpu local version (below) or switch to --index-url.
+# +cpu local version or switch to --index-url.
 --extra-index-url https://download.pytorch.org/whl/cpu
 
-# Pinned upper bounds: unpinned installs are what broke the last build.
+# Pinned upper bounds: unpinned installs are what broke an earlier build.
 # numpy 2.0 removed np.trapz; matplotlib 3.11 removed boxplot(labels=).
 numpy>=1.26,<3
 pandas
 matplotlib>=3.9
 scipy
-scikit-learn
+scikit-learn>=1.8     # ML7 uses sklearn.frozen.FrozenEstimator (cv="prefit" was removed)
 torch
-torchvision      # DL7 / P8 / P9 load torchvision.models
-tensorflow-cpu   # TensorFlow Guide (tf1-tf8); -cpu variant keeps the CI install small
+torchvision           # DL7 / P8 / P9 load torchvision.models
+tensorflow-cpu        # TensorFlow appendix (tf1-tf8); -cpu keeps the CI install small
 
-# NOTE: `transformers` is intentionally absent — DL7/P9 only mention it in
-# comments and print statements; nothing imports it at execution time.
+# ML Foundations dependencies
+xgboost               # ML5
+lightgbm              # ML5
+catboost              # ML5
+umap-learn            # ML3
+
+# NOTE: `transformers`/`peft` are intentionally absent — DL7 and llm2 show them in
+# reference code blocks only; nothing imports them at execution time.
 
 # Book build
 jupyter-book<2

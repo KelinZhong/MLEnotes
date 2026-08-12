@@ -1,10 +1,24 @@
 format: jb-book
 root: intro
+
 parts:
-  - caption: Deep Learning Foundations
+  - caption: Part I — ML Foundations
+    chapters:
+      - file: ML Foundations/ML0
+        title: ML Foundations
+        sections:
+          - file: ML Foundations/ML1_how_models_learn
+          - file: ML Foundations/ML2_model_evaluation
+          - file: ML Foundations/ML3_data_preparation
+          - file: ML Foundations/ML4_unsupervised_learning
+          - file: ML Foundations/ML5_tree_based_models
+          - file: ML Foundations/ML6_similarity_boundaries
+          - file: ML Foundations/ML7_metrics_and_imbalance
+
+  - caption: Part II — Deep Learning
     chapters:
       - file: Deep Learning/DL0
-        title: Deep Learning Notes
+        title: Deep Learning
         sections:
           - file: Deep Learning/DL1_how_neural_networks_learn
           - file: Deep Learning/DL2_training_networks_effectively
@@ -14,10 +28,10 @@ parts:
           - file: Deep Learning/DL6_how_attention_works
           - file: Deep Learning/DL7_using_pretrained_models
 
-  - caption: Frameworks
+  - caption: Part III — Building Models in PyTorch
     chapters:
       - file: PyTorch Guide/P0_pytorch
-        title: PyTorch Notes
+        title: PyTorch Guide
         sections:
           - file: PyTorch Guide/P1_pytorch_tensors
           - file: PyTorch Guide/P2_pytorch_autograd
@@ -28,49 +42,9 @@ parts:
           - file: PyTorch Guide/P7_pytorch_debugging
           - file: PyTorch Guide/P8_pytorch_pretrained_models
           - file: PyTorch Guide/P9_pytorch_finetuning
-      - file: TensorFlow Guide/tf0
-        title: TensorFlow Notes
-        sections:
-          - file: TensorFlow Guide/tf1_building_models
-          - file: TensorFlow Guide/tf2_training
-          - file: TensorFlow Guide/tf3_callbacks
-          - file: TensorFlow Guide/tf4_data_pipelines
-          - file: TensorFlow Guide/tf5_cnn
-          - file: TensorFlow Guide/tf6_regularization
-          - file: TensorFlow Guide/tf7_saving_deployment
-          - file: TensorFlow Guide/tf8_pretrained_finetuning
+          - file: PyTorch Guide/P10_pytorch_performance_and_scale
 
-  - caption: Interview Rounds
-    chapters:
-      - file: ML Coding/mlc0
-        title: ML Coding Interview
-        sections:
-          - file: ML Coding/mlc1_numpy_implementations
-          - file: ML Coding/mlc2_classic_algorithms
-          - file: ML Coding/mlc3_neural_nets_from_scratch
-          - file: ML Coding/mlc4_attention_transformer
-          - file: ML Coding/mlc5_metrics_and_losses
-          - file: ML Coding/mlc6_data_processing
-      - file: ML System Design/mlsd0
-        title: ML System Design Interview
-        sections:
-          - file: ML System Design/mlsd1_problem_framing
-          - file: ML System Design/mlsd2_data_and_features
-          - file: ML System Design/mlsd3_model_selection_training
-          - file: ML System Design/mlsd4_serving_and_inference
-          - file: ML System Design/mlsd5_evaluation_and_monitoring
-          - file: ML System Design/mlsd6_case_recommendation
-          - file: ML System Design/mlsd7_case_search_ads
-          - file: ML System Design/mlsd8_case_trust_safety
-          - file: ML System Design/mlsd9_case_llm_application
-      - file: MLE Interview/mle0
-        title: MLE Interview Prep
-        sections:
-          - file: MLE Interview/mle1_project_deep_dive
-          - file: MLE Interview/mle2_tradeoff_questions
-          - file: MLE Interview/mle3_debugging_scenarios
-
-  - caption: Production & LLMs
+  - caption: Part IV — Production ML
     chapters:
       - file: MLOps/mlops0
         title: MLOps
@@ -82,6 +56,9 @@ parts:
           - file: MLOps/mlops5_monitoring_observability
           - file: MLOps/mlops6_testing_ml_systems
           - file: MLOps/mlops7_ml_infra_tools
+
+  - caption: Part V — LLM Engineering
+    chapters:
       - file: LLM Engineering/llm0
         title: LLM Engineering
         sections:
@@ -91,3 +68,50 @@ parts:
           - file: LLM Engineering/llm4_rag_systems
           - file: LLM Engineering/llm5_prompting_agents
           - file: LLM Engineering/llm6_llm_evaluation
+
+  - caption: Part VI — ML System Design
+    chapters:
+      - file: ML System Design/mlsd0
+        title: ML System Design
+        sections:
+          - file: ML System Design/mlsd1_problem_framing
+          - file: ML System Design/mlsd2_data_and_features
+          - file: ML System Design/mlsd3_model_selection_training
+          - file: ML System Design/mlsd4_serving_and_inference
+          - file: ML System Design/mlsd5_evaluation_and_monitoring
+          - file: ML System Design/mlsd6_case_recommendation
+          - file: ML System Design/mlsd7_case_search_ads
+          - file: ML System Design/mlsd8_case_trust_safety
+          - file: ML System Design/mlsd9_case_llm_application
+
+  - caption: Part VII — Interview Preparation
+    chapters:
+      - file: MLE Interview/mle0
+        title: The MLE Interview Loop
+        sections:
+          - file: MLE Interview/mle1_project_deep_dive
+          - file: MLE Interview/mle2_tradeoff_questions
+          - file: MLE Interview/mle3_debugging_scenarios
+      - file: ML Coding/mlc0
+        title: ML Coding Round
+        sections:
+          - file: ML Coding/mlc1_numpy_implementations
+          - file: ML Coding/mlc2_classic_algorithms
+          - file: ML Coding/mlc3_neural_nets_from_scratch
+          - file: ML Coding/mlc4_attention_transformer
+          - file: ML Coding/mlc5_metrics_and_losses
+          - file: ML Coding/mlc6_data_processing
+
+  - caption: Appendix
+    chapters:
+      - file: TensorFlow Guide/tf0
+        title: TensorFlow Guide (reference)
+        sections:
+          - file: TensorFlow Guide/tf1_building_models
+          - file: TensorFlow Guide/tf2_training
+          - file: TensorFlow Guide/tf3_callbacks
+          - file: TensorFlow Guide/tf4_data_pipelines
+          - file: TensorFlow Guide/tf5_cnn
+          - file: TensorFlow Guide/tf6_regularization
+          - file: TensorFlow Guide/tf7_saving_deployment
+          - file: TensorFlow Guide/tf8_pretrained_finetuning
